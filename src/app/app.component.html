@@ -1,0 +1,145 @@
+<!-- Context Menu -->
+<div *ngIf="showContextMenu && !gameIsStopped" 
+     [style.top.px]="contextMenuPosition.y" 
+     [style.left.px]="contextMenuPosition.x" 
+     class="context-menu">
+  <ul>
+    <li *ngIf="!gameIsStopped" (click)="undoLastRoll()">Undo Last Roll</li>
+
+    <li *ngIf="!gameIsStopped" (click)="pauseGame()">Pause Game</li>
+    <li *ngIf="!gameIsStopped" (click)="endGame()">End Game</li>
+
+  </ul>
+</div>
+
+<div *ngIf="gameIsStopped && showGameHistory && !showingTournament">
+  <div class="game-history-index">
+    Game<br/> #{{gameHistoryIndex+1}} of {{gameHistory.length}}
+  </div>
+</div>
+<div *ngIf="gameIsStopped && !showGameHistory && !showingTournament && gameStats.rollHistory.length > 0" class="game-history-index">
+  Game Stats
+</div>
+<div *ngIf="showingTournament && tourneyStats.rollHistory.length > 0" class="game-history-index">
+  Tournament Stats
+</div>
+
+<div class="current-roll">
+  {{ currentRoll }}
+</div>
+
+<!-- main area -->
+<div class="container">
+  <!-- Left column  -->
+  <div class="dice-container">
+    <!-- Dice -->
+    <div class="dice-group">
+      <div class="sub-column">
+        <div *ngFor="let die of dice | slice:0:3" (click)="selectDie(1, die)" class="dice left-column"
+          [class.selected]="selectedDice[0] === die" [class.has-selected]="haveSelectedYellowDie()">
+          {{ die }}
+        </div>
+      </div>
+      <div class="sub-column">
+        <div *ngFor="let die of dice | slice:3:6" (click)="selectDie(1, die)" class="dice left-column"
+          [class.selected]="selectedDice[0] === die" [class.has-selected]="haveSelectedYellowDie()">
+          {{ die }}
+        </div>
+      </div>
+    </div>
+
+    <div class="dice-group">
+      <div class="sub-column">
+        <div *ngFor="let die of dice | slice:0:3" (click)="selectDie(2, die)" class="dice right-column"
+          [class.selected]="selectedDice[1] === die" [class.has-selected]="haveSelectedRedDie()">
+          {{ die }}
+        </div>
+      </div>
+      <div class="sub-column">
+        <div *ngFor="let die of dice | slice:3:6" (click)="selectDie(2, die)" class="dice right-column"
+          [class.selected]="selectedDice[1] === die" [class.has-selected]="haveSelectedRedDie()">
+          {{ die }}
+        </div>
+      </div>
+    </div>
+
+    <!-- store button and some stats -->
+    <div class="store-button-container">
+      <button (click)="storeValues()" [disabled]="(selectedDice[0] == 0 || selectedDice[1] == 0)"
+        class="gradient-btn store-button">
+        Store
+      </button>
+
+      <p class="counter">{{showGamePause ? 'Break Duration' : 'Turn Duration:'}}
+        <br />
+        <span class="counter-val">
+          {{ showingTournament ? tourneyStats.breakDurationDisplay :
+          ( gameIsStopped ? gameStats.breakDurationDisplay :
+          (showGamePause ? breakDurationDisplay : turnDurationDisplay )) }}
+        </span>
+      </p>
+      <p class="counter">Roll Count:
+        <br />
+        <span class="counter-val">{{rollCount()}}</span>
+      </p>
+      <p class="counter">Avg # Rolls between 7s:<br />
+        <span class="counter-val">{{calculateAverageInterval(7)}}</span>
+        <span class="counter-avg">(6.0)</span>
+        <br />
+        <span class="counter-val">{{getBarPercent(7)}}%</span>
+        <span class="counter-avg">(16%)</span>
+      </p>
+
+      <p class="counter">{{showingTournament ? 'Tournament Duration:' : 'Game Duration'}}
+        <br />
+        <span class="counter-val">
+          {{ showingTournament ? tourneyStats.playingDurationDisplay : gameStats.playingDurationDisplay }}
+        </span>
+      </p>
+    </div>
+  </div>
+
+  <div class="toggle-bar" (click)="toggleDiceContainer()">☰</div>
+  
+  <!-- central display : bar chart display showing how many times each number has been rolled -->
+  <div class="bar-container">
+    <div *ngFor="let number of numberRange"> <!--  2 - 12 -->
+      <div class="bar-box">
+        <!-- the # of the die -->
+        <!-- color mapping gives a highlight to show how often this number rolls (red = the most, green = the least) -->
+        <div class="bar-number" [style.boxShadow]="'0 2px 15px 3px ' + colorMappedRolls[number]">
+          {{ number > 0 ? number : '' }}
+        </div>
+
+        <!--  # times this # has rolled -->
+        <div *ngIf="showDieCounts" class="bar-count" style="color: red;">
+          {{ bars[number] <= 0 ? '' : bars[number] }} </div>
+            <!--  % this # has been rolled -->
+            <div *ngIf="!showDieCounts" class="bar-percent" style="color: red;">
+              {{ bars[number] <= 0 ? '0' : getBarPercent(number) }} <div class="percent-sign">%</div>
+        </div>
+
+        <!-- Overlay to display the roll histoy
+          (series of squares representing the rolls, a filled square is when this number rolled, else, some other number rolled) -->
+        <div class="bar-overlay" [style.color]="'white'" [style.font-size.rem]="rollHistorySize"
+          [innerHTML]="getRollHistory(number)" *ngIf="!showingTournament"></div>
+
+        <!-- roll counts in bar chat form -->
+        <div class="bar" 
+        [style.width.%]="barParentWidth > 0 ? ((bars[number] / maxRollCount()) * 100) - (90 / barParentWidth * 100) : 0"
+        [style.background-color]="number == 7 ? 'Red' : 'Blue'">
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- div to block page content while the we are prompting the user (play/resume) --><!-- showPopupMessage|| -->
+<div [ngClass]="(showGamePause) ? 'block-app' : 'normal'" [style.opacity]="blockScreenOpacity"></div>
+
+<button *ngIf="showGamePause" (click)="startResumeGame()" [style.opacity]="resumeButtonOpacity"
+  class="user-message-popup gradient-btn-start store-button" style="color: White;">
+  {{ gameIsStopped ? 'Start New Game' : 'Resume Game' }}
+</button>

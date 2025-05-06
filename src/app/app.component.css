@@ -1,0 +1,534 @@
+/* General page layout */
+body,
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header container spans the top and aligns content inline */
+.header-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #f8f9fa;
+  padding: 10px 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  display: flex;  /* Use flexbox for inline alignment */
+  align-items: center;  /* Vertically center items */
+  justify-content: space-between;  /* Space out items */
+}
+
+.header-container h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+  flex-shrink: 0;  /* Prevent the h1 from shrinking */
+}
+
+.column {
+  display: flex;
+  align-items: center;
+  gap: 10px;  /* Add spacing between controls */
+}
+
+/* Main container layout */
+.container {
+  display: flex;
+  flex-grow: 1;
+  padding: 5px;
+  gap: 20px;
+  /* height: 100%; */
+  max-height: calc(100vh - 30px);  /* set max-height for scrollbar on this area */
+}
+
+/* First div (left column) with fixed width */
+.container>div:first-child {
+  width: 150px;
+  flex-shrink: 0;  /* Prevent shrinking */
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.game-duration {
+  font-size: 24px;
+}
+
+/* Dice group styles */
+.dice-group {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.sub-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dice {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.left-column {
+  background-color: yellow;
+}
+
+.right-column {
+  color: white;
+  background-color: red;
+}
+
+.dice:hover {
+  background-color: #e0e0e0;
+  transform: scale(1.1);
+  color: black;
+  border-color: #35393d;
+}
+
+.dice.selected {
+  border-color: #007bff;
+  background-color: #cce5ff;
+  color: black
+}
+
+.dice.has-selected {
+  opacity: 0.7;
+}
+
+/* Button styles */
+.gradient-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background: linear-gradient(45deg, #007bff, #0056b3);
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.gradient-btn:hover {
+  background: linear-gradient(45deg, #0056b3, #003f7f);
+  transform: scale(1.05);
+}
+
+.gradient-btn-start {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #863add;
+  /* background: linear-gradient(45deg, #9e55f1, #5c00b3); */
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  /* transition: background 0.3s, transform 0.2s; */
+  transition: background 1s, box-shadow 0.3s;
+  box-shadow: 10px 16px 18px rgba(4, 14, 56, 0.4);
+}
+
+.gradient-btn-start:hover {
+  background-color: #810736;
+  box-shadow: 10px 16px 18px rgba(66, 6, 6, 0.4);
+  /* background: linear-gradient(45deg, #074281, #4ca0f3); */
+  /* transform: scale(1.05); */
+}
+
+/* Store button container */
+.store-button-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.store-button {
+  margin-bottom: 10px;
+  background-color: #0b5fb8;
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+/* Counter styles */
+.counter {
+  font-size: 16px;
+  text-align: center;
+}
+
+.counter-val {
+  font-size: 20px;
+  font-weight: bold;
+  color: #007bff;
+}
+
+.row-value {
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.row-label {
+  font-size: 20px;
+  max-width: 80px;
+  font-weight: bold;
+  color: #3d3342;
+}
+
+.counter-avg {
+  font-size: 14px;
+  color: #6c757d;
+  margin-left: 5px
+}
+
+/* Bar container layout */
+.bar-container {
+  display: flex;
+  flex-direction: column;  /* Stack bar-box elements vertically */
+  justify-content: space-between;  /* Distribute bar-box elements evenly */
+  align-items: flex-start;  /* Align items to the left */
+  background-color: #f1f1f1;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  
+  height: calc(100vh - 75px); /* Adjust height to fit below the header */
+
+  overflow-y: auto;  /* Enable vertical scrolling if content overflows */
+  overflow-x: hidden;  /* Hide horizontal overflow */
+}
+
+/* Bar box layout */
+.bar-box {
+  display: flex;
+  align-items: center;  /* Align bar-number and bar horizontally */
+  width: calc(100vw - 220px);  /* Ensure bars stretch horizontally */
+  flex-grow: 1;  /* Allow bar-box to grow and fill vertical space proportionally */
+  position: relative;  /* For overlay positioning */
+  margin-bottom: 10px;  /* Add spacing between rows */
+}
+
+/* Bar number (vertical labels) */
+.bar-number {
+  font-size: 34px;
+  font-weight: bold;
+  margin-right: 10px;  /* Add spacing between the number and the bar */
+  width: 35px;  /* Fixed width for alignment */
+  text-align: center;  /* Align text to the right */
+}
+
+/* Bar styles */
+.bar {
+  height: calc((100vh - 240px)/11);  /* Adjust height to fit below the header */
+  min-height: 40px;
+  border-radius: 5px;
+  transition: width 0.3s;
+}
+
+/* Bar overlay */
+.bar-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin-left: 90px;
+  height: 100%;  /* Use all available vertical space */
+  width: 100%;  /* Cover the entire bar */
+  pointer-events: none;  /* Prevent interaction */
+  mix-blend-mode: difference;  /* Contrast the background */
+
+  white-space: normal;  /* Allow text to wrap to the next line */
+  word-wrap: break-word;  /* Break long words if necessary */
+  overflow-wrap: break-word;  /* Ensure compatibility for breaking long words */
+  text-align: left;  /* Left-align the text */
+  display: block;  /* Ensure the overlay behaves as a block element */
+  align-items: center;  /* Vertically center the text */
+  justify-content: flex-start;  /* Align text to the left */
+
+  padding-right: 50px;  /* Add padding for spacing */
+  box-sizing: border-box;  /* Include padding in the element's width */
+
+  line-height: 0.6;  /* Reduce space between lines : 1.0 = size of font*/
+}
+
+@keyframes slide-in {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
+.bar-count {
+  font-size: 34px;
+  color: red;
+  width: 35px;
+  height: 35px;  /* Add height to make it a square */
+  display: flex;  /* Use flexbox for centering */
+  align-items: center;  /* Vertically center the content */
+  justify-content: center;  /* Horizontally center the content */
+  text-align: center;  /* Ensure text alignment */
+}
+
+.bar-percent {
+  font-size: 24px;  /* Large font size for the number */
+  color: red;  /* Red color for the number */
+  display: inline-flex;  /* Use inline-flex to keep the number and % sign close */
+  align-items: flex-start;  /* Align the % sign properly */
+}
+
+.percent-sign {
+  font-size: 14px;  /* Smaller font size for the % sign */
+  vertical-align: super;  /* Superscript alignment */
+  color: black;  /* Black color for the % sign */
+  margin-right: 5px;
+}
+
+/* Block app overlay */
+.block-app {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.normal {
+  display: none;
+}
+
+.user-message-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* background-color: #21b43a; */
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  z-index: 1100;
+}
+
+/* .user-message-popup:hover {
+  background-color: #0056b3;
+} */
+
+/* Menu container */
+.menu {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  width: 20px;
+  height: 20px;
+  /* background-color: #abb8c5; */
+  color: white;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  overflow: hidden;
+  transition: width 0.3s, height 0.3s;
+  z-index: 100;
+}
+
+/* Menu expands on hover */
+.menu:hover {
+  width: 180px;
+  height: auto;
+}
+
+/* Menu header (icon) */
+.menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  height: 20px;
+  background-color: #8da8c5;
+}
+
+/* Menu content (hidden by default) */
+.menu-content {
+  display: none;
+  padding: 10px;
+  background-color: #a9b4c0;
+}
+
+/* Show menu content on hover */
+.menu:hover .menu-content {
+  display: block;
+}
+
+/* Menu list styles */
+.menu-content ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menu-content li {
+  margin: 10px 0;
+}
+
+.menu-content a {
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.menu-content a:hover {
+  text-decoration: underline;
+}
+
+.context-menu {
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  z-index: 2000;
+  width: 150px;
+  padding: 5px 0;
+  background-color: #fdfdfd;
+  color: black;
+}
+
+.context-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.context-menu li {
+  padding: 8px 12px;
+  cursor: pointer;
+  position: relative;  /* For sub-menu positioning */
+}
+
+.context-menu li:hover {
+  background-color: #bdbaba;
+}
+
+.context-menu .sub-menu li:hover {
+  background-color: #dfdede;
+}
+
+.context-menu .sub-menu {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 100%;  /* Position the sub-menu to the right of the parent menu */
+  background-color: white;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  z-index: 2001;  /* Ensure the sub-menu is above the parent menu */
+}
+
+.context-menu li:hover .sub-menu {
+  z-index: 2001;
+  display: block;  /* Show the sub-menu on hover */
+  background-color: #f0f0f0;  /* Light gray on hover */
+}
+
+/* Prevent the parent menu from losing hover state */
+.context-menu li:hover {
+  background-color: #f0f0f0;
+}
+
+.current-roll {
+  font-size: min(75vh, 75vw);
+  font-weight: bold;
+  color: rgba(172, 34, 161, 0.5);  /* Black color with 10% opacity */
+  -webkit-text-stroke: 2px black;  /* Outline color and thickness */
+  text-align: center;  /* Center the text horizontally */
+  position: absolute;  /* Position it relative to the screen */
+  top: 50%;  /* Center vertically */
+  left: 50%;  /* Center horizontally */
+  transform: translate(-50%, -50%);  /* Adjust for perfect centering */
+  pointer-events: none;  /* Prevent interaction with the number */
+  z-index: 1002;
+}
+
+.game-history-index {
+  font-size: 20vh;
+  font-weight: bold;
+  color: rgba(82, 46, 150, 0.397);  /* Black color with 10% opacity */
+  /* mix-blend-mode: hard-light; */
+  mix-blend-mode: unset;
+  -webkit-text-stroke: 2px black;  /* Outline color and thickness */
+  text-align: center;  /* Center the text horizontally */
+  position: absolute;  /* Position it relative to the screen */
+  top: 50%;  /* Center vertically */
+  left: 50%;  /* Center horizontally */
+  transform: translate(-50%, -50%);  /* Adjust for perfect centering */
+  pointer-events: none;  /* Prevent interaction with the number */
+  z-index: 1002;
+}
+
+.dice-container {
+  max-height: 100%;  /* Default: take up available height */
+  overflow-y: auto;  /* Enable vertical scrolling if content overflows */
+  transition: transform 0.3s ease-in-out;  /* Smooth slide-in/out animation */
+}
+
+/* Toggle bar to show/hide dice area in mobile view */
+.toggle-bar {
+  position: fixed;
+  top: 5px;    /* Position at the top-left of the screen */
+  left: 5px;
+  background-color: #007bff;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  z-index: 1001;    /* Ensure it appears above other content */
+  display: none;    /* Hide by default */
+}
+
+  /* Hide dice-container on smaller screens */
+@media (max-width: 768px) {
+  .dice-container {
+    transform: translateX(-100%);    /* Slide out of view to the left */
+    position: fixed;    /* Fix it to the side of the screen */
+    margin-top: 15px;
+    top: 0;
+    left: 0;
+    height: 100%;    /* Full height */
+    width: 250px;    /* Set a fixed width for the container */
+    background-color: #f1f1f1;    /* Background color for the container */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);    /* Add a shadow for better visibility */
+    z-index: 1000;    /* Ensure it appears above other content */
+  }
+
+  .dice-container.visible {
+    transform: translateX(0);    /* Slide into view */
+  }
+
+  /* Show toggle-bar only when dice-container is hidden */
+  .dice-container:not(.visible)+.toggle-bar {
+    display: block;    /* Show the toggle-bar */
+  }
+
+  .dice-container.visible {
+    transform: translateX(0);    /* Slide into view */
+  }
+}
