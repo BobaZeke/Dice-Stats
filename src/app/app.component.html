@@ -6,9 +6,29 @@
   <ul>
     <li *ngIf="!gameIsStopped" (click)="undoLastRoll()">Undo Last Roll</li>
 
+    <li class="menu-separator"></li>
+    
     <li *ngIf="!gameIsStopped" (click)="pauseGame()">Pause Game</li>
     <li *ngIf="!gameIsStopped" (click)="endGame()">End Game</li>
 
+    <li class="menu-separator"></li>
+    
+    <!-- menu item for Roll Frequency Color Option -->
+    <li>
+      Roll Frequency Color Option
+      <ul>
+        <li 
+          (click)="setColorOption('density')" 
+          [class.selected]="colorOption === 'density'">
+          Change Density
+        </li>
+        <li 
+          (click)="setColorOption('color')" 
+          [class.selected]="colorOption === 'color'">
+          Change Color
+        </li>
+      </ul>
+    </li>
   </ul>
 </div>
 

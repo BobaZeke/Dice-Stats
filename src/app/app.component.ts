@@ -134,6 +134,8 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   public barParentWidth: number = 1; // Default value to prevent division by zero
   
+  public colorOption: 'density' | 'color' = 'density'; // Default option
+  
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   constructor(private cdr: ChangeDetectorRef) {}
@@ -440,7 +442,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   private updateDisplay() {
     this.updateBars();
-    this.mapRollsToColors();
+    this.mapRollFrequencyColor();
   }
   /**
    * update the bar chart data (tracks how many times a number has rolled)
@@ -610,11 +612,61 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   private clearMappedColors() {
-    this.colorMappedRolls = { 
-      2: "#FFFFFF", 3: "#FFFFFF", 4: "#FFFFFF", 5: "#FFFFFF", 6: "#FFFFFF",
-      7: "#FFFFFF", 8: "#FFFFFF", 9: "#FFFFFF", 10: "#FFFFFF", 11: "#FFFFFF", 12: "#FFFFFF"
-    };
+    // Reset the density-based coloring logic
+    // if (this.colorOption === 'density') {
+      // this.colorMappedRolls = Object.keys(this.gameStats.rolls).reduce((acc: { [key: string]: string }, key) => {
+      //   acc[key] = `rgba(0, 255, 0, 0)`; // Reset to transparent green
+      //   return acc;
+      // }, {});
+    // }
+
+    // if (this.colorOption === 'density') {
+    //   this.colorMappedRolls = { 
+    //     2: "rgba(0, 255, 0, 0)", 3: "rgba(0, 255, 0, 0)", 4: "rgba(0, 255, 0, 0)", 5: "rgba(0, 255, 0, 0)", 6: "rgba(0, 255, 0, 0)",
+    //     7: "rgba(0, 255, 0, 0)", 8: "rgba(0, 255, 0, 0)", 9: "rgba(0, 255, 0, 0)", 10: "rgba(0, 255, 0, 0)", 11: "rgba(0, 255, 0, 0)", 12: "rgba(0, 255, 0, 0)"
+    //   };
+    // } else {
+      this.colorMappedRolls = { 
+        2: "#FFFFFF", 3: "#FFFFFF", 4: "#FFFFFF", 5: "#FFFFFF", 6: "#FFFFFF",
+        7: "#FFFFFF", 8: "#FFFFFF", 9: "#FFFFFF", 10: "#FFFFFF", 11: "#FFFFFF", 12: "#FFFFFF"
+      };
+    // }
   }
+
+  /**
+   * Set the roll frequency color option
+   * @param option 'density' or 'color'
+   */
+  setColorOption(option: 'density' | 'color'): void {
+    this.colorOption = option;
+    this.mapRollFrequencyColor();
+  }
+
+  mapRollFrequencyColor() {    
+    if(this.rollCount() <= 0) { //  no rolls to process
+      this.clearMappedColors(); // Reset the colors before mapping
+      return;
+    }
+    if (this.colorOption === 'density') {
+      // Logic for single color with changing density
+      this.mapRollsToDensity();
+    } else if (this.colorOption === 'color') {
+      // Logic for changing colors
+      this.mapRollsToColors();
+    }
+  }
+
+  /**
+   * Map rolls to a single color with changing density
+   */
+    private mapRollsToDensity(): void {
+      // Example logic for density-based coloring
+      this.colorMappedRolls = Object.keys(this.gameStats.rolls).reduce((acc: { [key: string]: string }, key) => {
+        const density = Math.min(255, Math.floor((this.gameStats.rolls[Number(key)] / this.maxRollCount()) * 255));
+        acc[key] = `rgba(0, ${density}, 0, ${density / 255})`; // Green with varying intensity and opacity
+        return acc;
+      }, {});
+    }
 
   /**
    * Function to map roll counts to a gradient of colors which depict how often each number rolls
@@ -629,20 +681,13 @@ export class AppComponent implements OnInit, AfterViewInit {
     const rollKeys = Object.keys(this.gameStats.rolls).map(Number);
 
     if(rollKeys.length <= 0) {  //  no rolls to process
-      // if(this.gameIsStopped) return;   //  keep default init colors
-
-      // //  reset roll highlighting to white / none
-      // this.clearMappedColors();
-      
       return;
     }
-
 
     // Find the maximum and minimum frequencies
     const frequencies = Object.values(this.gameStats.rolls);
     const maxFrequency = Math.max(...frequencies);
     const minFrequency = Math.min(...frequencies);
-
 
     // Calculate colors based on frequency
     rollKeys.forEach((roll) => {

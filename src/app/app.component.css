@@ -404,54 +404,65 @@ html {
   position: absolute;
   background-color: white;
   border: 1px solid #ccc;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 100px rgba(0, 0, 0, 0.7); /* Add a subtle drop shadow */
   z-index: 2000;
   width: 150px;
   padding: 5px 0;
   background-color: #fdfdfd;
   color: black;
+  border-radius: 5px; /* Optional: Add rounded corners for a modern look */
 }
 
 .context-menu ul {
   list-style: none;
   margin: 0;
   padding: 0;
+  position: relative;
 }
 
-.context-menu li {
-  padding: 8px 12px;
+.context-menu ul li {
+  padding: 5px 10px;
   cursor: pointer;
-  position: relative;  /* For sub-menu positioning */
+  position: relative;
 }
 
-.context-menu li:hover {
-  background-color: #bdbaba;
+.context-menu ul li:hover {
+  background-color: #f0f0f0;
 }
 
-.context-menu .sub-menu li:hover {
-  background-color: #dfdede;
-}
-
-.context-menu .sub-menu {
+.context-menu ul li ul {
   display: none;
   position: absolute;
+  left: 100%;
   top: 0;
-  left: 100%;  /* Position the sub-menu to the right of the parent menu */
   background-color: white;
   border: 1px solid #ccc;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  z-index: 2001;  /* Ensure the sub-menu is above the parent menu */
+  z-index: 1000;
+  min-width: 150px; /* Ensure the sub-menu has a consistent width */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Add a subtle shadow for better visibility */
 }
 
-.context-menu li:hover .sub-menu {
-  z-index: 2001;
-  display: block;  /* Show the sub-menu on hover */
-  background-color: #f0f0f0;  /* Light gray on hover */
+.context-menu ul li:hover ul {
+  display: block;
 }
 
-/* Prevent the parent menu from losing hover state */
-.context-menu li:hover {
-  background-color: #f0f0f0;
+.context-menu ul li ul li.selected {
+  background-color: #007bff; /* Highlight color (blue) */
+  color: white; /* Text color for better contrast */ 
+}
+
+.context-menu .menu-separator {
+  height: 0.5px; /* Make the separator thinner */
+  background-color: #ccc; /* Light gray color */
+  margin: 5px 0; /* Add spacing above and below the separator */
+  list-style: none; /* Remove bullet point styling */
+  display: block; /* Ensure it behaves as a block element */
+  pointer-events: none; /* Prevent hover or interaction */
+}
+
+.context-menu .menu-separator:hover {
+  background-color: #ccc; /* Keep the original color */
+  cursor: default; /* Change the cursor to default (not clickable) */
 }
 
 .current-roll {
