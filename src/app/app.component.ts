@@ -233,7 +233,6 @@ export class AppComponent implements OnInit, AfterViewInit {
       this.updateGameBreakTotal(0);
 
       this.clearMappedColors();
-      this.updateDisplay();
     }
 
     //  restart the game timer (we saved off the duration @ pause)
@@ -339,9 +338,9 @@ export class AppComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    if (!this.showingTournament && (event.key == 'ArrowRight' || event.key == 'ArrowLeft')) {
+    if (!this.showingTournament && event.key.includes('Arrow')) {
       if (this.showGameHistory) {
-        this.gameHistoryIndex += event.key == 'ArrowRight' ? +1 : -1;
+        this.gameHistoryIndex += (event.key == 'ArrowRight' || event.key == 'ArrowUp') ? +1 : -1;
         if (this.gameHistoryIndex >= this.gameHistory.length) this.gameHistoryIndex = 0;
         if (this.gameHistoryIndex < 0) this.gameHistoryIndex = this.gameHistory.length - 1;
   
@@ -349,7 +348,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   
         this.updateDisplay();
       } else {  //  change the roll history size
-        this.rollHistorySize += event.key == 'ArrowRight' ? +0.5 : -0.5;
+        this.rollHistorySize += (event.key == 'ArrowRight' || event.key == 'ArrowUp') ? +0.5 : -0.5;
         if (this.rollHistorySize <= 0) this.rollHistorySize = 0.5;
         if (this.rollHistorySize >= 10) this.rollHistorySize = 10;
       }
@@ -360,6 +359,8 @@ export class AppComponent implements OnInit, AfterViewInit {
     if (this.showGamePause) {
       return;
     }
+
+    this.currentRoll = null; //  reset current roll value
 
     if (event.key == 'Enter') {
       this.closeTournamentDisplay(); //  close tournament display if open
@@ -377,7 +378,6 @@ export class AppComponent implements OnInit, AfterViewInit {
       if (this.keystrokeCount >= 2) this.keystrokeCount = 0;
     }
 
-    this.currentRoll = null; //  reset current roll value
     //  if we have two dice selected, calculate the current roll value
     //  (this is done in the storeValues() function, but we need it here to update the display)
     if ((this.selectedDice[0] > 0 && this.selectedDice[1] > 0)) {
@@ -536,8 +536,20 @@ export class AppComponent implements OnInit, AfterViewInit {
   //#endregion
   //#region Calculators           //    //    //    //    //    //    //
 
+  /**
+   * 
+   * @returns Count of total rolls this game
+   */
   rollCount() {
     return this.gameStats.rollHistory.length;
+  }
+
+  /**
+   * Determines which roll has happened the most in the tournament (used to calculate bar lengths for the red bar).
+   * @returns Maximum roll count in the tournament
+   */
+  maxRollCountTourney(): number {
+    return Math.max(...Object.values(this.tourneyStats.rolls));
   }
 
   /**
@@ -592,8 +604,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   getBarPercent(num: number): number {
     if (this.bars[num] <= 0) return 0;
 
-    const perc = (this.bars[num] / this.rollCount()) * 100;
-    //const perc = (this.bars[num] / this.maxRollCount()) * 100;
+    const perc = (this.bars[num] / this.rollCount()) * 100; // % of total rolls
 
     return Math.trunc(perc);
   }

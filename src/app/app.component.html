@@ -17,12 +17,17 @@
     Game<br/> #{{gameHistoryIndex+1}} of {{gameHistory.length}}
   </div>
 </div>
+
 <div *ngIf="gameIsStopped && !showGameHistory && !showingTournament && gameStats.rollHistory.length > 0" class="game-history-index">
   Game Stats
 </div>
 <div *ngIf="showingTournament && tourneyStats.rollHistory.length > 0" class="game-history-index">
   Tournament Stats
 </div>
+
+<!-- <div *ngIf="!this.showDieCounts" class="game-history-index">
+  %
+</div> -->
 
 <div class="current-roll">
   {{ currentRoll }}
@@ -110,12 +115,14 @@
         <div class="bar-number" [style.boxShadow]="'0 2px 15px 3px ' + colorMappedRolls[number]">
           {{ number > 0 ? number : '' }}
         </div>
-
+        
         <!--  # times this # has rolled -->
         <div *ngIf="showDieCounts" class="bar-count" style="color: red;">
-          {{ bars[number] <= 0 ? '' : bars[number] }} </div>
+          {{ bars[number] <= 0 ? '0' : bars[number] }} </div>
             <!--  % this # has been rolled -->
-            <div *ngIf="!showDieCounts" class="bar-percent" style="color: red;">
+            <!-- <div *ngIf="!showDieCounts" class="bar-percent" style="color: red;">
+              {{ bars[number] <= 0 ? '0' : getBarPercent(number) }} <div class="percent-sign">%</div> -->
+            <div *ngIf="!showDieCounts" class="bar-count" style="color: red;">
               {{ bars[number] <= 0 ? '0' : getBarPercent(number) }} <div class="percent-sign">%</div>
         </div>
 
@@ -126,8 +133,18 @@
 
         <!-- roll counts in bar chat form -->
         <div class="bar" 
-        [style.width.%]="barParentWidth > 0 ? ((bars[number] / maxRollCount()) * 100) - (90 / barParentWidth * 100) : 0"
+        [style.width.%]="barParentWidth > 0 && bars[number] > 0 
+          ? ((bars[number] / maxRollCount()) * 100) - (43 / barParentWidth * 100) 
+          : 0"
         [style.background-color]="number == 7 ? 'Red' : 'Blue'">
+        </div>
+
+        <!-- The red bar for tournament roll frequency -->
+        <div *ngIf="!showingTournament"
+          class="tournament-bar" 
+          [style.width.%]="barParentWidth > 0 && tourneyStats.rolls[number] > 0 
+            ? ((tourneyStats.rolls[number] / maxRollCountTourney()) * 100) - (43 / barParentWidth * 100) 
+            : 0">
         </div>
 
       </div>
