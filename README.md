@@ -1,6 +1,6 @@
 # DiceStats
 
-This application is intended to be used with board games that utilize dice.
+This Angular application is intended to be used with board games that utilize dice.
 
 The application allows the user to enter the dice rolled (two, six sided dice currently) by clicking dice buttons or using the keyboard.
 
@@ -17,6 +17,8 @@ The user can toggle between count stats and % stats by pressing the shift key.
 The user can toggle between game stats and tournament stats by pressing the control key.
 
 While paused, the mouse scroll wheel controls the overlay opacity allowing the user to more easily see the stats while paused.
+
+This application does not utilize any external resources (no databases, no web services, etc.).
 
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.1.5.
