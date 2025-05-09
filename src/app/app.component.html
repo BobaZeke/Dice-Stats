@@ -1,6 +1,6 @@
 <!-- Context Menu -->
-<div *ngIf="showContextMenu" class="context-menu" 
-[style.top.px]="contextMenuPosition.y" [style.left.px]="contextMenuPosition.x">
+<div *ngIf="showContextMenu" class="context-menu" [style.top.px]="contextMenuPosition.y"
+  [style.left.px]="contextMenuPosition.x">
   <ul>
     <li *ngIf="!gameIsStopped" (click)="undoLastRoll()">Undo Last Roll</li>
 
@@ -26,11 +26,11 @@
     <li class="menu-separator"></li>
     <li (click)="showHelp()">Help</li>
     <li class="menu-separator"></li>
-    <li  (click)="showTooltips = !showTooltips">{{showTooltips ? 'Hide' : 'Show'}} Tooltips</li>
-    
+    <li (click)="showTooltips = !showTooltips">{{showTooltips ? 'Hide' : 'Show'}} Tooltips</li>
   </ul>
 </div>
 
+<!-- Headings -->
 <div *ngIf="gameIsStopped && showGameHistory && !showingTournament">
   <div class="game-history-index">
     Game<br /> #{{gameHistoryIndex+1}} of {{gameHistory.length}}
@@ -91,20 +91,19 @@
         Store
       </button>
 
-      <p class="counter"
-        [title]="!showTooltips ? '' : tooltipTurnDuration">
-        {{showGamePause ? 'Break Duration' : 'Turn Duration:'}}        
+      <p class="counter" [title]="!showTooltips ? '' : tooltipTurnDuration">
+        {{showGamePause ? 'Break Duration' : 'Turn Duration:'}}
         <span class="counter-val">
-          {{ 
-          showingTournament 
-          ? tourneyStats.breakDurationDisplay 
-          : ( gameIsStopped 
-            ? gameStats.breakDurationDisplay 
-            : ( showGamePause 
-              ? breakDurationDisplay 
-              : turnDurationDisplay 
+          {{
+          showingTournament
+            ? tourneyStats.breakDurationDisplay
+            : ( gameIsStopped
+              ? gameStats.breakDurationDisplay
+              : ( showGamePause
+                ? breakDurationDisplay
+                : turnDurationDisplay
+                )
               )
-            ) 
           }}
         </span>
       </p>
@@ -120,7 +119,8 @@
         <span class="counter-avg">(16%)</span>
       </p>
 
-      <p class="counter" [title]="!showTooltips ? '' : (showingTournament ? tooltipTournamentDuration: tooltipGameDuration)">
+      <p class="counter"
+        [title]="!showTooltips ? '' : (showingTournament ? tooltipTournamentDuration: tooltipGameDuration)">
         {{showingTournament ? 'Tournament Duration:' : 'Game Duration'}}
         <br />
         <span class="counter-val">
@@ -142,18 +142,25 @@
           [style.boxShadow]="'0 2px 15px 3px ' + colorMappedRolls[number]">
           {{ number > 0 ? number : '' }}
         </div>
+        <!-- Trend indicator -->
+        <div class="trend-indicator" [title]="getTrendTooltip(number)" [class.rising]="isNumberRising(number)"
+          [class.falling]="!isNumberRising(number)">
+          {{ isNumberRising(number) ? '▲' : '▼' }}
+        </div>
 
         <!--  # times this # has rolled -->
-        <div class="bar-count" *ngIf="showDieCounts" [title]="!showTooltips ? '' : tooltipRollFrequency" style="color: red;">
+        <div class="bar-count" *ngIf="showDieCounts" [title]="!showTooltips ? '' : tooltipRollFrequency"
+          style="color: red;">
           {{ bars[number] <= 0 ? '0' : bars[number] }} </div>
-            <div *ngIf="!showDieCounts" [title]="!showTooltips ? '' : tooltipRollPercent" class="bar-count" style="color: red;">
+            <div *ngIf="!showDieCounts" [title]="!showTooltips ? '' : tooltipRollPercent" class="bar-count"
+              style="color: red;">
               {{ bars[number] <= 0 ? '0' : getBarPercent(number) }} <div class="percent-sign">%</div>
         </div>
 
         <!-- Overlay to display the roll histoy
           (series of squares representing the rolls, a filled square is when this number rolled, else, some other number rolled) -->
-        <div class="bar-overlay" *ngIf="!showingTournament" [title]="!showTooltips ? '' : tooltipRollHistory" [style.color]="'white'"
-          [style.font-size.rem]="rollHistorySize">
+        <div class="bar-overlay" *ngIf="!showingTournament" [title]="!showTooltips ? '' : tooltipRollHistory"
+          [style.color]="'white'" [style.font-size.rem]="rollHistorySize">
           <span [title]="!showTooltips ? '' : tooltipRollHistory" [innerHTML]="getRollHistory(number)"></span>
         </div>
 
@@ -181,7 +188,7 @@
 
 <button *ngIf="showGamePause && !showHelpDialog" (click)="startResumeGame()" [style.opacity]="resumeButtonOpacity"
   class="user-message-popup gradient-btn-start store-button" style="color: White;"
-   [title]="!showTooltips ? '' : tooltipOpacity">
+  [title]="!showTooltips ? '' : tooltipOpacity">
   {{ gameIsStopped ? 'Start New Game' : 'Resume Game' }}
 </button>
 

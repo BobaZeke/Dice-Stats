@@ -551,3 +551,22 @@ html {
   z-index: 1; /* Ensure it appears above the blue bar */
   border-radius: 5px; /* Match the blue bar's border radius */
 }
+
+.trend-indicator {
+  position: absolute; /* Position relative to the container */
+  top: 0; /* Align to the top of the bar-number */
+  left: 0%; /* Center horizontally */
+  transform: translateX(-50%); /* Adjust for perfect centering */
+  font-size: 16px;
+  font-weight: bold;
+  color: gray; /* Default color */
+  cursor: default;
+}
+
+.trend-indicator.rising {
+  color: green; /* Green for rising numbers */
+}
+
+.trend-indicator.falling {
+  color: red; /* Red for falling numbers */
+}

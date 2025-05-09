@@ -28,7 +28,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   public gameHistory: PlayStats[] = []; //  game history object
 
   // temp variable for swapping game, tourney, and history display
-  private saveStats: PlayStats = new PlayStats(); 
+  private saveStats: PlayStats = new PlayStats();
 
   /** tracks the person's turn duration */
   public turnDurationDisplay: string = this.defaultEmptyTime;
@@ -129,13 +129,13 @@ export class AppComponent implements OnInit, AfterViewInit {
   //  variables for 'game history' display
   public showGameHistory = false;
   public gameHistoryIndex: number = 0;
-  
+
   public isDiceContainerVisible: boolean = false;
 
   public barParentWidth: number = 1; // Default value to prevent division by zero
-  
+
   public colorOption: 'density' | 'color' = 'density'; // Default option
-  
+
   public showHelpDialog: boolean = false; // Flag to control the visibility of the help popup
 
   public showTooltips: boolean = true; // Flag to control the visibility of the tooltips  
@@ -144,8 +144,8 @@ export class AppComponent implements OnInit, AfterViewInit {
   public tooltipRollHistory: string = "Roll History.  Use arrow keys to change size";
   public tooltipTournamentBar: string = "Frequency of this number rolling in the tournament";
   public tooltipRollNumber: string = "Dice Roll";
-  public tooltipRollFrequency: string = "Number of times this number has rolled.  Use Shift to show percentages."; 
-  public tooltipRollPercent: string = "Percent of times this number has rolled.  Use Shift to show counts."; 
+  public tooltipRollFrequency: string = "Number of times this number has rolled.  Use Shift to show percentages.";
+  public tooltipRollPercent: string = "Percent of times this number has rolled.  Use Shift to show counts.";
   public tooltipStore: string = "Store the selected dice values";
   public tooltipTurnDuration: string = "How long this turn has lasted";
   public tooltipBreakDuration: string = "How long this break has lasted";
@@ -155,8 +155,8 @@ export class AppComponent implements OnInit, AfterViewInit {
   public tooltipOpacity: string = "Use Mouse Scroll to adjust the visibility";
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  constructor(private cdr: ChangeDetectorRef) {}
-  
+  constructor(private cdr: ChangeDetectorRef) { }
+
   ngOnInit() {
     this.endGame();
   }
@@ -180,10 +180,10 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     //  save the current game stats to history
     if (this.gameStats.rollHistory.length > 0) {
-        this.gameHistory.push(this.gameStats);
-        this.gameHistoryIndex = this.gameHistory.length - 1; //  set to the last index (current game)
-        this.gameStats = this.gameHistory[this.gameHistoryIndex]; //  set to this game (from history)
-        this.showGameHistory = true;
+      this.gameHistory.push(this.gameStats);
+      this.gameHistoryIndex = this.gameHistory.length - 1; //  set to the last index (current game)
+      this.gameStats = this.gameHistory[this.gameHistoryIndex]; //  set to this game (from history)
+      this.showGameHistory = true;
     }
 
     this.selectedDice = [0, 0];
@@ -240,7 +240,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       this.gameStats.breakDurationDisplay = this.defaultEmptyTime;
       this.gameStats.playingDurationDisplay = this.defaultEmptyTime;
 
-      if(this.tourneyStats.rollHistory.length == 0) { //  no history, so init
+      if (this.tourneyStats.rollHistory.length == 0) { //  no history, so init
         this.tourneyStats = new PlayStats();
         this.tourneyStats.breakDurationDisplay = this.defaultEmptyTime;
         this.tourneyStats.playingDurationDisplay = this.defaultEmptyTime;
@@ -248,7 +248,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
       this.savedGameDuration = 0;
       this.gameIsStopped = false;
-      
+
       this.updateGameBreakTotal(0);
 
       this.clearMappedColors();
@@ -277,7 +277,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     const activeElement = document.activeElement as HTMLElement; // Type assertion
     activeElement?.blur(); // Call blur() safely
   }
-  
+
   /**
    * track window resize so we can track the bar parent's width
    * @param event 
@@ -305,13 +305,13 @@ export class AppComponent implements OnInit, AfterViewInit {
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     this.showContextMenu = false;
-    
+
     if (this.skipNext) {
       this.skipNext = false;
       return;
     }
-    
-    if(this.isDiceContainerVisible) this.toggleDiceContainer(); //  close dice container if open
+
+    if (this.isDiceContainerVisible) this.toggleDiceContainer(); //  close dice container if open
 
     // if (this.showPopupMessage) { //  close popup for any click
     //   this.showPopupMessage = false;
@@ -356,12 +356,12 @@ export class AppComponent implements OnInit, AfterViewInit {
       this.toggleTournamentDisplay();
       return;
     }
-    if(event.key == 'F1') {
+    if (event.key == 'F1') {
       event.preventDefault(); // Prevent the default behavior of the key
       this.showHelp();
       return;
-    } 
-    
+    }
+
     if (event.key == 'Escape' && this.showHelpDialog) {
       this.showHelpDialog = false; // Close the help dialog
       return;
@@ -379,9 +379,9 @@ export class AppComponent implements OnInit, AfterViewInit {
         this.gameHistoryIndex += (event.key == 'ArrowRight' || event.key == 'ArrowUp') ? +1 : -1;
         if (this.gameHistoryIndex >= this.gameHistory.length) this.gameHistoryIndex = 0;
         if (this.gameHistoryIndex < 0) this.gameHistoryIndex = this.gameHistory.length - 1;
-  
+
         this.gameStats = this.gameHistory[this.gameHistoryIndex];
-  
+
         this.updateDisplay();
       } else {  //  change the roll history size
         this.rollHistorySize += (event.key == 'ArrowRight' || event.key == 'ArrowUp') ? +0.5 : -0.5;
@@ -527,17 +527,17 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   closeTournamentDisplay() {
-    if(this.showingTournament) this.toggleTournamentDisplay(); //  close tournament display if open
+    if (this.showingTournament) this.toggleTournamentDisplay(); //  close tournament display if open
   }
   toggleTournamentDisplay() {
     this.showingTournament = !this.showingTournament;
 
-    if(this.gameIsStopped) { //  game is stopped, so we need to toggle between history and tournament
+    if (this.gameIsStopped) { //  game is stopped, so we need to toggle between history and tournament
       if (this.showingTournament) {
         this.gameStats = this.tourneyStats;
       } else {
         this.gameStats = this.gameHistory[this.gameHistoryIndex];
-      } 
+      }
     } else {  //  game is in progress, so we need to save the current game values, then toggle between game and tournament
       if (this.showingTournament) {
         //  save the current game values
@@ -569,12 +569,62 @@ export class AppComponent implements OnInit, AfterViewInit {
     else {
       this.gameStats = this.saveStats;
     }
-    
+
     this.updateDisplay();
   }
 
   //#endregion
   //#region Calculators           //    //    //    //    //    //    //
+  /**
+   * Determines if a number is on the rise or falling off.
+   * @param number The number to check.
+   * @returns True if the number is on the rise, false otherwise.
+   */
+  isNumberRising(number: number): boolean {
+    const rollCount = this.tourneyStats.rollHistory.length;  // use the  stats from all night (not just this game)
+    if (rollCount <= 0) return false; // No rolls to process
+
+    //  determine how many recent rolls to review...
+    let inspectCount = rollCount * 0.25;  //    0.1;
+    if (inspectCount < 1) { //  if less than 1, use half the rolls
+      inspectCount = Math.ceil(rollCount / 2);  //  round up
+      if (inspectCount < 1) inspectCount = 1;
+    }
+    inspectCount = Math.ceil(inspectCount); //  round up to the next whole number
+
+    //  analyze the data and compare the recent rolls to the historical average
+    const recentRolls = this.getRecentRolls(number, inspectCount);
+
+    var hitCount = recentRolls.reduce((sum, roll) => sum + roll, 0);
+    const recentAverage = hitCount / recentRolls.length;
+
+    const historicalAverage = this.tourneyStats.rolls[number] / rollCount;
+
+    return recentAverage >= historicalAverage; // Rising if recent average is greater or equal to historical average
+  }
+
+  /**
+   * Gets the recent roll history for a specific number.
+   * @param number The number to check.
+   * @param count The number of recent rolls to consider.
+   * @returns An array of recent rolls for the specified number.
+   */
+  getRecentRolls(number: number, count: number): number[] {
+    const rollHistory = this.tourneyStats.rollHistory.slice(-count); // Get the last 'count' rolls
+    return rollHistory.map(roll => (roll === number ? 1 : 0)); // Map to 1 if the number was rolled, 0 otherwise
+  }
+
+  /**
+   * Generates a tooltip for the trend indicator.
+   * @param number The number to check.
+   * @returns A string describing the trend.
+   */
+  getTrendTooltip(number: number): string {
+    if (!this.showTooltips) return ""; //  don't show tooltips if disabled
+    return this.isNumberRising(number)
+                  ? `${number} is on the rise!`
+                  : `${number} is falling off.`;
+  }
 
   /**
    * 
@@ -652,10 +702,10 @@ export class AppComponent implements OnInit, AfterViewInit {
   private clearMappedColors() {
     // Reset the density-based coloring logic
     // if (this.colorOption === 'density') {
-      // this.colorMappedRolls = Object.keys(this.gameStats.rolls).reduce((acc: { [key: string]: string }, key) => {
-      //   acc[key] = `rgba(0, 255, 0, 0)`; // Reset to transparent green
-      //   return acc;
-      // }, {});
+    // this.colorMappedRolls = Object.keys(this.gameStats.rolls).reduce((acc: { [key: string]: string }, key) => {
+    //   acc[key] = `rgba(0, 255, 0, 0)`; // Reset to transparent green
+    //   return acc;
+    // }, {});
     // }
 
     // if (this.colorOption === 'density') {
@@ -664,10 +714,10 @@ export class AppComponent implements OnInit, AfterViewInit {
     //     7: "rgba(0, 255, 0, 0)", 8: "rgba(0, 255, 0, 0)", 9: "rgba(0, 255, 0, 0)", 10: "rgba(0, 255, 0, 0)", 11: "rgba(0, 255, 0, 0)", 12: "rgba(0, 255, 0, 0)"
     //   };
     // } else {
-      this.colorMappedRolls = { 
-        2: "#FFFFFF", 3: "#FFFFFF", 4: "#FFFFFF", 5: "#FFFFFF", 6: "#FFFFFF",
-        7: "#FFFFFF", 8: "#FFFFFF", 9: "#FFFFFF", 10: "#FFFFFF", 11: "#FFFFFF", 12: "#FFFFFF"
-      };
+    this.colorMappedRolls = {
+      2: "#FFFFFF", 3: "#FFFFFF", 4: "#FFFFFF", 5: "#FFFFFF", 6: "#FFFFFF",
+      7: "#FFFFFF", 8: "#FFFFFF", 9: "#FFFFFF", 10: "#FFFFFF", 11: "#FFFFFF", 12: "#FFFFFF"
+    };
     // }
   }
 
@@ -680,8 +730,8 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.mapRollFrequencyColor();
   }
 
-  mapRollFrequencyColor() {    
-    if(this.rollCount() <= 0) { //  no rolls to process
+  mapRollFrequencyColor() {
+    if (this.rollCount() <= 0) { //  no rolls to process
       this.clearMappedColors(); // Reset the colors before mapping
       return;
     }
@@ -697,14 +747,14 @@ export class AppComponent implements OnInit, AfterViewInit {
   /**
    * Map rolls to a single color with changing density
    */
-    private mapRollsToDensity(): void {
-      // Example logic for density-based coloring
-      this.colorMappedRolls = Object.keys(this.gameStats.rolls).reduce((acc: { [key: string]: string }, key) => {
-        const density = Math.min(255, Math.floor((this.gameStats.rolls[Number(key)] / this.maxRollCount()) * 255));
-        acc[key] = `rgba(0, ${density}, 0, ${density / 255})`; // Green with varying intensity and opacity
-        return acc;
-      }, {});
-    }
+  private mapRollsToDensity(): void {
+    // Example logic for density-based coloring
+    this.colorMappedRolls = Object.keys(this.gameStats.rolls).reduce((acc: { [key: string]: string }, key) => {
+      const density = Math.min(255, Math.floor((this.gameStats.rolls[Number(key)] / this.maxRollCount()) * 255));
+      acc[key] = `rgba(0, ${density}, 0, ${density / 255})`; // Green with varying intensity and opacity
+      return acc;
+    }, {});
+  }
 
   /**
    * Function to map roll counts to a gradient of colors which depict how often each number rolls
@@ -712,13 +762,13 @@ export class AppComponent implements OnInit, AfterViewInit {
    * dice which have been rolled the same number of times get the same color
    * color is based on where the die's count lies within the 11 spread spectrum
    */
-  private mapRollsToColors(): void {   
+  private mapRollsToColors(): void {
     this.clearMappedColors(); // Reset the colors before mapping
 
     // Get the rolls and their frequencies
     const rollKeys = Object.keys(this.gameStats.rolls).map(Number);
 
-    if(rollKeys.length <= 0) {  //  no rolls to process
+    if (rollKeys.length <= 0) {  //  no rolls to process
       return;
     }
 
