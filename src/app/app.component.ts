@@ -136,6 +136,23 @@ export class AppComponent implements OnInit, AfterViewInit {
   
   public colorOption: 'density' | 'color' = 'density'; // Default option
   
+  public showHelpDialog: boolean = false; // Flag to control the visibility of the help popup
+
+  public showTooltips: boolean = true; // Flag to control the visibility of the tooltips  
+  public tooltipDice: string = "Select a die";
+  public tooltipBar: string = "Frequency of this number rolling";
+  public tooltipRollHistory: string = "Roll History.  Use arrow keys to change size";
+  public tooltipTournamentBar: string = "Frequency of this number rolling in the tournament";
+  public tooltipRollNumber: string = "Dice Roll";
+  public tooltipRollFrequency: string = "Number of times this number has rolled.  Use Shift to show percentages."; 
+  public tooltipRollPercent: string = "Percent of times this number has rolled.  Use Shift to show counts."; 
+  public tooltipStore: string = "Store the selected dice values";
+  public tooltipTurnDuration: string = "How long this turn has lasted";
+  public tooltipBreakDuration: string = "How long this break has lasted";
+  public tooltipGameDuration: string = "How long this game has lasted.  Use Ctrl to show tournament.";
+  public tooltipTournamentDuration: string = "How long this tournament has lasted.  Use Ctrl to show game.";
+  public tooltipRollCount: string = "Number of rolls";
+  public tooltipOpacity: string = "Use Mouse Scroll to adjust the visibility";
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   constructor(private cdr: ChangeDetectorRef) {}
@@ -300,10 +317,10 @@ export class AppComponent implements OnInit, AfterViewInit {
     //   this.showPopupMessage = false;
     // }
   }
-  
+
   @HostListener('window:wheel', ['$event'])
   onScroll(event: WheelEvent): void {
-    if (this.showGamePause) {  //  if game is paused, change opacity of the overlay
+    if (this.showGamePause && !this.showHelpDialog) {  //  if game is paused, change opacity of the overlay
       if (event.deltaY > 0) { //  Scrolled down
         this.blockScreenOpacity += 0.1;
         if (this.blockScreenOpacity >= 1) this.blockScreenOpacity = 1;
@@ -327,7 +344,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   // monitor keystrokes (die count input, display toggles, etc.)
   @HostListener('document:keydown', ['$event'])
   handleGlobalKeydown(event: KeyboardEvent): void {
-    // console.log(`key down : '${event.key}'`);
+    //console.log(`key down : '${event.key}'`);
 
     this.showContextMenu = false;
 
@@ -337,6 +354,23 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
     if (event.key == 'Control') {
       this.toggleTournamentDisplay();
+      return;
+    }
+    if(event.key == 'F1') {
+      event.preventDefault(); // Prevent the default behavior of the key
+      this.showHelp();
+      return;
+    } 
+    
+    if (event.key == 'Escape' && this.showHelpDialog) {
+      this.showHelpDialog = false; // Close the help dialog
+      return;
+    }
+    else if (event.key == 'Escape') {
+      this.keystrokeCount = 0;  //  reset keystroke count
+      this.selectedDice[0] = 0; //  reset selected dice values
+      this.selectedDice[1] = 0;
+      this.currentRoll = null; //  reset current roll value
       return;
     }
 
@@ -454,6 +488,10 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
   //#endregion
   //#region Button Events         //    //    //    //    //    //    //
+  public showHelp() {
+    this.showContextMenu = false;
+    this.showHelpDialog = true;
+  }
 
   public rollHistorySizeSmaller() {
     this.showContextMenu = false;

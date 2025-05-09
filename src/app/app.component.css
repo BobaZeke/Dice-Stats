@@ -40,8 +40,6 @@ html {
 .container {
   display: flex;
   flex-grow: 1;
-  /* padding: 5px; */
-  /* gap: 20px; */
   max-height: calc(100vh - 30px);  /* set max-height for scrollbar on this area */
 }
 
@@ -86,11 +84,11 @@ html {
   transition: background-color 0.3s, transform 0.2s;
 }
 
-.left-column {
+.die-one {
   background-color: yellow;
 }
 
-.right-column {
+.die-two {
   color: white;
   background-color: red;
 }
@@ -134,11 +132,9 @@ html {
   border: none;
   border-radius: 5px;
   background-color: #863add;
-  /* background: linear-gradient(45deg, #9e55f1, #5c00b3); */
   color: white;
   font-size: 16px;
   cursor: pointer;
-  /* transition: background 0.3s, transform 0.2s; */
   transition: background 1s, box-shadow 0.3s;
   box-shadow: 10px 16px 18px rgba(4, 14, 56, 0.4);
 }
@@ -146,8 +142,6 @@ html {
 .gradient-btn-start:hover {
   background-color: #810736;
   box-shadow: 10px 16px 18px rgba(66, 6, 6, 0.4);
-  /* background: linear-gradient(45deg, #074281, #4ca0f3); */
-  /* transform: scale(1.05); */
 }
 
 /* Store button container */
@@ -171,6 +165,7 @@ html {
 .counter {
   font-size: 16px;
   text-align: center;
+  cursor: default;
 }
 
 .counter-val {
@@ -222,7 +217,6 @@ html {
   flex-grow: 1;  /* Allow bar-box to grow and fill vertical space proportionally */
   position: relative;  /* For overlay positioning */
   margin-bottom: 10px;  /* Add spacing between rows */
-  /* margin-left: 30px; */
 }
 
 /* Bar number (vertical labels) */
@@ -232,6 +226,7 @@ html {
   margin-right: 10px;  /* Add spacing between the number and the bar */
   width: 35px;  /* Fixed width for alignment */
   text-align: center;  /* Align text to the right */
+  cursor: default;
 }
 
 /* Bar styles */
@@ -261,10 +256,15 @@ html {
   align-items: center;  /* Vertically center the text */
   justify-content: flex-start;  /* Align text to the left */
 
-  /* padding-right: 50px;  Add padding for spacing */
   box-sizing: border-box;  /* Include padding in the element's width */
 
   line-height: 0.6;  /* Reduce space between lines : 1.0 = size of font*/
+  cursor: default;
+}
+
+.bar-overlay span {
+  pointer-events: auto; /* Enable pointer events only for the text */
+  display: inline-block; /* Ensure the span wraps only the text */
 }
 
 @keyframes slide-in {
@@ -286,6 +286,7 @@ html {
   align-items: center;  /* Vertically center the content */
   justify-content: center;  /* Horizontally center the content */
   text-align: center;  /* Ensure text alignment */
+  cursor: default;
 }
 
 .bar-percent {
@@ -322,17 +323,16 @@ html {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  /* background-color: #21b43a; */
   color: white;
   padding: 20px;
   border-radius: 10px;
   text-align: center;
   z-index: 1100;
 }
-
-/* .user-message-popup:hover {
-  background-color: #0056b3;
-} */
+.help-dialog {
+  z-index: 2000;
+  background-color: #21b43a;
+}
 
 /* Menu container */
 .menu {
@@ -483,7 +483,6 @@ html {
   font-size: 20vh;
   font-weight: bold;
   color: rgba(82, 46, 150, 0.397);  /* Black color with 10% opacity */
-  /* mix-blend-mode: hard-light; */
   mix-blend-mode: unset;
   -webkit-text-stroke: 2px black;  /* Outline color and thickness */
   text-align: center;  /* Center the text horizontally */
@@ -549,7 +548,6 @@ html {
   top: 0; /* Align it to the top of the bar */
   left: 80px;
   height: 5px; /* Thin red bar */
-  background-color: red;
   z-index: 1; /* Ensure it appears above the blue bar */
   border-radius: 5px; /* Match the blue bar's border radius */
 }

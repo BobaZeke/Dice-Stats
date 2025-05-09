@@ -1,53 +1,49 @@
 <!-- Context Menu -->
-<div *ngIf="showContextMenu && !gameIsStopped" 
-     [style.top.px]="contextMenuPosition.y" 
-     [style.left.px]="contextMenuPosition.x" 
-     class="context-menu">
+<div *ngIf="showContextMenu" class="context-menu" 
+[style.top.px]="contextMenuPosition.y" [style.left.px]="contextMenuPosition.x">
   <ul>
     <li *ngIf="!gameIsStopped" (click)="undoLastRoll()">Undo Last Roll</li>
 
-    <li class="menu-separator"></li>
-    
+    <li *ngIf="!gameIsStopped" class="menu-separator"></li>
+
     <li *ngIf="!gameIsStopped" (click)="pauseGame()">Pause Game</li>
     <li *ngIf="!gameIsStopped" (click)="endGame()">End Game</li>
 
-    <li class="menu-separator"></li>
-    
+    <li *ngIf="!gameIsStopped" class="menu-separator"></li>
+
     <!-- menu item for Roll Frequency Color Option -->
     <li>
       Roll Frequency Color Option
       <ul>
-        <li 
-          (click)="setColorOption('density')" 
-          [class.selected]="colorOption === 'density'">
+        <li (click)="setColorOption('density')" [class.selected]="colorOption === 'density'">
           Change Density
         </li>
-        <li 
-          (click)="setColorOption('color')" 
-          [class.selected]="colorOption === 'color'">
+        <li (click)="setColorOption('color')" [class.selected]="colorOption === 'color'">
           Change Color
         </li>
       </ul>
     </li>
+    <li class="menu-separator"></li>
+    <li (click)="showHelp()">Help</li>
+    <li class="menu-separator"></li>
+    <li  (click)="showTooltips = !showTooltips">{{showTooltips ? 'Hide' : 'Show'}} Tooltips</li>
+    
   </ul>
 </div>
 
 <div *ngIf="gameIsStopped && showGameHistory && !showingTournament">
   <div class="game-history-index">
-    Game<br/> #{{gameHistoryIndex+1}} of {{gameHistory.length}}
+    Game<br /> #{{gameHistoryIndex+1}} of {{gameHistory.length}}
   </div>
 </div>
 
-<div *ngIf="gameIsStopped && !showGameHistory && !showingTournament && gameStats.rollHistory.length > 0" class="game-history-index">
+<div *ngIf="gameIsStopped && !showGameHistory && !showingTournament && gameStats.rollHistory.length > 0"
+  class="game-history-index">
   Game Stats
 </div>
 <div *ngIf="showingTournament && tourneyStats.rollHistory.length > 0" class="game-history-index">
   Tournament Stats
 </div>
-
-<!-- <div *ngIf="!this.showDieCounts" class="game-history-index">
-  %
-</div> -->
 
 <div class="current-roll">
   {{ currentRoll }}
@@ -59,14 +55,14 @@
   <div class="dice-container">
     <!-- Dice -->
     <div class="dice-group">
-      <div class="sub-column">
-        <div *ngFor="let die of dice | slice:0:3" (click)="selectDie(1, die)" class="dice left-column"
+      <div class="sub-column" [title]="!showTooltips ? '' : tooltipDice">
+        <div *ngFor="let die of dice | slice:0:3" (click)="selectDie(1, die)" class="dice die-one"
           [class.selected]="selectedDice[0] === die" [class.has-selected]="haveSelectedYellowDie()">
           {{ die }}
         </div>
       </div>
-      <div class="sub-column">
-        <div *ngFor="let die of dice | slice:3:6" (click)="selectDie(1, die)" class="dice left-column"
+      <div class="sub-column" [title]="!showTooltips ? '' : tooltipDice">
+        <div *ngFor="let die of dice | slice:3:6" (click)="selectDie(1, die)" class="dice die-one"
           [class.selected]="selectedDice[0] === die" [class.has-selected]="haveSelectedYellowDie()">
           {{ die }}
         </div>
@@ -74,14 +70,14 @@
     </div>
 
     <div class="dice-group">
-      <div class="sub-column">
-        <div *ngFor="let die of dice | slice:0:3" (click)="selectDie(2, die)" class="dice right-column"
+      <div class="sub-column" [title]="!showTooltips ? '' : tooltipDice">
+        <div *ngFor="let die of dice | slice:0:3" (click)="selectDie(2, die)" class="dice die-two"
           [class.selected]="selectedDice[1] === die" [class.has-selected]="haveSelectedRedDie()">
           {{ die }}
         </div>
       </div>
-      <div class="sub-column">
-        <div *ngFor="let die of dice | slice:3:6" (click)="selectDie(2, die)" class="dice right-column"
+      <div class="sub-column" [title]="!showTooltips ? '' : tooltipDice">
+        <div *ngFor="let die of dice | slice:3:6" (click)="selectDie(2, die)" class="dice die-two"
           [class.selected]="selectedDice[1] === die" [class.has-selected]="haveSelectedRedDie()">
           {{ die }}
         </div>
@@ -91,19 +87,28 @@
     <!-- store button and some stats -->
     <div class="store-button-container">
       <button (click)="storeValues()" [disabled]="(selectedDice[0] == 0 || selectedDice[1] == 0)"
-        class="gradient-btn store-button">
+        class="gradient-btn store-button" [title]="!showTooltips ? '' : tooltipStore">
         Store
       </button>
 
-      <p class="counter">{{showGamePause ? 'Break Duration' : 'Turn Duration:'}}
-        <br />
+      <p class="counter"
+        [title]="!showTooltips ? '' : tooltipTurnDuration">
+        {{showGamePause ? 'Break Duration' : 'Turn Duration:'}}        
         <span class="counter-val">
-          {{ showingTournament ? tourneyStats.breakDurationDisplay :
-          ( gameIsStopped ? gameStats.breakDurationDisplay :
-          (showGamePause ? breakDurationDisplay : turnDurationDisplay )) }}
+          {{ 
+          showingTournament 
+          ? tourneyStats.breakDurationDisplay 
+          : ( gameIsStopped 
+            ? gameStats.breakDurationDisplay 
+            : ( showGamePause 
+              ? breakDurationDisplay 
+              : turnDurationDisplay 
+              )
+            ) 
+          }}
         </span>
       </p>
-      <p class="counter">Roll Count:
+      <p class="counter" [title]="!showTooltips ? '' : tooltipRollCount">Roll Count:
         <br />
         <span class="counter-val">{{rollCount()}}</span>
       </p>
@@ -115,7 +120,8 @@
         <span class="counter-avg">(16%)</span>
       </p>
 
-      <p class="counter">{{showingTournament ? 'Tournament Duration:' : 'Game Duration'}}
+      <p class="counter" [title]="!showTooltips ? '' : (showingTournament ? tooltipTournamentDuration: tooltipGameDuration)">
+        {{showingTournament ? 'Tournament Duration:' : 'Game Duration'}}
         <br />
         <span class="counter-val">
           {{ showingTournament ? tourneyStats.playingDurationDisplay : gameStats.playingDurationDisplay }}
@@ -125,46 +131,43 @@
   </div>
 
   <div class="toggle-bar" (click)="toggleDiceContainer()">☰</div>
-  
+
   <!-- central display : bar chart display showing how many times each number has been rolled -->
   <div class="bar-container">
     <div *ngFor="let number of numberRange"> <!--  2 - 12 -->
       <div class="bar-box">
         <!-- the # of the die -->
         <!-- color mapping gives a highlight to show how often this number rolls (red = the most, green = the least) -->
-        <div class="bar-number" [style.boxShadow]="'0 2px 15px 3px ' + colorMappedRolls[number]">
+        <div class="bar-number" [title]="!showTooltips ? '' : tooltipRollNumber"
+          [style.boxShadow]="'0 2px 15px 3px ' + colorMappedRolls[number]">
           {{ number > 0 ? number : '' }}
         </div>
-        
+
         <!--  # times this # has rolled -->
-        <div *ngIf="showDieCounts" class="bar-count" style="color: red;">
+        <div class="bar-count" *ngIf="showDieCounts" [title]="!showTooltips ? '' : tooltipRollFrequency" style="color: red;">
           {{ bars[number] <= 0 ? '0' : bars[number] }} </div>
-            <!--  % this # has been rolled -->
-            <!-- <div *ngIf="!showDieCounts" class="bar-percent" style="color: red;">
-              {{ bars[number] <= 0 ? '0' : getBarPercent(number) }} <div class="percent-sign">%</div> -->
-            <div *ngIf="!showDieCounts" class="bar-count" style="color: red;">
+            <div *ngIf="!showDieCounts" [title]="!showTooltips ? '' : tooltipRollPercent" class="bar-count" style="color: red;">
               {{ bars[number] <= 0 ? '0' : getBarPercent(number) }} <div class="percent-sign">%</div>
         </div>
 
         <!-- Overlay to display the roll histoy
           (series of squares representing the rolls, a filled square is when this number rolled, else, some other number rolled) -->
-        <div class="bar-overlay" [style.color]="'white'" [style.font-size.rem]="rollHistorySize"
-          [innerHTML]="getRollHistory(number)" *ngIf="!showingTournament"></div>
+        <div class="bar-overlay" *ngIf="!showingTournament" [title]="!showTooltips ? '' : tooltipRollHistory" [style.color]="'white'"
+          [style.font-size.rem]="rollHistorySize">
+          <span [title]="!showTooltips ? '' : tooltipRollHistory" [innerHTML]="getRollHistory(number)"></span>
+        </div>
 
         <!-- roll counts in bar chat form -->
-        <div class="bar" 
-        [style.width.%]="barParentWidth > 0 && bars[number] > 0 
+        <div class="bar" [title]="!showTooltips ? '' : tooltipBar" [style.width.%]="barParentWidth > 0 && bars[number] > 0 
           ? ((bars[number] / maxRollCount()) * 100) - (43 / barParentWidth * 100) 
-          : 0"
-        [style.background-color]="number == 7 ? 'Red' : 'Blue'">
+          : 0" [style.background-color]="number == 7 ? 'Red' : 'Blue'">
         </div>
 
         <!-- The red bar for tournament roll frequency -->
-        <div *ngIf="!showingTournament"
-          class="tournament-bar" 
-          [style.width.%]="barParentWidth > 0 && tourneyStats.rolls[number] > 0 
-            ? ((tourneyStats.rolls[number] / maxRollCountTourney()) * 100) - (43 / barParentWidth * 100) 
-            : 0">
+        <div class="tournament-bar" *ngIf="!showingTournament" [title]="!showTooltips ? '' : tooltipTournamentBar"
+          [style.background-color]="number == 7 ? 'Blue' : 'Red'" [style.width.%]="barParentWidth > 0 && tourneyStats.rolls[number] > 0 
+          ? ((tourneyStats.rolls[number] / maxRollCountTourney()) * 100) - (43 / barParentWidth * 100) 
+          : 0">
         </div>
 
       </div>
@@ -174,9 +177,23 @@
 
 
 <!-- div to block page content while the we are prompting the user (play/resume) --><!-- showPopupMessage|| -->
-<div [ngClass]="(showGamePause) ? 'block-app' : 'normal'" [style.opacity]="blockScreenOpacity"></div>
+<div [ngClass]="(showGamePause || showHelpDialog) ? 'block-app' : 'normal'" [style.opacity]="blockScreenOpacity"></div>
 
-<button *ngIf="showGamePause" (click)="startResumeGame()" [style.opacity]="resumeButtonOpacity"
-  class="user-message-popup gradient-btn-start store-button" style="color: White;">
+<button *ngIf="showGamePause && !showHelpDialog" (click)="startResumeGame()" [style.opacity]="resumeButtonOpacity"
+  class="user-message-popup gradient-btn-start store-button" style="color: White;"
+   [title]="!showTooltips ? '' : tooltipOpacity">
   {{ gameIsStopped ? 'Start New Game' : 'Resume Game' }}
 </button>
+
+<div *ngIf="showHelpDialog" class="user-message-popup help-dialog">
+  <div class="help-popup-content">
+    <h2>Help</h2>
+    <p>Click on the dice to select them, or use the keyboard to enter the roll. After entering two numbers, the sum will
+      be displayed for confirmation. If that isn't the number you want, just reselect the numbers. When ready, hit Enter
+      or click the "Store" button to save the roll.</p>
+    <p>Use the context menu (right-click) to start and stop games and for additional options.</p>
+    <p>F1 : show this Help screen</p>
+    <p>CTRL : toggle game stats & tournament stats</p>
+    <p>SHIFT : toggle count stats & percentage stats</p>
+    <button (click)="showHelpDialog = false">Close</button>
+  </div>
