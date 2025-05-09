@@ -1,6 +1,6 @@
 # DiceStats
 
-This Angular application is intended to be used with board games that utilize dice.
+This Angular application is intended to be used with board games that utilize dice.  The application tracks the dice rolls and produces statistics for display.
 
 The application allows the user to enter the dice rolled (two, six sided dice currently) by clicking dice buttons or using the keyboard.
 
