@@ -1,4 +1,25 @@
-# DiceStats
+# DiceStats By James Bowman
+
+This Angular application is intended to be used with board games that utilize dice.  The application tracks the dice rolls and produces statistics for display.
+
+The application allows the user to enter the dice rolled (two, six sided dice currently) by clicking dice buttons or using the keyboard.
+
+The application displays each possible roll (2-12) vertically, with horizontal bars indicating how often each number has been rolled.
+A thin red bar is displayed above each bar showing the tournament stat for that # (tournament being all the games played since starting the app (since last refresh))
+The roll frequency is also indicated by highlighting around the roll #'s.
+On top of the 'roll frequency' bar is an overlay displaying when that number has rolled during the game, so users can tell not just if a number is popular, but when it was popular (a long time ago in the game, just started, or whole game).  The size of the overlay squares can be adjusted using the arrow keys.  When the overlay characters reach the end of the screen, they wrap to the next line.
+
+The application also tracks game time and break time.
+
+At the end of a game, the application displays the game's stats and allows the user to scroll through all the games that have been played that night/tournament.
+
+The user can toggle between count stats and % stats by pressing the shift key.
+The user can toggle between game stats and tournament stats by pressing the control key.
+
+While paused, the mouse scroll wheel controls the overlay opacity allowing the user to more easily see the stats while paused.
+
+This application does not utilize any external resources (no databases, no web services, etc.).
+
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.1.5.
 
