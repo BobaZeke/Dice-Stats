@@ -1,4 +1,4 @@
-# DiceStats
+# DiceStats By James Bowman
 
 This Angular application is intended to be used with board games that utilize dice.  The application tracks the dice rolls and produces statistics for display.
 
