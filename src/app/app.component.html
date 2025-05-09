@@ -23,10 +23,18 @@
         </li>
       </ul>
     </li>
+
     <li class="menu-separator"></li>
-    <li (click)="showHelp()">Help</li>
-    <li class="menu-separator"></li>
+
     <li (click)="showTooltips = !showTooltips">{{showTooltips ? 'Hide' : 'Show'}} Tooltips</li>
+
+    <li class="menu-separator"></li>
+
+    <li (click)="playSounds = !playSounds">{{playSounds ? 'No' : 'Play'}} Sounds </li>
+    
+    <li class="menu-separator"></li>
+    
+    <li (click)="showHelp()">Help</li>
   </ul>
 </div>
 

@@ -10,6 +10,7 @@ import { PlayStats } from './gameStats';
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit, AfterViewInit {
+  //#region Properties           //    //    //    //    //    //    //
   private defaultEmptyTime = "0:00:00";
 
   /** number of sides per die */
@@ -153,19 +154,26 @@ export class AppComponent implements OnInit, AfterViewInit {
   public tooltipTournamentDuration: string = "How long this tournament has lasted.  Use Ctrl to show game.";
   public tooltipRollCount: string = "Number of rolls";
   public tooltipOpacity: string = "Use Mouse Scroll to adjust the visibility";
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+  public playSounds = true; // Flag to control sound playback
+  private soundSuccess: HTMLAudioElement = new Audio();
+  private soundFailure: HTMLAudioElement = new Audio();
+  //#endregion  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //#region Constructor         //    //    //    //    //    //    //
   constructor(private cdr: ChangeDetectorRef) { }
 
   ngOnInit() {
     this.endGame();
+    
+    this.soundSuccess = new Audio('assets/sounds/coin-recieved-230517.mp3');
+    this.soundFailure = new Audio('assets/sounds/rubber-tire-screech-7-202580.mp3');
   }
 
   ngAfterViewInit(): void {
     this.updateBarParentWidth(); // Measure the parent element after the view is initialized
     this.cdr.detectChanges(); // Trigger change detection manually
   }
-
+  //#endregion
   //#region Main Game Events      //    //    //    //    //    //    //
 
   /**
@@ -485,6 +493,15 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.numberRange.forEach(num => {
       this.bars[num] = this.gameStats.rolls[num] || 0;
     });
+  }
+
+  playSound(sound: HTMLAudioElement): void {
+    if(!this.playSounds) return; //  don't play sounds if disabled
+
+    if (sound) {
+      sound.currentTime = 0; // Reset to the beginning
+      sound.play();
+    } console.error(`Sound not found: `, sound);
   }
   //#endregion
   //#region Button Events         //    //    //    //    //    //    //
@@ -901,7 +918,8 @@ export class AppComponent implements OnInit, AfterViewInit {
 
       this.gameStats.rollHistory.push(this.currentRoll);
       this.tourneyStats.rollHistory.push(this.currentRoll);
-    }
+      this.playSound(this.soundSuccess);
+    } else this.playSound(this.soundFailure);
 
     //  clear current selections
     this.selectedDice = [0, 0];
