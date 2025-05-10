@@ -15,10 +15,10 @@
     <li>
       Roll Frequency Color Option
       <ul>
-        <li (click)="setColorOption('density')" [class.selected]="colorOption === 'density'">
+        <li (click)="setColorOption(ColorOption.Density)" [class.selected]="colorOption === ColorOption.Density">
           Change Density
         </li>
-        <li (click)="setColorOption('color')" [class.selected]="colorOption === 'color'">
+        <li (click)="setColorOption(ColorOption.Color)" [class.selected]="colorOption === ColorOption.Color">
           Change Color
         </li>
       </ul>
@@ -147,13 +147,13 @@
         <!-- the # of the die -->
         <!-- color mapping gives a highlight to show how often this number rolls (red = the most, green = the least) -->
         <div class="bar-number" [title]="!showTooltips ? '' : tooltipRollNumber"
-          [style.boxShadow]="'0 2px 15px 3px ' + colorMappedRolls[number]">
+          [style.boxShadow]="'0 2px 15px 3px ' + colorService.colorMappedRolls[number]">
           {{ number > 0 ? number : '' }}
         </div>
         <!-- Trend indicator -->
-        <div class="trend-indicator" [title]="getTrendTooltip(number)" [class.rising]="isNumberRising(number)"
-          [class.falling]="!isNumberRising(number)">
-          {{ isNumberRising(number) ? '▲' : '▼' }}
+        <div class="trend-indicator" [title]="trendService.getTrendTooltip(tourneyStats, number)" [class.rising]="trendService.isNumberRising(tourneyStats, number)"
+          [class.falling]="!trendService.isNumberRising(tourneyStats, number)">
+          {{ trendService.isNumberRising(tourneyStats, number) ? '▲' : '▼' }}
         </div>
 
         <!--  # times this # has rolled -->

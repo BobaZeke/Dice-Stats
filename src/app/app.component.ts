@@ -1,7 +1,12 @@
-import { Component, ElementRef, HostListener, OnInit, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, HostListener, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PlayStats } from './gameStats';
+import { SoundService } from './sound.service';
+import { TimeFormatService } from './time-format.service'; // Add this line
+import { ColorOption } from './color-option.enum'; // Import the enum
+import { ColorService } from './color.service';
+import { TrendService } from './trend.service';
 
 @Component({
   selector: 'app-root',
@@ -11,12 +16,11 @@ import { PlayStats } from './gameStats';
 })
 export class AppComponent implements OnInit, AfterViewInit {
   //#region Properties           //    //    //    //    //    //    //
-  private defaultEmptyTime = "0:00:00";
 
   /** number of sides per die */
   public dice = [1, 2, 3, 4, 5, 6];
 
-  /** possible combinations of 2 (6 sided) dice > 2-12 */
+  /** possible combinations of 2, 6 sided, dice > 2-12 */
   public numberRange = Array.from({ length: 11 }, (_, i) => i + 2);
 
   /** the selections for the two dice */
@@ -32,7 +36,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   private saveStats: PlayStats = new PlayStats();
 
   /** tracks the person's turn duration */
-  public turnDurationDisplay: string = this.defaultEmptyTime;
+  public turnDurationDisplay: string = '';
   private turnIntervalId: any;
   private turnStartTime: number | null = null;
 
@@ -48,7 +52,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   private tournamentBreakSeconds: number = 0;
 
   /** tracks the total time spent on break */
-  public breakDurationDisplay: string = this.defaultEmptyTime;
+  public breakDurationDisplay: string = '';
   private breakIntervalId: any;
   private gameBreakSeconds = 0;
   private gameBreakTotalSeconds = 0;
@@ -58,7 +62,7 @@ export class AppComponent implements OnInit, AfterViewInit {
    */
   private keystrokeCount: number = 0;
 
-  /** used by user message popup */
+  /** used to ignore the next mouse click */
   private skipNext = false;
 
   public rollHistoryHit = "&#9632;";      //  solid square (black square)
@@ -83,41 +87,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   /** when 'new game' is clicked */
   public gameIsStopped = true;
 
-  /**
-   * highlight colors for the rolls, indicating frequency compared to the others
-   */
-  private readonly colorGradients = [
-    "#FFFF00",  // Yellow  (least frequent)
-    "#FFA500",  // Orange
-    "#FF00FF",  // Magenta
-    "#FF0000",  // Red
-    "#800080",  // Purple
-    "#800000",  // Maroon
-    "#808013",  // Green
-    "#5e5e02",  // Olive
-    "#056324",  // Cyan
-    "#064179",  // Teal
-    "#0000FF"   // Blue  (most frequent)
-  ];
-  /**
-   *  start by showing all possible colors
-   */
-  public defaultRollCountColors: { [key: number]: string } = {
-    2: this.colorGradients[0],  // Yellow
-    3: this.colorGradients[1],  // Orange
-    4: this.colorGradients[2],  // Magenta
-    5: this.colorGradients[3],  // Red
-    6: this.colorGradients[4],  // Purple
-    7: this.colorGradients[5],  // Maroon
-    8: this.colorGradients[6],  // Olive
-    9: this.colorGradients[7],  // Green
-    10: this.colorGradients[8],  // Cyan
-    11: this.colorGradients[9],  // Teal
-    12: this.colorGradients[10]  // Blue
-  };
-
-  public colorMappedRolls: { [key: number]: string } = this.defaultRollCountColors;
-
+  
   // fun with the resume game button
   public blockScreenOpacity: number = 0.9;
   public resumeButtonOpacity: number = 1;
@@ -134,8 +104,9 @@ export class AppComponent implements OnInit, AfterViewInit {
   public isDiceContainerVisible: boolean = false;
 
   public barParentWidth: number = 1; // Default value to prevent division by zero
-
-  public colorOption: 'density' | 'color' = 'density'; // Default option
+  
+  public ColorOption = ColorOption; // Expose the enum to the template
+  public colorOption: ColorOption = ColorOption.Density; // Default option
 
   public showHelpDialog: boolean = false; // Flag to control the visibility of the help popup
 
@@ -156,17 +127,19 @@ export class AppComponent implements OnInit, AfterViewInit {
   public tooltipOpacity: string = "Use Mouse Scroll to adjust the visibility";
 
   public playSounds = true; // Flag to control sound playback
-  private soundSuccess: HTMLAudioElement = new Audio();
-  private soundFailure: HTMLAudioElement = new Audio();
   //#endregion  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   //#region Constructor         //    //    //    //    //    //    //
-  constructor(private cdr: ChangeDetectorRef) { }
+  constructor(
+    private cdr: ChangeDetectorRef, 
+    private soundService: SoundService,
+    private formatService: TimeFormatService,
+    public colorService: ColorService,
+    public trendService: TrendService
+  ) { }
 
   ngOnInit() {
     this.endGame();
-    
-    this.soundSuccess = new Audio('assets/sounds/coin-recieved-230517.mp3');
-    this.soundFailure = new Audio('assets/sounds/rubber-tire-screech-7-202580.mp3');
   }
 
   ngAfterViewInit(): void {
@@ -224,7 +197,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     this.stopTurnTimer();
     if (this.gameStartTime !== null) {
-      this.savedGameDuration += this.calculateDuration(this.gameStartTime, Date.now());
+      this.savedGameDuration += this.formatService.calculateDuration(this.gameStartTime, Date.now());
     }
 
     this.showGamePause = true;
@@ -245,13 +218,13 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     if (this.gameIsStopped) {  //  starting a new game
       this.gameStats = new PlayStats();
-      this.gameStats.breakDurationDisplay = this.defaultEmptyTime;
-      this.gameStats.playingDurationDisplay = this.defaultEmptyTime;
+      this.gameStats.breakDurationDisplay = this.formatService.defaultEmptyTime;
+      this.gameStats.playingDurationDisplay = this.formatService.defaultEmptyTime;
 
       if (this.tourneyStats.rollHistory.length == 0) { //  no history, so init
         this.tourneyStats = new PlayStats();
-        this.tourneyStats.breakDurationDisplay = this.defaultEmptyTime;
-        this.tourneyStats.playingDurationDisplay = this.defaultEmptyTime;
+        this.tourneyStats.breakDurationDisplay = this.formatService.defaultEmptyTime;
+        this.tourneyStats.playingDurationDisplay = this.formatService.defaultEmptyTime;
       }
 
       this.savedGameDuration = 0;
@@ -259,7 +232,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
       this.updateGameBreakTotal(0);
 
-      this.clearMappedColors();
+      this.colorService.clearMappedColors();
     }
 
     //  restart the game timer (we saved off the duration @ pause)
@@ -344,7 +317,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   @HostListener('document:contextmenu', ['$event'])
   onRightClick(event: MouseEvent): void {
     event.preventDefault(); // Prevent the default context menu from appearing
-    event.preventDefault(); // Prevent the default browser context menu
     this.showContextMenu = true; // Show your custom context menu
     this.contextMenuPosition = { x: event.clientX, y: event.clientY };
   }
@@ -379,6 +351,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       this.selectedDice[0] = 0; //  reset selected dice values
       this.selectedDice[1] = 0;
       this.currentRoll = null; //  reset current roll value
+      if(this.playSounds) this.soundService.playSoundFailure();
       return;
     }
 
@@ -410,12 +383,14 @@ export class AppComponent implements OnInit, AfterViewInit {
       this.closeTournamentDisplay(); //  close tournament display if open
       this.storeValues();
       this.keystrokeCount = 0;
+      if(this.isDiceContainerVisible) this.toggleDiceContainer(); //  hide the dice container when submitting a roll
       return;
     }
 
     //  if we get here, then let's try to process as a roll
     const num = parseInt(event.key);
     if (num >= 0 && num < 7) {  //  include zero as a way of clearing selections
+      if(!this.isDiceContainerVisible) this.toggleDiceContainer(); //  show the dice container while selecting #s (if not already visible)
       this.closeTournamentDisplay(); //  close tournament display if open
       this.keystrokeCount++;
       this.selectDie(this.keystrokeCount, num);
@@ -437,9 +412,9 @@ export class AppComponent implements OnInit, AfterViewInit {
     else this.gameBreakSeconds += setValue;
 
     if (this.gameBreakSeconds > 0) {
-      this.breakDurationDisplay = this.formatDuration(this.gameBreakSeconds);
+      this.breakDurationDisplay = this.formatService.formatDuration(this.gameBreakSeconds);
     }
-    else this.breakDurationDisplay = this.defaultEmptyTime;
+    else this.breakDurationDisplay = this.formatService.defaultEmptyTime;
   }
 
   private updateGameBreakTotal(setValue: number) {
@@ -447,9 +422,9 @@ export class AppComponent implements OnInit, AfterViewInit {
     else this.gameBreakTotalSeconds += setValue;
 
     if (this.gameBreakTotalSeconds > 0) {
-      this.gameStats.breakDurationDisplay = this.formatDuration(this.gameBreakTotalSeconds);
+      this.gameStats.breakDurationDisplay = this.formatService.formatDuration(this.gameBreakTotalSeconds);
     }
-    else this.gameStats.breakDurationDisplay = this.defaultEmptyTime;
+    else this.gameStats.breakDurationDisplay = this.formatService.defaultEmptyTime;
   }
 
   private updateTournamentBreakDuration(setValue: number) {
@@ -457,35 +432,40 @@ export class AppComponent implements OnInit, AfterViewInit {
     else this.tournamentBreakSeconds += setValue;
 
     if (this.tournamentBreakSeconds > 0) {
-      this.tourneyStats.breakDurationDisplay = this.formatDuration(this.tournamentBreakSeconds);
+      this.tourneyStats.breakDurationDisplay = this.formatService.formatDuration(this.tournamentBreakSeconds);
     }
-    else this.tourneyStats.breakDurationDisplay = this.defaultEmptyTime;
+    else this.tourneyStats.breakDurationDisplay = this.formatService.defaultEmptyTime;
   }
 
   private incrementTournamentDuration() {
     this.tournamentSeconds = this.tournamentSeconds + 1;
 
-    this.tourneyStats.playingDurationDisplay = this.formatDuration(this.tournamentSeconds);
+    this.tourneyStats.playingDurationDisplay = this.formatService.formatDuration(this.tournamentSeconds);
   }
 
   private updateGameDuration() {
     if (this.gameStartTime !== null) {
-      this.gameStats.playingDurationDisplay = this.calcAndFormatDuration(this.gameStartTime, Date.now(), this.savedGameDuration);
+      this.gameStats.playingDurationDisplay = this.formatService.calcAndFormatDuration(this.gameStartTime, Date.now(), this.savedGameDuration);
     }
-    else this.gameStats.playingDurationDisplay = this.defaultEmptyTime;
+    else this.gameStats.playingDurationDisplay = this.formatService.defaultEmptyTime;
   }
 
   private updateTurnDuration() {
     if (this.turnStartTime !== null) {
-      this.turnDurationDisplay = this.calcAndFormatDuration(this.turnStartTime, Date.now());
+      this.turnDurationDisplay = this.formatService.calcAndFormatDuration(this.turnStartTime, Date.now());
     }
-    else this.turnDurationDisplay = this.defaultEmptyTime;
+    else this.turnDurationDisplay = this.formatService.defaultEmptyTime;
   }
 
   private updateDisplay() {
     this.updateBars();
     this.mapRollFrequencyColor();
   }
+
+  private mapRollFrequencyColor() {
+    this.colorService.mapRollFrequencyColor(this.rollCount(), this.colorOption, this.gameStats, this.maxRollCount()); //  map the roll frequency colors
+  }
+
   /**
    * update the bar chart data (tracks how many times a number has rolled)
    */
@@ -495,14 +475,6 @@ export class AppComponent implements OnInit, AfterViewInit {
     });
   }
 
-  playSound(sound: HTMLAudioElement): void {
-    if(!this.playSounds) return; //  don't play sounds if disabled
-
-    if (sound) {
-      sound.currentTime = 0; // Reset to the beginning
-      sound.play();
-    } console.error(`Sound not found: `, sound);
-  }
   //#endregion
   //#region Button Events         //    //    //    //    //    //    //
   public showHelp() {
@@ -530,6 +502,9 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   //#endregion
   //#region Display Toggles       //    //    //    //    //    //    //
+  /**
+   * show/hide the dice container (used for mobile devices)
+   */
   toggleDiceContainer(): void {
     this.skipNext = true;
     this.isDiceContainerVisible = !this.isDiceContainerVisible;
@@ -592,56 +567,6 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   //#endregion
   //#region Calculators           //    //    //    //    //    //    //
-  /**
-   * Determines if a number is on the rise or falling off.
-   * @param number The number to check.
-   * @returns True if the number is on the rise, false otherwise.
-   */
-  isNumberRising(number: number): boolean {
-    const rollCount = this.tourneyStats.rollHistory.length;  // use the  stats from all night (not just this game)
-    if (rollCount <= 0) return false; // No rolls to process
-
-    //  determine how many recent rolls to review...
-    let inspectCount = rollCount * 0.25;  //    0.1;
-    if (inspectCount < 1) { //  if less than 1, use half the rolls
-      inspectCount = Math.ceil(rollCount / 2);  //  round up
-      if (inspectCount < 1) inspectCount = 1;
-    }
-    inspectCount = Math.ceil(inspectCount); //  round up to the next whole number
-
-    //  analyze the data and compare the recent rolls to the historical average
-    const recentRolls = this.getRecentRolls(number, inspectCount);
-
-    var hitCount = recentRolls.reduce((sum, roll) => sum + roll, 0);
-    const recentAverage = hitCount / recentRolls.length;
-
-    const historicalAverage = this.tourneyStats.rolls[number] / rollCount;
-
-    return recentAverage >= historicalAverage; // Rising if recent average is greater or equal to historical average
-  }
-
-  /**
-   * Gets the recent roll history for a specific number.
-   * @param number The number to check.
-   * @param count The number of recent rolls to consider.
-   * @returns An array of recent rolls for the specified number.
-   */
-  getRecentRolls(number: number, count: number): number[] {
-    const rollHistory = this.tourneyStats.rollHistory.slice(-count); // Get the last 'count' rolls
-    return rollHistory.map(roll => (roll === number ? 1 : 0)); // Map to 1 if the number was rolled, 0 otherwise
-  }
-
-  /**
-   * Generates a tooltip for the trend indicator.
-   * @param number The number to check.
-   * @returns A string describing the trend.
-   */
-  getTrendTooltip(number: number): string {
-    if (!this.showTooltips) return ""; //  don't show tooltips if disabled
-    return this.isNumberRising(number)
-                  ? `${number} is on the rise!`
-                  : `${number} is falling off.`;
-  }
 
   /**
    * 
@@ -681,26 +606,27 @@ export class AppComponent implements OnInit, AfterViewInit {
     var maxRollCount = Math.max(...Object.values(this.gameStats.rolls));
     return maxRollCount;
   }
+
   /**
    * calculates how often the given number rolls
    * @returns 
    */
   calculateAverageInterval(dieNumber: number) {
-    let sevenIndices: number[] = []; // Array to store indices where 7 occurs
+    let indices: number[] = []; // Array to store indices where dieNumber occurs
 
-    // Find indices where 7 is rolled
+    // Find indices where dieNumber is rolled
     this.gameStats.rollHistory.forEach((key, index) => {
       if (key === dieNumber) {
-        sevenIndices.push(index);
+        indices.push(index);
       }
     });
 
-    // If no occurrences of 7, return total length of rollHistory
-    if (sevenIndices.length === 0) {
-      return this.gameStats.rollHistory.length; // Entire roll history since no 7s were rolled
+    // If no occurrences of dieNumber, return total length of rollHistory
+    if (indices.length === 0) {
+      return this.gameStats.rollHistory.length; // Entire roll history since no dieNumbers were rolled
     }
 
-    return (this.gameStats.rollHistory.length / sevenIndices.length).toFixed(1);
+    return (this.gameStats.rollHistory.length / indices.length).toFixed(1);
   }
 
   /**
@@ -716,133 +642,14 @@ export class AppComponent implements OnInit, AfterViewInit {
     return Math.trunc(perc);
   }
 
-  private clearMappedColors() {
-    // Reset the density-based coloring logic
-    // if (this.colorOption === 'density') {
-    // this.colorMappedRolls = Object.keys(this.gameStats.rolls).reduce((acc: { [key: string]: string }, key) => {
-    //   acc[key] = `rgba(0, 255, 0, 0)`; // Reset to transparent green
-    //   return acc;
-    // }, {});
-    // }
-
-    // if (this.colorOption === 'density') {
-    //   this.colorMappedRolls = { 
-    //     2: "rgba(0, 255, 0, 0)", 3: "rgba(0, 255, 0, 0)", 4: "rgba(0, 255, 0, 0)", 5: "rgba(0, 255, 0, 0)", 6: "rgba(0, 255, 0, 0)",
-    //     7: "rgba(0, 255, 0, 0)", 8: "rgba(0, 255, 0, 0)", 9: "rgba(0, 255, 0, 0)", 10: "rgba(0, 255, 0, 0)", 11: "rgba(0, 255, 0, 0)", 12: "rgba(0, 255, 0, 0)"
-    //   };
-    // } else {
-    this.colorMappedRolls = {
-      2: "#FFFFFF", 3: "#FFFFFF", 4: "#FFFFFF", 5: "#FFFFFF", 6: "#FFFFFF",
-      7: "#FFFFFF", 8: "#FFFFFF", 9: "#FFFFFF", 10: "#FFFFFF", 11: "#FFFFFF", 12: "#FFFFFF"
-    };
-    // }
-  }
 
   /**
    * Set the roll frequency color option
    * @param option 'density' or 'color'
    */
-  setColorOption(option: 'density' | 'color'): void {
+  setColorOption(option: ColorOption): void {
     this.colorOption = option;
     this.mapRollFrequencyColor();
-  }
-
-  mapRollFrequencyColor() {
-    if (this.rollCount() <= 0) { //  no rolls to process
-      this.clearMappedColors(); // Reset the colors before mapping
-      return;
-    }
-    if (this.colorOption === 'density') {
-      // Logic for single color with changing density
-      this.mapRollsToDensity();
-    } else if (this.colorOption === 'color') {
-      // Logic for changing colors
-      this.mapRollsToColors();
-    }
-  }
-
-  /**
-   * Map rolls to a single color with changing density
-   */
-  private mapRollsToDensity(): void {
-    // Example logic for density-based coloring
-    this.colorMappedRolls = Object.keys(this.gameStats.rolls).reduce((acc: { [key: string]: string }, key) => {
-      const density = Math.min(255, Math.floor((this.gameStats.rolls[Number(key)] / this.maxRollCount()) * 255));
-      acc[key] = `rgba(0, ${density}, 0, ${density / 255})`; // Green with varying intensity and opacity
-      return acc;
-    }, {});
-  }
-
-  /**
-   * Function to map roll counts to a gradient of colors which depict how often each number rolls
-   * populates the color mapped rolls object : key is the dice roll, and value is the associated color
-   * dice which have been rolled the same number of times get the same color
-   * color is based on where the die's count lies within the 11 spread spectrum
-   */
-  private mapRollsToColors(): void {
-    this.clearMappedColors(); // Reset the colors before mapping
-
-    // Get the rolls and their frequencies
-    const rollKeys = Object.keys(this.gameStats.rolls).map(Number);
-
-    if (rollKeys.length <= 0) {  //  no rolls to process
-      return;
-    }
-
-    // Find the maximum and minimum frequencies
-    const frequencies = Object.values(this.gameStats.rolls);
-    const maxFrequency = Math.max(...frequencies);
-    const minFrequency = Math.min(...frequencies);
-
-    // Calculate colors based on frequency
-    rollKeys.forEach((roll) => {
-      const frequency = this.gameStats.rolls[roll];
-      if (frequency === maxFrequency) {           // Red for most frequent
-        this.colorMappedRolls[roll] = this.colorGradients[this.colorGradients.length - 1];
-      } else if (frequency === minFrequency) {    // Green for least frequent
-        this.colorMappedRolls[roll] = this.colorGradients[0];
-      } else {                                    // Calculate relative color index for intermediate values
-        const relativeFrequency = (frequency - minFrequency) / (maxFrequency - minFrequency);
-        const colorIndex = Math.round(relativeFrequency * (this.colorGradients.length - 1));
-        this.colorMappedRolls[roll] = this.colorGradients[colorIndex];
-      }
-    });
-  }
-
-  /**
-   * calculates the number of seconds between the two times
-   * @param startTime 
-   * @param currentTime 
-   * @returns # seconds
-   */
-  private calculateDuration(startTime: number, currentTime: number): number {
-    return Math.floor((currentTime - startTime) / 1000); // Convert milliseconds to seconds
-  }
-
-  /**
-   * calculates the duration and formats the value for display
-   * @param startTime 
-   * @param currentTime 
-   * @param savedDuration 
-   * @returns h:mm:ss (hours:minutes:seconds)
-   */
-  private calcAndFormatDuration(startTime: number, currentTime: number, savedDuration: number = 0): string {
-    const totalSeconds = this.calculateDuration(startTime, currentTime) + savedDuration;
-    return this.formatDuration(totalSeconds);
-  }
-  /**
-   * translates the given seconds into a duration display 0:00:00
-   * @param totalSeconds 
-   * @returns h:mm:ss (hours:minutes:seconds)
-   */
-  private formatDuration(totalSeconds: number) {
-    const seconds = totalSeconds % 60; // Extract remaining seconds
-    const totalMinutes = Math.floor(totalSeconds / 60); // Convert seconds to minutes
-    const minutes = totalMinutes % 60; // Extract remaining minutes
-    const hours = Math.floor(totalMinutes / 60); // Convert minutes to hours
-
-    // Format the time as hours:minutes:seconds
-    return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   }
 
   //#endregion
@@ -884,7 +691,9 @@ export class AppComponent implements OnInit, AfterViewInit {
    * @param value 
    */
   selectDie(column: number, value: number) {
+    this.skipNext = true; //  skip the next click event (to prevent closing the dice container)
     this.selectedDice[column - 1] = value;
+   // if(event) event.preventDefault(); // Prevent the default browser context menu
   }
 
   /**
@@ -918,8 +727,8 @@ export class AppComponent implements OnInit, AfterViewInit {
 
       this.gameStats.rollHistory.push(this.currentRoll);
       this.tourneyStats.rollHistory.push(this.currentRoll);
-      this.playSound(this.soundSuccess);
-    } else this.playSound(this.soundFailure);
+      if(this.playSounds) this.soundService.playSoundSuccess();
+    } else if(this.playSounds) this.soundService.playSoundFailure();
 
     //  clear current selections
     this.selectedDice = [0, 0];
