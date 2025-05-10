@@ -541,6 +541,10 @@ html {
   .dice-container.visible {
     transform: translateX(0);    /* Slide into view */
   }
+
+  .bar-box {
+    width: calc(100vw - 15px);
+  }
 }
 
 .tournament-bar {
