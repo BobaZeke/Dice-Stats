@@ -254,7 +254,7 @@ html {
 .bar {
   height: calc((100vh - 240px)/11);
   /* Adjust height to fit below the header */
-  min-height: 40px;
+  /* min-height: 40px; */
   border-radius: 5px;
   transition: width 0.3s;
 }
@@ -380,7 +380,9 @@ html {
 .help-dialog {
   z-index: 2000;
   background-color: #21b43a;
-  font-size: 2em;
+  max-height: 80vh;      /* Limit height to 80% of viewport */
+  overflow-y: auto;      /* Enable vertical scrolling if needed */
+  font-size: 1.2em;
 }
 
 /* Menu container */
@@ -682,11 +684,6 @@ html {
 }
 
 .color-picker-container {
-  position: fixed;
-  top: 20%;
-  left: 50%;
-  /* transform: translate(-50%, -50%); */
-  transform: translateX(-50%); /* Only translate horizontally */
   background-color: #ffffff;
   /* White background for better visibility */
   border: 1px solid #ccc;
@@ -695,11 +692,9 @@ html {
   /* Rounded corners */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   /* Subtle shadow for depth */
-  padding: 20px;
-  /* Add padding for spacing */
   z-index: 2100;
   /* Ensure it appears above other elements */
-  width: 300px;
+  width: 100%;
   /* Set a fixed width */
   max-width: 90%;
   /* Ensure it fits on smaller screens */
@@ -759,7 +754,7 @@ html {
 
 .rocker-switch {
   display: inline-block;
-  width: 200px;
+  width: 120px;
   height: 40px;
   background-color: #ccc; /* Muted background for the toggle */
   border-radius: 20px;
@@ -791,7 +786,7 @@ html {
   display: flex; /* Use flexbox for centering */
   align-items: center; /* Center vertically */
   justify-content: center; /* Center horizontally */
-  font-size: 18px;
+
   font-weight: bold;
   color: #666; /* Muted color for non-selected text */
   pointer-events: none;

@@ -379,12 +379,12 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
   }
 
-  @HostListener('document:contextmenu', ['$event'])
-  onRightClick(event: MouseEvent): void {
-    event.preventDefault(); // Prevent the default context menu from appearing
-    this.showContextMenu = true; // Show your custom context menu
-    this.contextMenuPosition = { x: event.clientX, y: event.clientY };
-  }
+  // @HostListener('document:contextmenu', ['$event'])
+  // onRightClick(event: MouseEvent): void {
+  //   event.preventDefault(); // Prevent the default context menu from appearing
+  //   this.showContextMenu = true; // Show your custom context menu
+  //   this.contextMenuPosition = { x: event.clientX, y: event.clientY };
+  // }
 
   // monitor keystrokes (die count input, display toggles, etc.)
   @HostListener('document:keydown', ['$event'])
