@@ -100,7 +100,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   public barParentWidth: number = 1; // Default value to prevent division by zero
 
-  public showHelpDialog: boolean = false; // Flag to control the visibility of the help popup
+  public showHelpDialog: boolean = true; // Flag to control the visibility of the help popup
 
   public tooltipDice: string = "Select a die";
   public tooltipBar: string = "Frequency of this number rolling";
@@ -350,6 +350,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     this.showContextMenu = false;
+    this.showHelpDialog = false;
 
     if (this.skipNext) {
       this.skipNext = false;
@@ -409,6 +410,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
 
     if (event.key == 'Escape' && this.showHelpDialog) {
+      if (this.userSettings.playSounds) this.soundService.playSoundEscape();
       this.showHelpDialog = false; // Close the help dialog
       return;
     }

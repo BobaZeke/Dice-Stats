@@ -380,6 +380,7 @@ html {
 .help-dialog {
   z-index: 2000;
   background-color: #21b43a;
+  font-size: 2em;
 }
 
 /* Menu container */
