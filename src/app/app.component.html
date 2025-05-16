@@ -11,29 +11,33 @@
 
     <li *ngIf="!gameIsStopped" class="menu-separator"></li>
 
-    <!-- menu item for Roll Frequency Color Option -->
-    <li>
-      Roll Frequency Color Option
+    <li (click)="toggleTooltips()">{{userSettings.showTooltips ? 'Hide' : 'Show'}} Tooltips</li>
+
+    <li class="menu-separator"></li>
+
+    <li (click)="toggleSounds()">{{userSettings.playSounds ? 'No' : 'Play'}} Sounds </li>
+
+    <li class="menu-separator"></li>
+
+    <li>Roll Frequency
       <ul>
-        <li (click)="setColorOption(ColorOption.Density)" [class.selected]="colorOption === ColorOption.Density">
+        <li (click)="setColorOption(ColorOption.Density)"
+          [class.selected]="userSettings.colorOption === ColorOption.Density">
           Change Density
         </li>
-        <li (click)="setColorOption(ColorOption.Color)" [class.selected]="colorOption === ColorOption.Color">
+        <li (click)="setColorOption(ColorOption.Color)"
+          [class.selected]="userSettings.colorOption === ColorOption.Color">
           Change Color
         </li>
       </ul>
     </li>
 
+    <li (click)="showColorPicker()">
+      Select Color<span *ngIf="userSettings.colorOption === ColorOption.Color">s</span>
+    </li>
+
     <li class="menu-separator"></li>
 
-    <li (click)="showTooltips = !showTooltips">{{showTooltips ? 'Hide' : 'Show'}} Tooltips</li>
-
-    <li class="menu-separator"></li>
-
-    <li (click)="playSounds = !playSounds">{{playSounds ? 'No' : 'Play'}} Sounds </li>
-    
-    <li class="menu-separator"></li>
-    
     <li (click)="showHelp()">Help</li>
   </ul>
 </div>
@@ -63,13 +67,13 @@
   <div class="dice-container">
     <!-- Dice -->
     <div class="dice-group">
-      <div class="sub-column" [title]="!showTooltips ? '' : tooltipDice">
+      <div class="sub-column" [title]="!userSettings.showTooltips ? '' : tooltipDice">
         <div *ngFor="let die of dice | slice:0:3" (click)="selectDie(1, die)" class="dice die-one"
           [class.selected]="selectedDice[0] === die" [class.has-selected]="haveSelectedYellowDie()">
           {{ die }}
         </div>
       </div>
-      <div class="sub-column" [title]="!showTooltips ? '' : tooltipDice">
+      <div class="sub-column" [title]="!userSettings.showTooltips ? '' : tooltipDice">
         <div *ngFor="let die of dice | slice:3:6" (click)="selectDie(1, die)" class="dice die-one"
           [class.selected]="selectedDice[0] === die" [class.has-selected]="haveSelectedYellowDie()">
           {{ die }}
@@ -78,13 +82,13 @@
     </div>
 
     <div class="dice-group">
-      <div class="sub-column" [title]="!showTooltips ? '' : tooltipDice">
+      <div class="sub-column" [title]="!userSettings.showTooltips ? '' : tooltipDice">
         <div *ngFor="let die of dice | slice:0:3" (click)="selectDie(2, die)" class="dice die-two"
           [class.selected]="selectedDice[1] === die" [class.has-selected]="haveSelectedRedDie()">
           {{ die }}
         </div>
       </div>
-      <div class="sub-column" [title]="!showTooltips ? '' : tooltipDice">
+      <div class="sub-column" [title]="!userSettings.showTooltips ? '' : tooltipDice">
         <div *ngFor="let die of dice | slice:3:6" (click)="selectDie(2, die)" class="dice die-two"
           [class.selected]="selectedDice[1] === die" [class.has-selected]="haveSelectedRedDie()">
           {{ die }}
@@ -95,27 +99,27 @@
     <!-- store button and some stats -->
     <div class="store-button-container">
       <button (click)="storeValues()" [disabled]="(selectedDice[0] == 0 || selectedDice[1] == 0)"
-        class="gradient-btn store-button" [title]="!showTooltips ? '' : tooltipStore">
+        class="gradient-btn store-button" [title]="!userSettings.showTooltips ? '' : tooltipStore">
         Store
       </button>
 
-      <p class="counter" [title]="!showTooltips ? '' : tooltipTurnDuration">
+      <p class="counter" [title]="!userSettings.showTooltips ? '' : tooltipTurnDuration">
         {{showGamePause ? 'Break Duration' : 'Turn Duration:'}}
         <span class="counter-val">
           {{
           showingTournament
-            ? tourneyStats.breakDurationDisplay
-            : ( gameIsStopped
-              ? gameStats.breakDurationDisplay
-              : ( showGamePause
-                ? breakDurationDisplay
-                : turnDurationDisplay
-                )
-              )
+          ? tourneyStats.breakDurationDisplay
+          : ( gameIsStopped
+          ? gameStats.breakDurationDisplay
+          : ( showGamePause
+          ? breakDurationDisplay
+          : turnDurationDisplay
+          )
+          )
           }}
         </span>
       </p>
-      <p class="counter" [title]="!showTooltips ? '' : tooltipRollCount">Roll Count:
+      <p class="counter" [title]="!userSettings.showTooltips ? '' : tooltipRollCount">Roll Count:
         <br />
         <span class="counter-val">{{rollCount()}}</span>
       </p>
@@ -128,7 +132,7 @@
       </p>
 
       <p class="counter"
-        [title]="!showTooltips ? '' : (showingTournament ? tooltipTournamentDuration: tooltipGameDuration)">
+        [title]="!userSettings.showTooltips ? '' : (showingTournament ? tooltipTournamentDuration: tooltipGameDuration)">
         {{showingTournament ? 'Tournament Duration:' : 'Game Duration'}}
         <br />
         <span class="counter-val">
@@ -146,40 +150,45 @@
       <div class="bar-box">
         <!-- the # of the die -->
         <!-- color mapping gives a highlight to show how often this number rolls (red = the most, green = the least) -->
-        <div class="bar-number" [title]="!showTooltips ? '' : tooltipRollNumber"
+        <div class="bar-number" [title]="!userSettings.showTooltips ? '' : tooltipRollNumber"
           [style.boxShadow]="'0 2px 15px 3px ' + colorService.colorMappedRolls[number]">
           {{ number > 0 ? number : '' }}
         </div>
+
         <!-- Trend indicator -->
-        <div class="trend-indicator" [title]="trendService.getTrendTooltip(tourneyStats, number)" [class.rising]="trendService.isNumberRising(tourneyStats, number)"
+        <div class="trend-indicator" [title]="trendService.getTrendTooltip(tourneyStats, number)"
+          [class.rising]="trendService.isNumberRising(tourneyStats, number)"
           [class.falling]="!trendService.isNumberRising(tourneyStats, number)">
           {{ trendService.isNumberRising(tourneyStats, number) ? '▲' : '▼' }}
         </div>
 
         <!--  # times this # has rolled -->
-        <div class="bar-count" *ngIf="showDieCounts" [title]="!showTooltips ? '' : tooltipRollFrequency"
+        <div class="bar-count" *ngIf="showDieCounts" [title]="!userSettings.showTooltips ? '' : tooltipRollFrequency"
           style="color: red;">
           {{ bars[number] <= 0 ? '0' : bars[number] }} </div>
-            <div *ngIf="!showDieCounts" [title]="!showTooltips ? '' : tooltipRollPercent" class="bar-count"
-              style="color: red;">
+            <div class="bar-count bar-percent" *ngIf="!showDieCounts"
+              [title]="!userSettings.showTooltips ? '' : tooltipRollPercent" style="color: red;">
               {{ bars[number] <= 0 ? '0' : getBarPercent(number) }} <div class="percent-sign">%</div>
         </div>
 
         <!-- Overlay to display the roll histoy
           (series of squares representing the rolls, a filled square is when this number rolled, else, some other number rolled) -->
-        <div class="bar-overlay" *ngIf="!showingTournament" [title]="!showTooltips ? '' : tooltipRollHistory"
-          [style.color]="'white'" [style.font-size.rem]="rollHistorySize">
-          <span [title]="!showTooltips ? '' : tooltipRollHistory" [innerHTML]="getRollHistory(number)"></span>
+        <div #overlay class="bar-overlay" *ngIf="!showingTournament"
+          [title]="!userSettings.showTooltips ? '' : tooltipRollHistory" [style.color]="'white'"
+          [style.font-size.rem]="rollHistoryFontSize">
+          <span [title]="!userSettings.showTooltips ? '' : tooltipRollHistory"
+            [innerHTML]="getRollHistory(number)"></span>
         </div>
 
         <!-- roll counts in bar chat form -->
-        <div class="bar" [title]="!showTooltips ? '' : tooltipBar" [style.width.%]="barParentWidth > 0 && bars[number] > 0 
+        <div #bar class="bar" [title]="!userSettings.showTooltips ? '' : tooltipBar" [style.width.%]="barParentWidth > 0 && bars[number] > 0 
           ? ((bars[number] / maxRollCount()) * 100) - (43 / barParentWidth * 100) 
           : 0" [style.background-color]="number == 7 ? 'Red' : 'Blue'">
         </div>
 
         <!-- The red bar for tournament roll frequency -->
-        <div class="tournament-bar" *ngIf="!showingTournament" [title]="!showTooltips ? '' : tooltipTournamentBar"
+        <div class="tournament-bar" *ngIf="!showingTournament"
+          [title]="!userSettings.showTooltips ? '' : tooltipTournamentBar"
           [style.background-color]="number == 7 ? 'Blue' : 'Red'" [style.width.%]="barParentWidth > 0 && tourneyStats.rolls[number] > 0 
           ? ((tourneyStats.rolls[number] / maxRollCountTourney()) * 100) - (43 / barParentWidth * 100) 
           : 0">
@@ -196,7 +205,7 @@
 
 <button *ngIf="showGamePause && !showHelpDialog" (click)="startResumeGame()" [style.opacity]="resumeButtonOpacity"
   class="user-message-popup gradient-btn-start store-button" style="color: White;"
-  [title]="!showTooltips ? '' : tooltipOpacity">
+  [title]="!userSettings.showTooltips ? '' : tooltipOpacity">
   {{ gameIsStopped ? 'Start New Game' : 'Resume Game' }}
 </button>
 
@@ -212,3 +221,55 @@
     <p>SHIFT : toggle count stats & percentage stats</p>
     <button (click)="showHelpDialog = false">Close</button>
   </div>
+</div>
+
+
+<!-- Color picker for roll frequency -->
+<div *ngIf="showColorPickerColors" class="user-message-popup color-picker-container">
+
+  <div *ngIf="userSettings.colorOption === ColorOption.Density">
+    <label for="colorPicker">Select Color:</label>
+    <input #densityColorInput id="colorPicker" type="color" [value]="colorService.colorDensityColor" (input)="updateRollFrequencyDensityColor(densityColorInput.value)" />
+  </div>
+
+
+  <div *ngIf="userSettings.colorOption === ColorOption.Color">
+    <button (click)="colorPickerAll = !colorPickerAll">
+      {{ colorPickerAll ? 'Select End Colors' : 'Select All Colors' }}
+    </button>
+    <br /><br />
+
+
+    <div *ngIf="!colorPickerAll">
+      <label>least frequent </label>
+      <input #colorInputHigh type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[0])" (input)="colorService.colorGradients[0] = colorInputHigh.value" />
+      <input #colorInputLow type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[10])" (input)="colorService.colorGradients[10] = colorInputLow.value" />
+      <label>most frequent</label>
+    </div>
+
+    <div *ngIf="colorPickerAll"><!-- I had this in a loop, but the color selector would disappear when the user clicks to adjust color.  splitting out like this resolves the issue -->
+      <label>least frequent</label>
+      <input #colorInput0 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[0])" (input)="updateRollFrequencyColor(0, colorInput0.value)" />
+      <input #colorInput1 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[1])" (input)="updateRollFrequencyColor(1, colorInput1.value)" />
+      <input #colorInput2 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[2])" (input)="updateRollFrequencyColor(2, colorInput2.value)" />
+      <input #colorInput3 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[3])" (input)="updateRollFrequencyColor(3, colorInput3.value)" />
+      <input #colorInput4 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[4])" (input)="updateRollFrequencyColor(4, colorInput4.value)" />
+      <input #colorInput5 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[5])" (input)="updateRollFrequencyColor(5, colorInput5.value)" />
+      <input #colorInput6 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[6])" (input)="updateRollFrequencyColor(6, colorInput6.value)" />
+      <input #colorInput7 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[7])" (input)="updateRollFrequencyColor(7, colorInput7.value)" />
+      <input #colorInput8 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[8])" (input)="updateRollFrequencyColor(8, colorInput8.value)" />
+      <input #colorInput9 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[9])" (input)="updateRollFrequencyColor(9, colorInput9.value)" />
+      <input #colorInput10 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[10])" (input)="updateRollFrequencyColor(10, colorInput10.value)" />
+      <br />
+      <label>most frequent</label>
+    </div>
+
+    <button *ngIf="!colorPickerAll && userSettings.colorOption != ColorOption.Density"
+      (click)="mapNewColors(colorService.colorGradients[0], colorService.colorGradients[10])">
+      Map Colors
+    </button>
+  </div>
+  <button (click)="showColorPicker()">Close</button>
+</div>
+
+

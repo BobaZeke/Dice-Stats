@@ -1,5 +1,5 @@
-import { Component, HostListener, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, HostListener, OnInit, AfterViewInit, ChangeDetectorRef, ViewChildren, QueryList, ElementRef } from '@angular/core';
+import { CommonModule, KeyValue } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PlayStats } from './gameStats';
 import { SoundService } from './sound.service';
@@ -7,6 +7,7 @@ import { TimeFormatService } from './time-format.service'; // Add this line
 import { ColorOption } from './color-option.enum'; // Import the enum
 import { ColorService } from './color.service';
 import { TrendService } from './trend.service';
+import { UserSettingsService } from './user-settings.service';
 
 @Component({
   selector: 'app-root',
@@ -69,11 +70,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   public rollHistoryMiss = "&#9633;";   //  empty square (white square)
 
   /**
-   * display size of the roll history (em)
-   */
-  public rollHistorySize = 3;
-
-  /**
    * toggle between showing die counts and percentages
    */
   public showDieCounts = true;
@@ -87,7 +83,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   /** when 'new game' is clicked */
   public gameIsStopped = true;
 
-  
   // fun with the resume game button
   public blockScreenOpacity: number = 0.9;
   public resumeButtonOpacity: number = 1;
@@ -104,13 +99,9 @@ export class AppComponent implements OnInit, AfterViewInit {
   public isDiceContainerVisible: boolean = false;
 
   public barParentWidth: number = 1; // Default value to prevent division by zero
-  
-  public ColorOption = ColorOption; // Expose the enum to the template
-  public colorOption: ColorOption = ColorOption.Density; // Default option
 
   public showHelpDialog: boolean = false; // Flag to control the visibility of the help popup
 
-  public showTooltips: boolean = true; // Flag to control the visibility of the tooltips  
   public tooltipDice: string = "Select a die";
   public tooltipBar: string = "Frequency of this number rolling";
   public tooltipRollHistory: string = "Roll History.  Use arrow keys to change size";
@@ -126,26 +117,96 @@ export class AppComponent implements OnInit, AfterViewInit {
   public tooltipRollCount: string = "Number of rolls";
   public tooltipOpacity: string = "Use Mouse Scroll to adjust the visibility";
 
-  public playSounds = true; // Flag to control sound playback
+  public ColorOption = ColorOption; // Expose the enum to the template
+  public userSettings: any = {
+    playSounds: true,
+    showTooltips: true,
+    colorOption: ColorOption.Density // Default option
+  };
+
+  @ViewChildren('bar') barElements!: QueryList<ElementRef>;
+  @ViewChildren('overlay') overlayElements!: QueryList<ElementRef>;
+  /**
+   * display size of the roll history (em)
+   */
+  private readonly maxRollHistorySize = 5; //  max size of the roll history (in em)
+  public rollHistoryFontSize = this.maxRollHistorySize;
+  showColorPickerColors = false; // Flag to control the visibility of the color picker
+  colorPickerAll = true; // Flag to control the visibility of the color picker
   //#endregion  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   //#region Constructor         //    //    //    //    //    //    //
   constructor(
-    private cdr: ChangeDetectorRef, 
+    private cdr: ChangeDetectorRef,
     private soundService: SoundService,
     private formatService: TimeFormatService,
     public colorService: ColorService,
-    public trendService: TrendService
+    public trendService: TrendService,
+    private userSettingsService: UserSettingsService
   ) { }
 
   ngOnInit() {
     this.endGame();
+    // Load settings on initialization
+    const savedSettings = this.userSettingsService.loadSettings();
+    if (savedSettings) {
+      this.userSettings = savedSettings;
+    }
   }
 
   ngAfterViewInit(): void {
+    this.adjustOverlayFontSize();
     this.updateBarParentWidth(); // Measure the parent element after the view is initialized
     this.cdr.detectChanges(); // Trigger change detection manually
   }
+  /**
+   * Save settings when the user updates them
+   */
+  saveSettings(): void {
+    // Save settings when the user updates them
+    this.userSettingsService.saveSettings(this.userSettings);
+  }
+  /**
+   * Adjust the font size of the overlay so it fits within the bar
+   */
+  adjustOverlayFontSize(): void {
+    const bar = this.barElements.toArray()[0].nativeElement;
+    const overlayElement = this.overlayElements.toArray()[0].nativeElement;
+
+    const tolerance = 2; // Allowable difference in pixels between overlayHeight and barHeight
+    const minFontSize = 1.5; // Minimum font size in em when wrapping is detected
+    // const maxFontSize = this.maxRollHistorySize; // Maximum font size in em
+
+    const adjust = () => {
+      const overlayHeight = overlayElement.offsetHeight;
+      const barHeight = bar.offsetHeight;
+
+      // Detect wrapping: if overlay height exceeds bar height
+      if (overlayHeight > barHeight + tolerance) {
+        if (this.rollHistoryFontSize > 3) {
+          this.rollHistoryFontSize = 3; // Set font size to 3
+        } else if (this.rollHistoryFontSize > 2) {
+          this.rollHistoryFontSize = 2; // Set font size to 2
+        } else if (this.rollHistoryFontSize > minFontSize) {
+          this.rollHistoryFontSize = minFontSize; // Set font size to 1
+        }
+        overlayElement.style.fontSize = `${this.rollHistoryFontSize}em`;
+        return; // Stop further adjustments
+      }
+    };
+
+    // Delay the adjustment to ensure the DOM is fully updated
+    setTimeout(() => {
+      const overlayHeight = overlayElement.offsetHeight;
+      const barHeight = bar.offsetHeight;
+
+      // Only start the adjustment loop if wrapping is detected
+      if (overlayHeight > barHeight + tolerance) {
+        requestAnimationFrame(adjust);
+      }
+    }, 100); // Initial delay of 100ms to allow wrapping to settle
+  }
+
   //#endregion
   //#region Main Game Events      //    //    //    //    //    //    //
 
@@ -206,6 +267,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   public startResumeGame(): void {
+    this.rollHistoryFontSize = this.maxRollHistorySize;
     this.closeTournamentDisplay(); //  close tournament display if open
 
     this.showGamePause = false;
@@ -266,6 +328,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   @HostListener('window:resize', ['$event'])
   onResize(event: any): void {
     this.updateBarParentWidth();
+    this.adjustOverlayFontSize();
   }
 
   /**
@@ -329,10 +392,12 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.showContextMenu = false;
 
     if (event.key == 'Shift') {
+      if (this.userSettings.playSounds) this.soundService.playSoundBump();
       this.showDieCounts = !this.showDieCounts;
       return;
     }
     if (event.key == 'Control') {
+      if (this.userSettings.playSounds) this.soundService.playSoundBump();
       this.toggleTournamentDisplay();
       return;
     }
@@ -351,10 +416,10 @@ export class AppComponent implements OnInit, AfterViewInit {
       this.selectedDice[0] = 0; //  reset selected dice values
       this.selectedDice[1] = 0;
       this.currentRoll = null; //  reset current roll value
-      if(this.playSounds) this.soundService.playSoundFailure();
+      if (this.userSettings.playSounds) this.soundService.playSoundEscape();
       return;
     }
-
+    
     if (!this.showingTournament && event.key.includes('Arrow')) {
       if (this.showGameHistory) {
         this.gameHistoryIndex += (event.key == 'ArrowRight' || event.key == 'ArrowUp') ? +1 : -1;
@@ -365,9 +430,9 @@ export class AppComponent implements OnInit, AfterViewInit {
 
         this.updateDisplay();
       } else {  //  change the roll history size
-        this.rollHistorySize += (event.key == 'ArrowRight' || event.key == 'ArrowUp') ? +0.5 : -0.5;
-        if (this.rollHistorySize <= 0) this.rollHistorySize = 0.5;
-        if (this.rollHistorySize >= 10) this.rollHistorySize = 10;
+        this.rollHistoryFontSize += (event.key == 'ArrowRight' || event.key == 'ArrowUp') ? +0.5 : -0.5;
+        if (this.rollHistoryFontSize <= 0) this.rollHistoryFontSize = 0.5;
+        if (this.rollHistoryFontSize >= 10) this.rollHistoryFontSize = 10;
       }
 
       return;
@@ -383,14 +448,14 @@ export class AppComponent implements OnInit, AfterViewInit {
       this.closeTournamentDisplay(); //  close tournament display if open
       this.storeValues();
       this.keystrokeCount = 0;
-      if(this.isDiceContainerVisible) this.toggleDiceContainer(); //  hide the dice container when submitting a roll
+      if (this.isDiceContainerVisible) this.toggleDiceContainer(); //  hide the dice container when submitting a roll
       return;
     }
 
     //  if we get here, then let's try to process as a roll
     const num = parseInt(event.key);
     if (num >= 0 && num < 7) {  //  include zero as a way of clearing selections
-      if(!this.isDiceContainerVisible) this.toggleDiceContainer(); //  show the dice container while selecting #s (if not already visible)
+      if (!this.isDiceContainerVisible) this.toggleDiceContainer(); //  show the dice container while selecting #s (if not already visible)
       this.closeTournamentDisplay(); //  close tournament display if open
       this.keystrokeCount++;
       this.selectDie(this.keystrokeCount, num);
@@ -463,7 +528,27 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   private mapRollFrequencyColor() {
-    this.colorService.mapRollFrequencyColor(this.rollCount(), this.colorOption, this.gameStats, this.maxRollCount()); //  map the roll frequency colors
+    this.colorService.mapRollFrequencyColor(this.rollCount(), this.userSettings.colorOption, this.gameStats, this.maxRollCount()); //  map the roll frequency colors
+  }
+
+  updateRollFrequencyColor(index: number, hexColor: string): void {
+    this.colorService.updateRollFrequencyColor(index, hexColor); // Update the color for the specific roll
+    if(this.rollCount() == 0) this.colorService.showSampleColors(this.userSettings.colorOption);
+    else this.mapRollFrequencyColor();
+  }
+  updateRollFrequencyDensityColor(color: string): void {
+    this.colorService.updateRollFrequencyDensityColor(color); // Update the color for the specific roll
+    if(this.rollCount() == 0) this.colorService.showSampleColors(this.userSettings.colorOption);
+    else this.mapRollFrequencyColor();
+  }
+
+  mapNewColors(lowColor: string, highColor: string): void {
+    this.colorService.generateGradient(lowColor, highColor);
+    this.colorService.showSampleColors(this.userSettings.colorOption);
+  }
+
+  keyValueNumericOrder(a: KeyValue<string, string>, b: KeyValue<string, string>): number {
+    return +b.key - +a.key;
   }
 
   /**
@@ -482,17 +567,6 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.showHelpDialog = true;
   }
 
-  public rollHistorySizeSmaller() {
-    this.showContextMenu = false;
-    this.rollHistorySize = this.rollHistorySize - .5;
-    if (this.rollHistorySize <= 0) this.rollHistorySize = .5;
-  }
-
-  public rollHistorySizeLarger() {
-    this.showContextMenu = false;
-    this.rollHistorySize = this.rollHistorySize + .5;
-  }
-
   /** prevent barbarian and knight buttons from triggering (so we can handle it) */
   ignoreEnterKey(event: KeyboardEvent): void {
     if (event.key === 'Enter') {
@@ -502,6 +576,16 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   //#endregion
   //#region Display Toggles       //    //    //    //    //    //    //
+  showColorPicker(): void {
+    this.showColorPickerColors = !this.showColorPickerColors;
+
+    if(this.showColorPickerColors) {
+        this.colorService.showSampleColors(this.userSettings.colorOption);
+    } else {
+      this.updateDisplay();
+    }
+  }
+
   /**
    * show/hide the dice container (used for mobile devices)
    */
@@ -630,7 +714,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * % this # has been rolled
+   * % this # has rolled
    * @param num 
    * @returns 
    */
@@ -642,14 +726,33 @@ export class AppComponent implements OnInit, AfterViewInit {
     return Math.trunc(perc);
   }
 
+  getTourneyBarPercent(num: number): number {
+    var val = this.tourneyStats.rolls[num] || 0;
+
+    const perc = (val / this.tourneyStats.rollHistory.length) * 100; // % of total rolls
+
+    return Math.trunc(perc);
+  }
 
   /**
-   * Set the roll frequency color option
+   * Set the roll frequency color option 
    * @param option 'density' or 'color'
    */
   setColorOption(option: ColorOption): void {
-    this.colorOption = option;
+    this.userSettings.colorOption = option;
     this.mapRollFrequencyColor();
+
+    this.userSettingsService.saveSettings(this.userSettings);
+  }
+
+  toggleTooltips(): void {
+    this.userSettings.showTooltips = !this.userSettings.showTooltips;
+    this.saveSettings(); // Save the updated settings
+  }
+
+  toggleSounds(): void {
+    this.userSettings.playSounds = !this.userSettings.playSounds;
+    this.saveSettings(); // Save the updated settings
   }
 
   //#endregion
@@ -693,7 +796,8 @@ export class AppComponent implements OnInit, AfterViewInit {
   selectDie(column: number, value: number) {
     this.skipNext = true; //  skip the next click event (to prevent closing the dice container)
     this.selectedDice[column - 1] = value;
-   // if(event) event.preventDefault(); // Prevent the default browser context menu
+    if (this.userSettings.playSounds) this.soundService.playSoundNumberSelect();
+    // if(event) event.preventDefault(); // Prevent the default browser context menu
   }
 
   /**
@@ -727,13 +831,20 @@ export class AppComponent implements OnInit, AfterViewInit {
 
       this.gameStats.rollHistory.push(this.currentRoll);
       this.tourneyStats.rollHistory.push(this.currentRoll);
-      if(this.playSounds) this.soundService.playSoundSuccess();
-    } else if(this.playSounds) this.soundService.playSoundFailure();
+
+      if (this.userSettings.playSounds) {
+        if(this.currentRoll == 7) this.soundService.playSoundSeven();
+        else if(this.selectedDice[0] == this.selectedDice[1]) this.soundService.playSoundDouble();
+        else this.soundService.playSoundSuccess();
+      }
+    } else if (this.userSettings.playSounds) this.soundService.playSoundFailure();
 
     //  clear current selections
     this.selectedDice = [0, 0];
 
     this.updateDisplay();
+
+    this.adjustOverlayFontSize()
 
     //  turn ended / next turn begins
     this.stopTurnTimer();

@@ -10,19 +10,44 @@ import { Injectable } from '@angular/core';
     providedIn: 'root',
 })
 export class SoundService {
-    private soundSuccess: HTMLAudioElement = new Audio();
-    private soundFailure: HTMLAudioElement = new Audio();
+    private success: HTMLAudioElement = new Audio();
+    private number_select: HTMLAudioElement = new Audio();
+    private error: HTMLAudioElement = new Audio();
+    private double: HTMLAudioElement = new Audio();
+    private seven: HTMLAudioElement = new Audio();
+    private bump: HTMLAudioElement = new Audio();
+    private escape: HTMLAudioElement = new Audio();
 
     constructor() {
-        this.soundSuccess = new Audio('assets/sounds/coin-recieved-230517.mp3');
-        this.soundFailure = new Audio('assets/sounds/rubber-tire-screech-7-202580.mp3');
+        this.success = new Audio('assets/sounds/success.mp3');
+        this.error = new Audio('assets/sounds/error.mp3');
+        this.number_select = new Audio('assets/sounds/number_select.mp3');
+        this.double = new Audio('assets/sounds/double.mp3');
+        this.seven = new Audio('assets/sounds/seven.mp3');
+        this.bump = new Audio('assets/sounds/bump.mp3');
+        this.escape = new Audio('assets/sounds/escape.mp3');
     }
 
     public playSoundSuccess(): void {
-        this.playSound(this.soundSuccess);
+        this.playSound(this.success);
     }
     public playSoundFailure(): void {
-        this.playSound(this.soundFailure)
+        this.playSound(this.error)
+    }
+    public playSoundNumberSelect(): void {
+        this.playSound(this.number_select)
+    }
+    public playSoundDouble(): void {
+        this.playSound(this.double)
+    }
+    public playSoundSeven(): void {
+        this.playSound(this.seven)
+    }
+    public playSoundBump(): void {
+        this.playSound(this.bump)
+    }
+    public playSoundEscape(): void {
+        this.playSound(this.escape)
     }
 
     playSound(sound: HTMLAudioElement): void {
