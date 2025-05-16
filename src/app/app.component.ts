@@ -143,7 +143,8 @@ export class AppComponent implements OnInit, AfterViewInit {
     private formatService: TimeFormatService,
     public colorService: ColorService,
     public trendService: TrendService,
-    private userSettingsService: UserSettingsService
+    private userSettingsService: UserSettingsService,
+    private elRef: ElementRef
   ) { }
 
   ngOnInit() {
@@ -357,11 +358,13 @@ export class AppComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    if (this.isDiceContainerVisible) this.toggleDiceContainer(); //  close dice container if open
-
-    // if (this.showPopupMessage) { //  close popup for any click
-    //   this.showPopupMessage = false;
-    // }
+    const diceContainer = this.elRef.nativeElement.querySelector('.dice-container');
+    if (diceContainer && !diceContainer.contains(event.target as Node)) {
+      // Click was outside dice-container
+      if (this.isDiceContainerVisible) this.toggleDiceContainer(); //  close dice container if open
+    }
+    
+    
   }
 
   @HostListener('window:wheel', ['$event'])

@@ -700,6 +700,7 @@ html {
   /* Ensure it fits on smaller screens */
   text-align: center;
   /* Center-align text and content */
+  margin-bottom: 20px;
 }
 
 .color-picker-container label {
