@@ -19,21 +19,8 @@
 
     <li class="menu-separator"></li>
 
-    <li>Roll Frequency
-      <ul>
-        <li (click)="setColorOption(ColorOption.Density)"
-          [class.selected]="userSettings.colorOption === ColorOption.Density">
-          Change Density
-        </li>
-        <li (click)="setColorOption(ColorOption.Color)"
-          [class.selected]="userSettings.colorOption === ColorOption.Color">
-          Change Color
-        </li>
-      </ul>
-    </li>
-
     <li (click)="showColorPicker()">
-      Select Color<span *ngIf="userSettings.colorOption === ColorOption.Color">s</span>
+      Color Options
     </li>
 
     <li class="menu-separator"></li>
@@ -203,7 +190,7 @@
 <!-- div to block page content while the we are prompting the user (play/resume) --><!-- showPopupMessage|| -->
 <div [ngClass]="(showGamePause || showHelpDialog) ? 'block-app' : 'normal'" [style.opacity]="blockScreenOpacity"></div>
 
-<button *ngIf="showGamePause && !showHelpDialog" (click)="startResumeGame()" [style.opacity]="resumeButtonOpacity"
+<button *ngIf="showGamePause && !showHelpDialog && !showColorPickerColors" (click)="startResumeGame()" [style.opacity]="resumeButtonOpacity"
   class="user-message-popup gradient-btn-start store-button" style="color: White;"
   [title]="!userSettings.showTooltips ? '' : tooltipOpacity">
   {{ gameIsStopped ? 'Start New Game' : 'Resume Game' }}
@@ -227,18 +214,29 @@
 <!-- Color picker for roll frequency -->
 <div *ngIf="showColorPickerColors" class="user-message-popup color-picker-container">
 
+  <div class="rocker-switch" (click)="toggleColorType()">
+    <div class="switch" [class.active]="colorType"></div>
+    <span class="label-left" [class.selected]="!colorType">Color</span>
+    <span class="label-right" [class.selected]="colorType">Density</span>
+  </div>
+
   <div *ngIf="userSettings.colorOption === ColorOption.Density">
+    <br /><br />
     <label for="colorPicker">Select Color:</label>
     <input #densityColorInput id="colorPicker" type="color" [value]="colorService.colorDensityColor" (input)="updateRollFrequencyDensityColor(densityColorInput.value)" />
   </div>
 
 
   <div *ngIf="userSettings.colorOption === ColorOption.Color">
-    <button (click)="colorPickerAll = !colorPickerAll">
+    <!-- <button (click)="colorPickerAll = !colorPickerAll">
       {{ colorPickerAll ? 'Select End Colors' : 'Select All Colors' }}
-    </button>
+    </button> -->
+    <div class="rocker-switch" (click)="colorPickerAll = !colorPickerAll">
+      <div class="switch" [class.active]="colorPickerAll"></div>
+      <span class="label-left" [class.selected]="!colorPickerAll">Ends</span>
+      <span class="label-right" [class.selected]="colorPickerAll">All</span>
+    </div>
     <br /><br />
-
 
     <div *ngIf="!colorPickerAll">
       <label>least frequent </label>

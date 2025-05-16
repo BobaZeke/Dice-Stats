@@ -682,9 +682,10 @@ html {
 
 .color-picker-container {
   position: fixed;
-  top: 50%;
+  top: 20%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  /* transform: translate(-50%, -50%); */
+  transform: translateX(-50%); /* Only translate horizontally */
   background-color: #ffffff;
   /* White background for better visibility */
   border: 1px solid #ccc;
@@ -753,4 +754,58 @@ html {
 .color-picker-container button:hover {
   background-color: #0056b3;
   /* Darker blue on hover */
+}
+
+.rocker-switch {
+  display: inline-block;
+  width: 200px;
+  height: 40px;
+  background-color: #ccc; /* Muted background for the toggle */
+  border-radius: 20px;
+  position: relative;
+  cursor: pointer;
+  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.switch {
+  width: 50%;
+  height: 100%;
+  background-color: #777777; /* Lighter background for the selected side */
+  border-radius: 20px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: all 0.3s ease;
+}
+
+.switch.active {
+  left: 50%; /* Move the switch to the right */
+}
+
+.label-left,
+.label-right {
+  position: absolute;
+  width: 50%; /* Each label takes up half the toggle */
+  height: 100%; /* Full height of the toggle */
+  display: flex; /* Use flexbox for centering */
+  align-items: center; /* Center vertically */
+  justify-content: center; /* Center horizontally */
+  font-size: 18px;
+  font-weight: bold;
+  color: #666; /* Muted color for non-selected text */
+  pointer-events: none;
+  transition: color 0.3s ease;
+}
+
+.label-left {
+  left: 0; /* Align to the left half */
+}
+
+.label-right {
+  right: 0; /* Align to the right half */
+}
+
+.label-left.selected,
+.label-right.selected {
+  color: #000; /* Darker color for selected text */
 }

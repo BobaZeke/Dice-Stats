@@ -133,6 +133,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   public rollHistoryFontSize = this.maxRollHistorySize;
   showColorPickerColors = false; // Flag to control the visibility of the color picker
   colorPickerAll = true; // Flag to control the visibility of the color picker
+  colorType = true;
   //#endregion  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   //#region Constructor         //    //    //    //    //    //    //
@@ -586,6 +587,13 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
   }
 
+  toggleColorType(): void {
+    this.colorType = !this.colorType;
+    if(this.userSettings.colorOption === ColorOption.Density) 
+      this.userSettings.colorOption = ColorOption.Color;
+    else
+      this.userSettings.colorOption = ColorOption.Density;
+  }
   /**
    * show/hide the dice container (used for mobile devices)
    */
