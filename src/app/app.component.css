@@ -280,7 +280,7 @@ p {
 
 /* Bar styles */
 .bar {
-  height: calc((100vh - 240px)/11);
+  height: calc((100vh - 260px)/11);
   /* Adjust height to fit below the header */
   /* min-height: 40px; */
   border-radius: 5px;
