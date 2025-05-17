@@ -317,6 +317,12 @@ p {
   cursor: default;
 }
 
+@media (max-width: 768px) {
+  .bar-overlay {
+    width: calc(100vw - 100px);
+  }
+}
+
 .bar-overlay span {
   pointer-events: auto;
   /* Enable pointer events only for the text */
@@ -411,6 +417,10 @@ p {
   max-height: 80vh;      /* Limit height to 80% of viewport */
   overflow-y: auto;      /* Enable vertical scrolling if needed */
   font-size: 1.2em;
+}
+
+.help-popup-content {
+  margin: 20px;
 }
 
 /* Menu container */
