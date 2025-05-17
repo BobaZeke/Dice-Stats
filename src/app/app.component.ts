@@ -87,9 +87,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   public blockScreenOpacity: number = 0.9;
   public resumeButtonOpacity: number = 1;
 
-  public showContextMenu = false; // Flag to control the visibility of the context menu
-  public contextMenuPosition = { x: 0, y: 0 };
-
   public currentRoll: number | null = null; //  current roll value (sum of the two dice)
 
   //  variables for 'game history' display
@@ -101,21 +98,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   public barParentWidth: number = 1; // Default value to prevent division by zero
 
   public showHelpDialog: boolean = true; // Flag to control the visibility of the help popup
-
-  public tooltipDice: string = "Select a die";
-  public tooltipBar: string = "Frequency of this number rolling";
-  public tooltipRollHistory: string = "Roll History.  Use arrow keys to change size";
-  public tooltipTournamentBar: string = "Frequency of this number rolling in the tournament";
-  public tooltipRollNumber: string = "Dice Roll";
-  public tooltipRollFrequency: string = "Number of times this number has rolled.  Use Shift to show percentages.";
-  public tooltipRollPercent: string = "Percent of times this number has rolled.  Use Shift to show counts.";
-  public tooltipStore: string = "Store the selected dice values";
-  public tooltipTurnDuration: string = "How long this turn has lasted";
-  public tooltipBreakDuration: string = "How long this break has lasted";
-  public tooltipGameDuration: string = "How long this game has lasted.  Use Ctrl to show tournament.";
-  public tooltipTournamentDuration: string = "How long this tournament has lasted.  Use Ctrl to show game.";
-  public tooltipRollCount: string = "Number of rolls";
-  public tooltipOpacity: string = "Use Mouse Scroll to adjust the visibility";
 
   public ColorOption = ColorOption; // Expose the enum to the template
   public userSettings: any = {
@@ -216,8 +198,6 @@ export class AppComponent implements OnInit, AfterViewInit {
    * clear everything and start over
    */
   public endGame() {
-    this.showContextMenu = false;
-
     this.closeTournamentDisplay(); //  close tournament display if open
 
     this.gameIsStopped = true;
@@ -244,7 +224,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   public pauseGame(): void {
-    this.showContextMenu = false;
     this.currentRoll = null;  //  remove current roll from display
 
     if (!this.gameIsStopped) {
@@ -350,8 +329,9 @@ export class AppComponent implements OnInit, AfterViewInit {
    */
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
-    this.showContextMenu = false;
     this.showHelpDialog = false;
+
+    this.currentRoll = null; //  reset current roll value
 
     if (this.skipNext) {
       this.skipNext = false;
@@ -363,8 +343,6 @@ export class AppComponent implements OnInit, AfterViewInit {
       // Click was outside dice-container
       if (this.isDiceContainerVisible) this.toggleDiceContainer(); //  close dice container if open
     }
-    
-    
   }
 
   @HostListener('window:wheel', ['$event'])
@@ -382,27 +360,16 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // @HostListener('document:contextmenu', ['$event'])
-  // onRightClick(event: MouseEvent): void {
-  //   event.preventDefault(); // Prevent the default context menu from appearing
-  //   this.showContextMenu = true; // Show your custom context menu
-  //   this.contextMenuPosition = { x: event.clientX, y: event.clientY };
-  // }
-
   // monitor keystrokes (die count input, display toggles, etc.)
   @HostListener('document:keydown', ['$event'])
   handleGlobalKeydown(event: KeyboardEvent): void {
     //console.log(`key down : '${event.key}'`);
 
-    this.showContextMenu = false;
-
     if (event.key == 'Shift') {
-      if (this.userSettings.playSounds) this.soundService.playSoundBump();
-      this.showDieCounts = !this.showDieCounts;
+      this.toggleDiePercent();
       return;
     }
     if (event.key == 'Control') {
-      if (this.userSettings.playSounds) this.soundService.playSoundBump();
       this.toggleTournamentDisplay();
       return;
     }
@@ -569,7 +536,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   //#endregion
   //#region Button Events         //    //    //    //    //    //    //
   public showHelp() {
-    this.showContextMenu = false;
     this.showHelpDialog = true;
   }
 
@@ -594,6 +560,8 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   toggleColorType(): void {
     this.colorType = !this.colorType;
+    if (this.userSettings.playSounds) this.soundService.playSoundBump();
+
     if(this.userSettings.colorOption === ColorOption.Density) 
       this.userSettings.colorOption = ColorOption.Color;
     else
@@ -615,11 +583,17 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
   }
 
+  toggleColorPicker(): void {
+    this.colorPickerAll = !this.colorPickerAll;
+    if (this.userSettings.playSounds) this.soundService.playSoundBump();
+  }
+
   closeTournamentDisplay() {
     if (this.showingTournament) this.toggleTournamentDisplay(); //  close tournament display if open
   }
   toggleTournamentDisplay() {
     this.showingTournament = !this.showingTournament;
+    if (this.userSettings.playSounds) this.soundService.playSoundBump();
 
     if (this.gameIsStopped) { //  game is stopped, so we need to toggle between history and tournament
       if (this.showingTournament) {
@@ -640,6 +614,11 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
 
     this.updateDisplay();
+  }
+
+  toggleDiePercent() {
+    if (this.userSettings.playSounds) this.soundService.playSoundBump();
+    this.showDieCounts = !this.showDieCounts;
   }
 
   toggleGameHistory() {
@@ -765,8 +744,12 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   toggleSounds(): void {
     this.userSettings.playSounds = !this.userSettings.playSounds;
+    if (this.userSettings.playSounds) this.soundService.playSoundBump();
+    else this.soundService.playSoundEscape();
     this.saveSettings(); // Save the updated settings
   }
+
+
 
   //#endregion
   //#region Timers                //    //    //    //    //    //    //
@@ -837,6 +820,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   storeValues() {
     //  if valid entry, process the selections...
     if ((this.selectedDice[0] > 0 && this.selectedDice[1] > 0)) {
+      if (this.isDiceContainerVisible) this.toggleDiceContainer(); //  close dice container if open
       this.currentRoll = this.selectedDice[0] + this.selectedDice[1];
 
       this.gameStats.rolls[this.currentRoll] = (this.gameStats.rolls[this.currentRoll] || 0) + 1;
@@ -865,8 +849,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   undoLastRoll() {
-    this.showContextMenu = false;
-
     if (this.gameStats.rollHistory.length > 0) {
       const lastRoll = this.gameStats.rollHistory[this.gameStats.rollHistory.length - 1]; // Get the last roll
 

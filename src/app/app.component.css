@@ -8,6 +8,10 @@ html {
   flex-direction: column;
 }
 
+p {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
 /* Header container spans the top and aligns content inline */
 .header-container {
   position: fixed;
@@ -37,7 +41,7 @@ html {
 .column {
   display: flex;
   align-items: center;
-  gap: 10px;
+  /* gap: 10px; */
   /* Add spacing between controls */
 }
 
@@ -56,7 +60,7 @@ html {
   /* Prevent shrinking */
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 10px;
 }
 
 .game-duration {
@@ -92,12 +96,13 @@ html {
 }
 
 .die-one {
-  background-color: yellow;
+  color: white;
+  background-color: rgb(133, 133, 41);
 }
 
 .die-two {
   color: white;
-  background-color: red;
+  background-color: rgb(134, 38, 38);
 }
 
 .dice:hover {
@@ -156,16 +161,39 @@ html {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  /* gap: 10px; */
 }
 
 .store-button {
-  margin-bottom: 10px;
+  /* margin-bottom: 10px; */
   background-color: #0b5fb8;
   color: white;
-  padding: 20px;
+  /* padding: 20px; */
   border-radius: 10px;
   text-align: center;
+}
+
+.pause-button {
+  /* margin-bottom: 10px; */
+  background-color: #b20bb8;
+  color: white;
+  padding: 5px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.end-button {
+  /* margin-bottom: 10px; */
+  background-color: #b80b14;
+}
+
+.undo-button {
+  padding: 10px;
+  margin: 10px;
+}
+
+.help-button {
+  /* margin-bottom: 20px; */
 }
 
 /* Counter styles */
@@ -233,7 +261,7 @@ html {
   /* Allow bar-box to grow and fill vertical space proportionally */
   position: relative;
   /* For overlay positioning */
-  margin-bottom: 10px;
+  /* margin-bottom: 10px; */
   /* Add spacing between rows */
 }
 
@@ -692,7 +720,7 @@ html {
   /* Rounded corners */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   /* Subtle shadow for depth */
-  z-index: 2100;
+  /* z-index: 2100; */
   /* Ensure it appears above other elements */
   width: 100%;
   /* Set a fixed width */
@@ -700,8 +728,9 @@ html {
   /* Ensure it fits on smaller screens */
   text-align: center;
   /* Center-align text and content */
-  margin-bottom: 20px;
+  /* margin-bottom: 20px; */
 }
+
 
 .color-picker-container label {
   display: block;
@@ -728,8 +757,8 @@ html {
 }
 
 .color-picker-container button {
-  margin-top: 20px;
-  /* Add spacing above the button */
+  margin-top: 5px;
+  margin-bottom: 10px;
   padding: 10px 20px;
   /* Add padding for a larger clickable area */
   border: none;
