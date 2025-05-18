@@ -343,22 +343,32 @@ export class AppComponent implements OnInit, AfterViewInit {
       // Click was outside dice-container
       if (this.isDiceContainerVisible) this.toggleDiceContainer(); //  close dice container if open
     }
+
+      if (this.showGameHistory) {
+        this.gameHistoryIndex += 1;
+        if (this.gameHistoryIndex >= this.gameHistory.length) this.gameHistoryIndex = 0;
+        if (this.gameHistoryIndex < 0) this.gameHistoryIndex = this.gameHistory.length - 1;
+
+        this.gameStats = this.gameHistory[this.gameHistoryIndex];
+
+        this.updateDisplay();
+      } 
   }
 
-  @HostListener('window:wheel', ['$event'])
-  onScroll(event: WheelEvent): void {
-    if (this.showGamePause && !this.showHelpDialog) {  //  if game is paused, change opacity of the overlay
-      if (event.deltaY > 0) { //  Scrolled down
-        this.blockScreenOpacity += 0.1;
-        if (this.blockScreenOpacity >= 1) this.blockScreenOpacity = 1;
-      } else {  //  Scrolled up
-        if (this.showGamePause) {  //  if game is paused, change opacity of the overlay
-          this.blockScreenOpacity -= 0.1;
-          if (this.blockScreenOpacity <= 0) this.blockScreenOpacity = 0;
-        }
-      }
-    }
-  }
+  // @HostListener('window:wheel', ['$event'])
+  // onScroll(event: WheelEvent): void {
+  //   if (this.showGamePause && !this.showHelpDialog) {  //  if game is paused, change opacity of the overlay
+  //     if (event.deltaY > 0) { //  Scrolled down
+  //       this.blockScreenOpacity += 0.1;
+  //       if (this.blockScreenOpacity >= 1) this.blockScreenOpacity = 1;
+  //     } else {  //  Scrolled up
+  //       if (this.showGamePause) {  //  if game is paused, change opacity of the overlay
+  //         this.blockScreenOpacity -= 0.1;
+  //         if (this.blockScreenOpacity <= 0) this.blockScreenOpacity = 0;
+  //       }
+  //     }
+  //   }
+  // }
 
   // monitor keystrokes (die count input, display toggles, etc.)
   @HostListener('document:keydown', ['$event'])
@@ -518,6 +528,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   mapNewColors(lowColor: string, highColor: string): void {
     this.colorService.generateGradient(lowColor, highColor);
     this.colorService.showSampleColors(this.userSettings.colorOption);
+    this.colorPickerAll = true;  //  toggle to show generated colors
   }
 
   keyValueNumericOrder(a: KeyValue<string, string>, b: KeyValue<string, string>): number {
