@@ -22,7 +22,7 @@
   <!-- Left column  -->
   <div class="dice-container">
     <!-- Dice -->
-    <div *ngIf="!gameIsStopped" class="dice-group">
+    <div *ngIf="!gameIsStopped && !showGamePause" class="dice-group">
       <div class="sub-column">
         <div *ngFor="let die of dice | slice:0:3" (click)="selectDie(1, die)" class="dice die-one"
           [class.selected]="selectedDice[0] === die" [class.has-selected]="haveSelectedYellowDie()">
@@ -37,7 +37,7 @@
       </div>
     </div>
 
-    <div *ngIf="!gameIsStopped" class="dice-group">
+    <div *ngIf="!gameIsStopped && !showGamePause" class="dice-group">
       <div class="sub-column">
         <div *ngFor="let die of dice | slice:0:3" (click)="selectDie(2, die)" class="dice die-two"
           [class.selected]="selectedDice[1] === die" [class.has-selected]="haveSelectedRedDie()">
@@ -53,13 +53,13 @@
     </div>
 
     <!-- store button and some stats -->
-    <div *ngIf="!gameIsStopped" class="store-button-container">
+    <div *ngIf="!gameIsStopped && !showGamePause" class="store-button-container">
       <button (click)="storeValues()" [disabled]="(selectedDice[0] == 0 || selectedDice[1] == 0)"
         class="gradient-btn store-button">
         Store
       </button>
 
-      <button *ngIf="!gameIsStopped" (click)="undoLastRoll()" class="pause-button undo-button">Undo</button>
+      <button *ngIf="!gameIsStopped && !showGamePause" (click)="undoLastRoll()" class="pause-button undo-button">Undo</button>
 
       <p class="counter">
         {{showGamePause ? 'Break Duration' : 'Turn Duration:'}}
@@ -95,8 +95,8 @@
         </span>
       </p>
 
-    <button *ngIf="!gameIsStopped" (click)="pauseGame()" class="pause-button">Pause Game</button>
-    <button *ngIf="!gameIsStopped" (click)="endGame()" class="pause-button end-button">End Game</button>
+    <button *ngIf="!gameIsStopped && !showGamePause" (click)="pauseGame()" class="pause-button">Pause Game</button>
+    <button *ngIf="!gameIsStopped && !showGamePause" (click)="endGame()" class="pause-button end-button">End Game</button>
     </div>
 
     <div class="color-picker-container">
@@ -295,15 +295,14 @@
   </div>
 </div>
 
+<div [ngClass]="gameIsStopped ? 'block-app' : ((showGamePause || showHelpDialog) ? 'block-app-paused' : 'normal')"></div>
 
-<!-- div to block page content while the we are prompting the user (play/resume) --><!-- showPopupMessage|| -->
-<div [ngClass]="(showGamePause || showHelpDialog) ? 'block-app' : 'normal'" [style.opacity]="blockScreenOpacity"></div>
-
-<button *ngIf="showGamePause && !showHelpDialog && !showColorPickerColors" (click)="startResumeGame()"
-  [style.opacity]="resumeButtonOpacity" class="user-message-popup gradient-btn-start"
+<button *ngIf="showGamePause && !showHelpDialog" (click)="startResumeGame()"
+  class="user-message-popup gradient-btn-start"
   style="color: White;">
   {{ gameIsStopped ? 'Start New Game' : 'Resume Game' }}
 </button>
+
 <div *ngIf="showHelpDialog" class="user-message-popup help-dialog">
   <h2>Welcome to Boba-Zeke's Dice Stats</h2>
   <div class="help-popup-content">

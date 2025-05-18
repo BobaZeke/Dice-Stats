@@ -83,17 +83,13 @@ export class AppComponent implements OnInit, AfterViewInit {
   /** when 'new game' is clicked */
   public gameIsStopped = true;
 
-  // fun with the resume game button
-  public blockScreenOpacity: number = 0.9;
-  public resumeButtonOpacity: number = 1;
-
   public currentRoll: number | null = null; //  current roll value (sum of the two dice)
 
   //  variables for 'game history' display
   public showGameHistory = false;
   public gameHistoryIndex: number = 0;
 
-  public isDiceContainerVisible: boolean = false;
+  public isDiceContainerVisible: boolean = true;
 
   public barParentWidth: number = 1; // Default value to prevent division by zero
 
@@ -113,7 +109,7 @@ export class AppComponent implements OnInit, AfterViewInit {
    */
   private readonly maxRollHistorySize = 5; //  max size of the roll history (in em)
   public rollHistoryFontSize = this.maxRollHistorySize;
-  showColorPickerColors = false; // Flag to control the visibility of the color picker
+  // showColorPickerColors = false; // Flag to control the visibility of the color picker
   colorPickerAll = true; // Flag to control the visibility of the color picker
   colorType = true;
 
@@ -340,21 +336,23 @@ export class AppComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    const diceContainer = this.elRef.nativeElement.querySelector('.dice-container');
-    if (diceContainer && !diceContainer.contains(event.target as Node)) {
-      // Click was outside dice-container
-      if (this.isDiceContainerVisible) this.toggleDiceContainer(); //  close dice container if open
+    if(!this.gameIsStopped && !this.showGamePause) {
+      const diceContainer = this.elRef.nativeElement.querySelector('.dice-container');
+      if (diceContainer && !diceContainer.contains(event.target as Node)) {
+        // Click was outside dice-container
+        if (this.isDiceContainerVisible) this.toggleDiceContainer(); //  close dice container if open
+      }
     }
 
-      if (this.showGameHistory) {
-        this.gameHistoryIndex += 1;
-        if (this.gameHistoryIndex >= this.gameHistory.length) this.gameHistoryIndex = 0;
-        if (this.gameHistoryIndex < 0) this.gameHistoryIndex = this.gameHistory.length - 1;
+    if (this.showGameHistory) {
+      this.gameHistoryIndex += 1;
+      if (this.gameHistoryIndex >= this.gameHistory.length) this.gameHistoryIndex = 0;
+      if (this.gameHistoryIndex < 0) this.gameHistoryIndex = this.gameHistory.length - 1;
 
-        this.gameStats = this.gameHistory[this.gameHistoryIndex];
+      this.gameStats = this.gameHistory[this.gameHistoryIndex];
 
-        this.updateDisplay();
-      } 
+      this.updateDisplay();
+    } 
   }
 
   // @HostListener('window:wheel', ['$event'])
@@ -561,15 +559,15 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   //#endregion
   //#region Display Toggles       //    //    //    //    //    //    //
-  showColorPicker(): void {
-    this.showColorPickerColors = !this.showColorPickerColors;
+  // showColorPicker(): void {
+  //   this.showColorPickerColors = !this.showColorPickerColors;
 
-    if(this.showColorPickerColors) {
-        this.colorService.showSampleColors(this.userSettings.colorOption);
-    } else {
-      this.updateDisplay();
-    }
-  }
+  //   if(this.showColorPickerColors) {
+  //       this.colorService.showSampleColors(this.userSettings.colorOption);
+  //   } else {
+  //     this.updateDisplay();
+  //   }
+  // }
 
   toggleColorType(): void {
     this.colorType = !this.colorType;
