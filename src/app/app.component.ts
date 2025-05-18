@@ -116,6 +116,8 @@ export class AppComponent implements OnInit, AfterViewInit {
   showColorPickerColors = false; // Flag to control the visibility of the color picker
   colorPickerAll = true; // Flag to control the visibility of the color picker
   colorType = true;
+
+  showColorSettings = false;
   //#endregion  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   //#region Constructor         //    //    //    //    //    //    //

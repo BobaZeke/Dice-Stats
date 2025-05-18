@@ -156,6 +156,7 @@ p {
 }
 
 .store-button {
+  width: 80%;
   background-color: #0b5fb8;
   color: white;
   border-radius: 10px;
@@ -163,14 +164,23 @@ p {
 }
 
 .pause-button {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  width: 80%;
   background-color: #b20bb8;
   color: white;
   padding: 5px;
   border-radius: 10px;
   text-align: center;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.pause-button:hover {
+  transform: scale(1.05);
 }
 
 .end-button {
+  margin-top: 0;
   background-color: #b80b14;
 }
 
@@ -524,9 +534,11 @@ p {
 }
 
 .dice-container {
-  max-height: 100%;  /* Default: take up available height */
+  max-height: 100dvh;  /* Default: take up available height */
   overflow-y: auto;  /* Enable vertical scrolling if content overflows */
   transition: transform 0.3s ease-in-out;  /* Smooth slide-in/out animation */
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 /* Toggle bar to show/hide dice area in mobile view */
