@@ -22,7 +22,7 @@
   <!-- Left column  -->
   <div class="dice-container">
     <!-- Dice -->
-    <div *ngIf="!gameIsStopped && !showGamePause" class="dice-group">
+    <div class="dice-group">
       <div class="sub-column">
         <div *ngFor="let die of dice | slice:0:3" (click)="selectDie(1, die)" class="dice die-one"
           [class.selected]="selectedDice[0] === die" [class.has-selected]="haveSelectedYellowDie()">
@@ -37,7 +37,7 @@
       </div>
     </div>
 
-    <div *ngIf="!gameIsStopped && !showGamePause" class="dice-group">
+    <div class="dice-group">
       <div class="sub-column">
         <div *ngFor="let die of dice | slice:0:3" (click)="selectDie(2, die)" class="dice die-two"
           [class.selected]="selectedDice[1] === die" [class.has-selected]="haveSelectedRedDie()">
@@ -53,40 +53,45 @@
     </div>
 
     <!-- store button and some stats -->
-    <div *ngIf="!gameIsStopped && !showGamePause" class="store-button-container">
+    <div class="store-button-container">
+      <p class="counter">
+        {{showGamePause ? 'Break Duration' : 'Turn Duration:'}}
+        <span class="counter-val">
+          {{ 
+            showingTournament
+            ? tourneyStats.breakDurationDisplay
+            : ( gameIsStopped
+                ? gameStats.breakDurationDisplay
+                : ( showGamePause
+                    ? breakDurationDisplay
+                    : turnDurationDisplay
+                  )
+              )
+          }}
+        </span>
+      </p>
+      
       <button (click)="storeValues()" [disabled]="(selectedDice[0] == 0 || selectedDice[1] == 0)"
         class="gradient-btn store-button">
         Store
       </button>
 
-      <button *ngIf="!gameIsStopped && !showGamePause" (click)="undoLastRoll()" class="pause-button undo-button">Undo</button>
-
-      <p class="counter">
-        {{showGamePause ? 'Break Duration' : 'Turn Duration:'}}
-        <span class="counter-val">
-          {{ showingTournament
-            ? tourneyStats.breakDurationDisplay
-            : ( gameIsStopped
-              ? gameStats.breakDurationDisplay
-              : ( showGamePause
-                ? breakDurationDisplay
-                : turnDurationDisplay
-                )
-              )
-          }}
-        </span>
-      </p>
       <p class="counter">Roll Count:
         <br />
         <span class="counter-val">{{rollCount()}}</span>
       </p>
-      <!-- <p class="counter">Avg # Rolls between 7s:<br />
+
+      <button (click)="undoLastRoll()" class="pause-button undo-button">Undo</button>
+      
+      <p class="counter">Avg # Rolls between 7s:<br />
         <span class="counter-val">{{calculateAverageInterval(7)}}</span>
         <span class="counter-avg">(6.0)</span>
         <br />
         <span class="counter-val">{{getBarPercent(7)}}%</span>
         <span class="counter-avg">(16%)</span>
-      </p> -->
+      </p>
+
+      <button (click)="pauseGame()" class="pause-button">Pause Game</button>
 
       <p class="counter">
         {{showingTournament ? 'Tournament Duration:' : 'Game Duration'}}
@@ -95,11 +100,10 @@
         </span>
       </p>
 
-    <button *ngIf="!gameIsStopped && !showGamePause" (click)="pauseGame()" class="pause-button">Pause Game</button>
-    <button *ngIf="!gameIsStopped && !showGamePause" (click)="endGame()" class="pause-button end-button">End Game</button>
-    </div>
+      <button (click)="endGame()" class="pause-button end-button">End Game</button>
 
-    <div class="color-picker-container">
+      <br />
+
       <div class="rocker-switch" (click)="toggleSounds()">
         <div class="switch" [class.active]="userSettings.playSounds"></div>
         <span class="label-left" [class.selected]="!userSettings.playSounds">
@@ -115,11 +119,15 @@
         </span>
       </div>
 
-      <div class="rocker-switch" (click)="toggleDiePercent()" *ngIf="!gameIsStopped || gameStats.rollHistory.length > 0">
+      <br />
+
+      <div class="rocker-switch" (click)="toggleDiePercent()" *ngIf="gameStats.rollHistory.length > 0">
         <div class="switch" [class.active]="showDieCounts"></div>
         <span class="label-left" [class.selected]="!showDieCounts">%</span>
         <span class="label-right" [class.selected]="showDieCounts">#</span>
       </div>
+
+      <br />
 
       <div class="rocker-switch" (click)="toggleTournamentDisplay()" *ngIf="gameHistory.length > 1">
         <div class="switch" [class.active]="!showingTournament"></div>
@@ -140,108 +148,11 @@
         </span>
       </div>
 
-      <!-- <button (click)="showHelp()" class="help-button">Help</button> -->
-      
-      <hr>
-      <div class="rocker-switch" (click)="showColorSettings = !showColorSettings">
-        <div class="switch" [class.active]="showColorSettings"></div>
-        <span class="label-left" [class.selected]="!showColorSettings">hide</span>
-        <span class="label-right" [class.selected]="showColorSettings">Colors</span>
-      </div>
-      <br /><br />
+      <br />
 
-      <div *ngIf="showColorSettings">
-        <div class="rocker-switch" (click)="toggleColorType()">
-          <div class="switch" [class.active]="colorType"></div>
-          <span class="label-left" [class.selected]="!colorType">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-label="Density">
-              <rect x="3" y="17" width="18" height="2" rx="1" />
-              <rect x="6" y="13" width="12" height="2" rx="1" />
-              <rect x="9" y="9" width="6" height="2" rx="1" />
-              <rect x="11" y="5" width="2" height="2" rx="1" />
-            </svg>
-          </span>
-          <span class="label-right" [class.selected]="colorType">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-label="Color">
-              <path
-                d="M12 3C7.03 3 3 7.03 3 12c0 4.97 4.03 9 9 9 2.21 0 4-1.79 4-4 0-.55-.45-1-1-1h-4a1 1 0 0 1 0-2h6c1.1 0 2-.9 2-2 0-4.97-4.03-9-9-9zm-4 8a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3-4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 2a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm2 5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" />
-            </svg>
-          </span>
-        </div>
-
-        <div *ngIf="userSettings.colorOption === ColorOption.Density">
-          <br /><br />
-          <label for="colorPicker">Select Color:</label>
-          <input #densityColorInput id="colorPicker" type="color" [value]="colorService.colorDensityColor"
-            (input)="updateRollFrequencyDensityColor(densityColorInput.value)" />
-        </div>
-
-        <div *ngIf="userSettings.colorOption === ColorOption.Color">
-          <div class="rocker-switch" (click)="toggleColorPicker()">
-            <div class="switch" [class.active]="colorPickerAll"></div>
-            <span class="label-left" [class.selected]="!colorPickerAll">
-              <svg width="24" height="20" viewBox="0 0 24 20" fill="currentColor" aria-label="Ends">
-                <circle cx="4" cy="10" r="2" />
-                <circle cx="20" cy="10" r="2" />
-                <rect x="6" y="9" width="12" height="2" rx="1" />
-              </svg>
-            </span>
-            <span class="label-right" [class.selected]="colorPickerAll">
-              <svg width="24" height="20" viewBox="0 0 24 20" fill="currentColor" aria-label="All">
-                <circle cx="4" cy="10" r="2" />
-                <circle cx="10" cy="10" r="2" />
-                <circle cx="16" cy="10" r="2" />
-                <circle cx="22" cy="10" r="2" />
-              </svg>
-            </span>
-          </div>
-
-          <br /><br />
-
-          <div *ngIf="!colorPickerAll">
-            <label>least frequent </label>
-            <input #colorInputHigh type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[0])"
-              (input)="colorService.colorGradients[0] = colorInputHigh.value" />
-            <input #colorInputLow type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[10])"
-              (input)="colorService.colorGradients[10] = colorInputLow.value" />
-            <label>most frequent</label>
-          </div>
-
-          <div *ngIf="colorPickerAll">
-            <!-- I had this in a loop, but the color selector would disappear when the user clicks to adjust color.  splitting out like this resolves the issue -->
-            <label>least frequent</label>
-            <input #colorInput0 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[0])"
-              (input)="updateRollFrequencyColor(0, colorInput0.value)" />
-            <input #colorInput1 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[1])"
-              (input)="updateRollFrequencyColor(1, colorInput1.value)" />
-            <input #colorInput2 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[2])"
-              (input)="updateRollFrequencyColor(2, colorInput2.value)" />
-            <input #colorInput3 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[3])"
-              (input)="updateRollFrequencyColor(3, colorInput3.value)" />
-            <input #colorInput4 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[4])"
-              (input)="updateRollFrequencyColor(4, colorInput4.value)" />
-            <input #colorInput5 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[5])"
-              (input)="updateRollFrequencyColor(5, colorInput5.value)" />
-            <input #colorInput6 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[6])"
-              (input)="updateRollFrequencyColor(6, colorInput6.value)" />
-            <input #colorInput7 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[7])"
-              (input)="updateRollFrequencyColor(7, colorInput7.value)" />
-            <input #colorInput8 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[8])"
-              (input)="updateRollFrequencyColor(8, colorInput8.value)" />
-            <input #colorInput9 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[9])"
-              (input)="updateRollFrequencyColor(9, colorInput9.value)" />
-            <input #colorInput10 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[10])"
-              (input)="updateRollFrequencyColor(10, colorInput10.value)" />
-            <br />
-            <label>most frequent</label>
-          </div>
-
-          <button *ngIf="!colorPickerAll && userSettings.colorOption != ColorOption.Density"
-            (click)="mapNewColors(colorService.colorGradients[0], colorService.colorGradients[10])">
-            Map Colors
-          </button>
-        </div>
-      </div>
+      <button (click)="showColorSettingsDialog()" class="gradient-btn store-button">
+        Color Settings
+      </button>
     </div>
   </div>
   <div class="toggle-bar" (click)="toggleDiceContainer()">☰</div>
@@ -295,13 +206,151 @@
   </div>
 </div>
 
-<div [ngClass]="gameIsStopped ? 'block-app' : ((showGamePause || showHelpDialog) ? 'block-app-paused' : 'normal')"></div>
+<div
+  [ngClass]="gameIsStopped || showGamePause || showColorSettings ? 'block-app' : 'normal'">
+</div>
 
-<button *ngIf="showGamePause && !showHelpDialog" (click)="startResumeGame()"
-  class="user-message-popup gradient-btn-start"
-  style="color: White;">
-  {{ gameIsStopped ? 'Start New Game' : 'Resume Game' }}
-</button>
+<div *ngIf="showGamePause && !showHelpDialog" class="user-message-popup">
+  <div>
+    <button (click)="startResumeGame()" class="gradient-btn-start" style="color: White;">
+      {{ gameIsStopped ? 'Start New Game' : 'Resume Game' }}
+    </button>
+  </div>
+  <br  *ngIf="gameStats.rollHistory.length > 0"/>
+  <div class="rocker-switch" (click)="toggleDiePercent()" *ngIf="gameStats.rollHistory.length > 0">
+    <div class="switch" [class.active]="showDieCounts"></div>
+    <span class="label-left" [class.selected]="!showDieCounts">%</span>
+    <span class="label-right" [class.selected]="showDieCounts">#</span>
+  </div>
+  <br *ngIf="gameHistory.length > 1"/>
+  <div class="rocker-switch" (click)="toggleTournamentDisplay()" *ngIf="gameHistory.length > 1">
+    <div class="switch" [class.active]="!showingTournament"></div>
+    <span class="label-left" [class.selected]="showingTournament">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-label="Tournament">
+        <path
+          d="M17 4V2H7v2H2v4c0 3.31 2.69 6 6 6 0 2.21 1.79 4 4 4s4-1.79 4-4c3.31 0 6-2.69 6-6V4h-5zm-2 12c-1.1 0-2-.9-2-2h4c0 1.1-.9 2-2 2zm6-8c0 2.21-1.79 4-4 4V6h4v2zm-16 0V6h4v4c-2.21 0-4-1.79-4-4z" />
+      </svg>
+    </span>
+    <span class="label-right" [class.selected]="!showingTournament">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-label="Game">
+        <rect x="3" y="3" width="18" height="18" rx="4" />
+        <circle cx="8" cy="8" r="1.5" fill="#fff" />
+        <circle cx="16" cy="8" r="1.5" fill="#fff" />
+        <circle cx="8" cy="16" r="1.5" fill="#fff" />
+        <circle cx="16" cy="16" r="1.5" fill="#fff" />
+      </svg>
+    </span>
+  </div>
+    
+  <div class="game-history-nav" *ngIf="gameIsStopped && gameHistory.length > 1">
+    <button class="game-history-btn" (click)="previousHistoryGame()"
+      aria-label="Previous Game">
+      &#8592; Previous
+    </button>
+    <span class="game-history-status">
+      Game {{gameHistoryIndex + 1}} of {{gameHistory.length}}
+    </span>
+    <button class="game-history-btn" (click)="nextHistoryGame()"
+      aria-label="Next Game">
+      Next &#8594;
+    </button>
+  </div>
+</div>
+
+<div *ngIf="showColorSettings" class="color-picker-container">
+  <div class="rocker-switch" (click)="toggleColorType()">
+    <div class="switch" [class.active]="colorType"></div>
+    <span class="label-left" [class.selected]="!colorType">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-label="Density">
+        <rect x="3" y="17" width="18" height="2" rx="1" />
+        <rect x="6" y="13" width="12" height="2" rx="1" />
+        <rect x="9" y="9" width="6" height="2" rx="1" />
+        <rect x="11" y="5" width="2" height="2" rx="1" />
+      </svg>
+    </span>
+    <span class="label-right" [class.selected]="colorType">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-label="Color">
+        <path
+          d="M12 3C7.03 3 3 7.03 3 12c0 4.97 4.03 9 9 9 2.21 0 4-1.79 4-4 0-.55-.45-1-1-1h-4a1 1 0 0 1 0-2h6c1.1 0 2-.9 2-2 0-4.97-4.03-9-9-9zm-4 8a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3-4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 2a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm2 5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" />
+      </svg>
+    </span>
+  </div>
+
+  <div *ngIf="userSettings.colorOption === ColorOption.Density">
+    <br /><br />
+    <label for="colorPicker">Select Color:</label>
+    <input #densityColorInput id="colorPicker" type="color" [value]="colorService.colorDensityColor"
+      (input)="updateRollFrequencyDensityColor(densityColorInput.value)" />
+  </div>
+
+  <div *ngIf="userSettings.colorOption === ColorOption.Color">
+    <div class="rocker-switch" (click)="toggleColorPicker()">
+      <div class="switch" [class.active]="colorPickerAll"></div>
+      <span class="label-left" [class.selected]="!colorPickerAll">
+        <svg width="24" height="20" viewBox="0 0 24 20" fill="currentColor" aria-label="Ends">
+          <circle cx="4" cy="10" r="2" />
+          <circle cx="20" cy="10" r="2" />
+          <rect x="6" y="9" width="12" height="2" rx="1" />
+        </svg>
+      </span>
+      <span class="label-right" [class.selected]="colorPickerAll">
+        <svg width="24" height="20" viewBox="0 0 24 20" fill="currentColor" aria-label="All">
+          <circle cx="4" cy="10" r="2" />
+          <circle cx="10" cy="10" r="2" />
+          <circle cx="16" cy="10" r="2" />
+          <circle cx="22" cy="10" r="2" />
+        </svg>
+      </span>
+    </div>
+
+    <br /><br />
+
+    <div *ngIf="!colorPickerAll">
+      <label>least frequent </label>
+      <input #colorInputHigh type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[0])"
+        (input)="colorService.colorGradients[0] = colorInputHigh.value" />
+      <input #colorInputLow type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[10])"
+        (input)="colorService.colorGradients[10] = colorInputLow.value" />
+      <label>most frequent</label>
+    </div>
+
+    <div *ngIf="colorPickerAll">
+      <!-- I had this in a loop, but the color selector would disappear when the user clicks to adjust color.  splitting out like this resolves the issue -->
+      <label>least frequent</label>
+      <input #colorInput0 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[0])"
+        (input)="updateRollFrequencyColor(0, colorInput0.value)" />
+      <input #colorInput1 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[1])"
+        (input)="updateRollFrequencyColor(1, colorInput1.value)" />
+      <input #colorInput2 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[2])"
+        (input)="updateRollFrequencyColor(2, colorInput2.value)" />
+      <input #colorInput3 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[3])"
+        (input)="updateRollFrequencyColor(3, colorInput3.value)" />
+      <input #colorInput4 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[4])"
+        (input)="updateRollFrequencyColor(4, colorInput4.value)" />
+      <input #colorInput5 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[5])"
+        (input)="updateRollFrequencyColor(5, colorInput5.value)" />
+      <input #colorInput6 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[6])"
+        (input)="updateRollFrequencyColor(6, colorInput6.value)" />
+      <input #colorInput7 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[7])"
+        (input)="updateRollFrequencyColor(7, colorInput7.value)" />
+      <input #colorInput8 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[8])"
+        (input)="updateRollFrequencyColor(8, colorInput8.value)" />
+      <input #colorInput9 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[9])"
+        (input)="updateRollFrequencyColor(9, colorInput9.value)" />
+      <input #colorInput10 type="color" [value]="colorService.rgbaToHex(colorService.colorGradients[10])"
+        (input)="updateRollFrequencyColor(10, colorInput10.value)" />
+      <br />
+      <label>most frequent</label>
+    </div>
+
+    <button *ngIf="!colorPickerAll && userSettings.colorOption != ColorOption.Density"
+      (click)="mapNewColors(colorService.colorGradients[0], colorService.colorGradients[10])">
+      Map Colors
+    </button>
+  </div>
+  
+  <button (click)="hideColorSettingsDialog()">Close</button>
+</div>
 
 <div *ngIf="showHelpDialog" class="user-message-popup help-dialog">
   <h2>Welcome to Boba-Zeke's Dice Stats</h2>

@@ -16,7 +16,7 @@ import { ColorOption } from './color-option.enum'; // Import the enum
 export class ColorService {
     public colorDensityColor = "#184e07"; // Default dark green color for density mapping
 
-    private density = [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0]
+    public density = [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0]
     /**
      * highlight colors for the rolls, indicating frequency compared to the others
      * these are the colors used to show the frequency of each roll
@@ -250,8 +250,6 @@ export class ColorService {
         if(low.startsWith('rgba')) low = this.rgbaToHex(low);
         if(high.startsWith('rgba')) high = this.rgbaToHex(high);
         
-        //console.log(`Generating gradient from ${low} to ${high} with ${steps} steps`);
-
         const start = this.hexToRgb(low);
         const end = this.hexToRgb(high);
         const gradient: string[] = [];
@@ -263,7 +261,7 @@ export class ColorService {
             const r = Math.round(start.r + ((end.r - start.r) * i) / steps);
             const g = Math.round(start.g + ((end.g - start.g) * i) / steps);
             const b = Math.round(start.b + ((end.b - start.b) * i) / steps);
-            //console.log(`\t#${i} > r: ${r}, g: ${g}, b: ${b}`);
+            
             gradient.push(this.rgbToRgba(r, g, b, this.density[i+1])); // Use the density for opacity
         }
 

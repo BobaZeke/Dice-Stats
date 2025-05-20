@@ -140,7 +140,7 @@ p {
   font-size: 16px;
   cursor: pointer;
   transition: background 1s, box-shadow 0.3s;
-  box-shadow: 10px 16px 18px rgba(4, 14, 56, 0.4);
+  box-shadow: 5px 8px 9px rgba(4, 14, 56, 0.4)
 }
 
 .gradient-btn-start:hover {
@@ -167,7 +167,8 @@ p {
   margin-top: 10px;
   margin-bottom: 10px;
   width: 80%;
-  background-color: #b20bb8;
+  height: 7%;
+  background-color: #165008;
   color: white;
   padding: 5px;
   border-radius: 10px;
@@ -187,6 +188,7 @@ p {
 .undo-button {
   padding: 10px;
   margin: 10px;
+  background-color: #c28618;
 }
 
 /* Counter styles */
@@ -347,22 +349,13 @@ p {
   opacity: 1;
 }
 
-.block-app-paused {
-  position: fixed;
-  top: 0;
-  left: 150px;  /* show left toolbar */
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-  opacity: 1;
-}
-
 .normal {
   display: none;
 }
 
 .user-message-popup {
+  background-color: rgba(150, 149, 149, 0.8);
+  box-shadow: 10px 16px 18px rgba(4, 14, 56, 0.4);
   position: fixed;
   top: 50%;
   left: 50%;
@@ -531,10 +524,10 @@ p {
 }
 
 .game-history-index {
-  font-size: 20dvh;
+  font-size: min(18dvh, 18dvw);
   font-weight: bold;
-  color: rgba(82, 46, 150, 0.397);
-  /* Black color with 10% opacity */  mix-blend-mode: unset;
+  color: rgba(82, 46, 150, 0.397);  /* Black color with 10% opacity */
+  mix-blend-mode: unset;
   -webkit-text-stroke: 2px black;  /* Outline color and thickness */
   text-align: center;  /* Center the text horizontally */
   position: absolute;  /* Position it relative to the screen */
@@ -549,8 +542,7 @@ p {
   max-height: 100dvh;  /* Default: take up available height */
   overflow-y: auto;  /* Enable vertical scrolling if content overflows */
   transition: transform 0.3s ease-in-out;  /* Smooth slide-in/out animation */
-  margin-top: 10px;
-  margin-bottom: 10px;
+  padding-top: 10px;
 }
 
 /* Toggle bar to show/hide dice area in mobile view */
@@ -633,10 +625,14 @@ p {
   border: 1px solid #ccc;  /* Light gray border */
   border-radius: 10px;  /* Rounded corners */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);  /* Subtle shadow for depth */
-  width: 100%;  /* Set a fixed width */
+  width: 30%;  /* Set a fixed width */
   max-width: 90%;  /* Ensure it fits on smaller screens */
   text-align: center;
   z-index: 1200;
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%); /* Only translate horizontally */
 }
 
 
@@ -724,4 +720,37 @@ p {
 .label-left.selected,
 .label-right.selected {
   color: #000; /* Darker color for selected text */
+}
+
+.game-history-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1em;
+  margin: 1em 0;
+}
+
+.game-history-btn {
+  background: #2196f3;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5em 1.2em;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.game-history-btn:disabled {
+  background: #b0bec5;
+  cursor: not-allowed;
+}
+
+.game-history-btn:not(:disabled):hover {
+  background: #1976d2;
+}
+
+.game-history-status {
+  font-weight: bold;
+  color: #333;
 }

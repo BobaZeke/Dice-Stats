@@ -99,7 +99,9 @@ export class AppComponent implements OnInit, AfterViewInit {
   public userSettings: any = {
     playSounds: true,
     showTooltips: true,
-    colorOption: ColorOption.Density // Default option
+    colorOption: ColorOption.Density,
+    colorDensityColor: "",
+    colorGradients: []
   };
 
   @ViewChildren('bar') barElements!: QueryList<ElementRef>;
@@ -131,9 +133,16 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.endGame();
     // Load settings on initialization
     const savedSettings = this.userSettingsService.loadSettings();
+    
     if (savedSettings) {
       this.userSettings = savedSettings;
-    }
+    } 
+
+    if(this.userSettings.colorDensityColor) this.colorService.colorDensityColor = this.userSettings.colorDensityColor;
+    else this.userSettings.colorDensityColor = this.colorService.colorDensityColor;
+
+    if(this.userSettings.colorGradients) this.colorService.colorGradients = this.userSettings.colorGradients;
+    else this.userSettings.colorGradients = this.colorService.colorGradients;
   }
 
   ngAfterViewInit(): void {
@@ -145,9 +154,13 @@ export class AppComponent implements OnInit, AfterViewInit {
    * Save settings when the user updates them
    */
   saveSettings(): void {
+    this.userSettings.colorDensityColor = this.colorService.colorDensityColor;
+    this.userSettings.colorGradients = this.colorService.colorGradients;
+    
     // Save settings when the user updates them
     this.userSettingsService.saveSettings(this.userSettings);
   }
+
   /**
    * Adjust the font size of the overlay so it fits within the bar
    */
@@ -196,6 +209,12 @@ export class AppComponent implements OnInit, AfterViewInit {
    * clear everything and start over
    */
   public endGame() {
+    if(this.rollCount() > 0) {
+      if(confirm('are you sure?') == false) {
+        return;
+      }
+    }
+
     this.closeTournamentDisplay(); //  close tournament display if open
 
     this.gameIsStopped = true;
@@ -329,7 +348,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   onDocumentClick(event: MouseEvent): void {
     this.showHelpDialog = false;
 
-    this.currentRoll = null; //  reset current roll value
+    //this.currentRoll = null; //  reset current roll value
 
     if (this.skipNext) {
       this.skipNext = false;
@@ -344,15 +363,9 @@ export class AppComponent implements OnInit, AfterViewInit {
       }
     }
 
-    if (this.showGameHistory) {
-      this.gameHistoryIndex += 1;
-      if (this.gameHistoryIndex >= this.gameHistory.length) this.gameHistoryIndex = 0;
-      if (this.gameHistoryIndex < 0) this.gameHistoryIndex = this.gameHistory.length - 1;
-
-      this.gameStats = this.gameHistory[this.gameHistoryIndex];
-
-      this.updateDisplay();
-    } 
+    // if (this.showGameHistory) {
+    //   this.nextGame();
+    // } 
   }
 
   // @HostListener('window:wheel', ['$event'])
@@ -404,19 +417,19 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
     
     if (!this.showingTournament && event.key.includes('Arrow')) {
-      if (this.showGameHistory) {
-        this.gameHistoryIndex += (event.key == 'ArrowRight' || event.key == 'ArrowUp') ? +1 : -1;
-        if (this.gameHistoryIndex >= this.gameHistory.length) this.gameHistoryIndex = 0;
-        if (this.gameHistoryIndex < 0) this.gameHistoryIndex = this.gameHistory.length - 1;
+      // if (this.showGameHistory) {
+      //   this.gameHistoryIndex += (event.key == 'ArrowRight' || event.key == 'ArrowUp') ? +1 : -1;
+      //   if (this.gameHistoryIndex >= this.gameHistory.length) this.gameHistoryIndex = 0;
+      //   if (this.gameHistoryIndex < 0) this.gameHistoryIndex = this.gameHistory.length - 1;
 
-        this.gameStats = this.gameHistory[this.gameHistoryIndex];
+      //   this.gameStats = this.gameHistory[this.gameHistoryIndex];
 
-        this.updateDisplay();
-      } else {  //  change the roll history size
+      //   this.updateDisplay();
+      // } else {  //  change the roll history size
         this.rollHistoryFontSize += (event.key == 'ArrowRight' || event.key == 'ArrowUp') ? +0.5 : -0.5;
         if (this.rollHistoryFontSize <= 0) this.rollHistoryFontSize = 0.5;
         if (this.rollHistoryFontSize >= 10) this.rollHistoryFontSize = 10;
-      }
+      // }
 
       return;
     }
@@ -518,17 +531,23 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.colorService.updateRollFrequencyColor(index, hexColor); // Update the color for the specific roll
     if(this.rollCount() == 0) this.colorService.showSampleColors(this.userSettings.colorOption);
     else this.mapRollFrequencyColor();
+
+    this.saveSettings();
   }
   updateRollFrequencyDensityColor(color: string): void {
     this.colorService.updateRollFrequencyDensityColor(color); // Update the color for the specific roll
     if(this.rollCount() == 0) this.colorService.showSampleColors(this.userSettings.colorOption);
     else this.mapRollFrequencyColor();
+    
+    this.saveSettings();
   }
 
   mapNewColors(lowColor: string, highColor: string): void {
     this.colorService.generateGradient(lowColor, highColor);
     this.colorService.showSampleColors(this.userSettings.colorOption);
     this.colorPickerAll = true;  //  toggle to show generated colors
+
+    this.saveSettings();
   }
 
   keyValueNumericOrder(a: KeyValue<string, string>, b: KeyValue<string, string>): number {
@@ -550,6 +569,15 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.showHelpDialog = true;
   }
 
+  public showColorSettingsDialog() {
+    this.pauseGame();
+    this.showColorSettings = true;
+  }
+  public hideColorSettingsDialog() {
+    this.showColorSettings = false;
+    this.startResumeGame();
+  }
+
   /** prevent barbarian and knight buttons from triggering (so we can handle it) */
   ignoreEnterKey(event: KeyboardEvent): void {
     if (event.key === 'Enter') {
@@ -557,6 +585,26 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
   }
 
+  previousHistoryGame() {
+      this.gameHistoryIndex -= 1;
+      
+      if (this.gameHistoryIndex < 0) this.gameHistoryIndex = this.gameHistory.length - 1;
+
+      this.gameStats = this.gameHistory[this.gameHistoryIndex];
+
+      this.updateDisplay();
+  }
+
+  nextHistoryGame() {
+      
+      this.gameHistoryIndex += 1;
+      
+      if (this.gameHistoryIndex >= this.gameHistory.length) this.gameHistoryIndex = 0;
+
+      this.gameStats = this.gameHistory[this.gameHistoryIndex];
+
+      this.updateDisplay();
+  }
   //#endregion
   //#region Display Toggles       //    //    //    //    //    //    //
   // showColorPicker(): void {
@@ -577,6 +625,8 @@ export class AppComponent implements OnInit, AfterViewInit {
       this.userSettings.colorOption = ColorOption.Color;
     else
       this.userSettings.colorOption = ColorOption.Density;
+
+    this.saveSettings();
   }
   /**
    * show/hide the dice container (used for mobile devices)
@@ -748,19 +798,13 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.userSettingsService.saveSettings(this.userSettings);
   }
 
-  toggleTooltips(): void {
-    this.userSettings.showTooltips = !this.userSettings.showTooltips;
-    this.saveSettings(); // Save the updated settings
-  }
-
   toggleSounds(): void {
     this.userSettings.playSounds = !this.userSettings.playSounds;
     if (this.userSettings.playSounds) this.soundService.playSoundBump();
     else this.soundService.playSoundEscape();
+
     this.saveSettings(); // Save the updated settings
   }
-
-
 
   //#endregion
   //#region Timers                //    //    //    //    //    //    //
@@ -860,6 +904,10 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   undoLastRoll() {
+    if(confirm('are you sure?') == false) {
+      return;
+    }
+
     if (this.gameStats.rollHistory.length > 0) {
       const lastRoll = this.gameStats.rollHistory[this.gameStats.rollHistory.length - 1]; // Get the last roll
 
