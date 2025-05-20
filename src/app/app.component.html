@@ -210,7 +210,7 @@
   [ngClass]="gameIsStopped || showGamePause || showColorSettings ? 'block-app' : 'normal'">
 </div>
 
-<div *ngIf="showGamePause && !showHelpDialog" class="user-message-popup">
+<div *ngIf="showGamePause && !showHelpDialog && !showColorSettings" class="user-message-popup">
   <div>
     <button (click)="startResumeGame()" class="gradient-btn-start" style="color: White;">
       {{ gameIsStopped ? 'Start New Game' : 'Resume Game' }}
@@ -348,7 +348,7 @@
       Map Colors
     </button>
   </div>
-  
+
   <button (click)="hideColorSettingsDialog()">Close</button>
 </div>
 
