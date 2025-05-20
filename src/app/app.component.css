@@ -625,8 +625,7 @@ p {
   border: 1px solid #ccc;  /* Light gray border */
   border-radius: 10px;  /* Rounded corners */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);  /* Subtle shadow for depth */
-  width: 30%;  /* Set a fixed width */
-  max-width: 90%;  /* Ensure it fits on smaller screens */
+  width: max(50%, 100px);
   text-align: center;
   z-index: 1200;
   position: fixed;

@@ -570,10 +570,11 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   public showColorSettingsDialog() {
+    if (this.isDiceContainerVisible) this.toggleDiceContainer();
     this.pauseGame();
     this.showColorSettings = true;
   }
-  public hideColorSettingsDialog() {
+  public closeColorSettingsDialog() {
     this.showColorSettings = false;
     this.startResumeGame();
   }
