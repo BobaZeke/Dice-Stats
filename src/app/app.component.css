@@ -629,12 +629,12 @@ p {
   text-align: center;
   z-index: 1200;
   position: fixed;
-  height: auto; /* Let content determine height, or set a max-height if needed */
-  max-height: 90vh;
+  height: auto;   /* Let content determine height */
+  max-height: 90%;
   overflow-y: auto;
-  top: 15%;                  /* Fixed distance from the top */
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%); /* Only center horizontally */
+  transform: translate(-50%, -50%);
 }
 
 .toggle-help-text {
@@ -643,10 +643,9 @@ p {
   color: #5925b9;
 }
 
+
 @media (max-width: 768px) {
-  .color-picker-container {
-    top: 0;
-  }
+
   .toggle-help-text {
     font-size: 1em;
   }
