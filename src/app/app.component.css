@@ -637,6 +637,21 @@ p {
   transform: translateX(-50%); /* Only center horizontally */
 }
 
+.toggle-help-text {
+  font-weight: bold;
+  font-size: 1.2em;
+  color: #5925b9;
+}
+
+@media (max-width: 768px) {
+  .color-picker-container {
+    top: 0;
+  }
+  .toggle-help-text {
+    font-size: 1em;
+  }
+}
+
 .color-picker-container label {
   display: block;  /* Ensure labels are on their own line */
   margin-bottom: 10px;  /* Add spacing below labels */
@@ -754,10 +769,4 @@ p {
 .game-history-status {
   font-weight: bold;
   color: #333;
-}
-
-.toggle-help-text {
-  font-weight: bold;
-  font-size: 1.2em;
-  color: #5925b9;
 }
