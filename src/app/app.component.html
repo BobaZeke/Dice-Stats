@@ -207,54 +207,65 @@
 </div>
 
 <div
-  [ngClass]="gameIsStopped || showGamePause || showColorSettings ? 'block-app' : 'normal'">
+  [ngClass]="gameIsStopped || showGamePause || showColorSettings ? 'block-app' : 'normal'"[style.opacity]="blockScreenOpacity">
 </div>
 
 <!-- start/resume game -->
 <div *ngIf="showGamePause && !showHelpDialog && !showColorSettings" class="user-message-popup">
-  <div>
-    <button (click)="startResumeGame()" class="gradient-btn-start" style="color: White;">
-      {{ gameIsStopped ? 'Start New Game' : 'Resume Game' }}
-    </button>
-  </div>
-  <br  *ngIf="gameStats.rollHistory.length > 0"/>
-  <div class="rocker-switch" (click)="toggleDiePercent()" *ngIf="gameStats.rollHistory.length > 0">
-    <div class="switch" [class.active]="showDieCounts"></div>
-    <span class="label-left" [class.selected]="!showDieCounts">%</span>
-    <span class="label-right" [class.selected]="showDieCounts">#</span>
-  </div>
-  <br *ngIf="gameHistory.length > 1"/>
-  <div class="rocker-switch" (click)="toggleTournamentDisplay()" *ngIf="gameHistory.length > 1">
-    <div class="switch" [class.active]="!showingTournament"></div>
-    <span class="label-left" [class.selected]="showingTournament">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-label="Tournament">
-        <path
-          d="M17 4V2H7v2H2v4c0 3.31 2.69 6 6 6 0 2.21 1.79 4 4 4s4-1.79 4-4c3.31 0 6-2.69 6-6V4h-5zm-2 12c-1.1 0-2-.9-2-2h4c0 1.1-.9 2-2 2zm6-8c0 2.21-1.79 4-4 4V6h4v2zm-16 0V6h4v4c-2.21 0-4-1.79-4-4z" />
-      </svg>
-    </span>
-    <span class="label-right" [class.selected]="!showingTournament">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-label="Game">
-        <rect x="3" y="3" width="18" height="18" rx="4" />
-        <circle cx="8" cy="8" r="1.5" fill="#fff" />
-        <circle cx="16" cy="8" r="1.5" fill="#fff" />
-        <circle cx="8" cy="16" r="1.5" fill="#fff" />
-        <circle cx="16" cy="16" r="1.5" fill="#fff" />
-      </svg>
-    </span>
-  </div>
-    
-  <div class="game-history-nav" *ngIf="gameIsStopped && gameHistory.length > 1">
-    <button class="game-history-btn" (click)="previousHistoryGame()"
-      aria-label="Previous Game">
-      &#8592; Previous
-    </button>
-    <span class="game-history-status">
-      Game {{gameHistoryIndex + 1}} of {{gameHistory.length}}
-    </span>
-    <button class="game-history-btn" (click)="nextHistoryGame()"
-      aria-label="Next Game">
-      Next &#8594;
-    </button>
+  <div class="popup-flex">
+    <div class="popup-main-content">
+      <button (click)="startResumeGame()" class="gradient-btn-start" style="color: White;">
+        {{ gameIsStopped ? 'Start New Game' : 'Resume Game' }}
+      </button>
+      <br/>
+      <div class="rocker-switch" (click)="toggleDiePercent()" *ngIf="gameStats.rollHistory.length > 0">
+        <div class="switch" [class.active]="showDieCounts"></div>
+        <span class="label-left" [class.selected]="!showDieCounts">%</span>
+        <span class="label-right" [class.selected]="showDieCounts">#</span>
+      </div>
+      <br *ngIf="gameHistory.length > 1"/>
+      <div class="rocker-switch" (click)="toggleTournamentDisplay()" *ngIf="gameHistory.length > 1">
+        <div class="switch" [class.active]="!showingTournament"></div>
+        <span class="label-left" [class.selected]="showingTournament">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-label="Tournament">
+            <path d="M17 4V2H7v2H2v4c0 3.31 2.69 6 6 6 0 2.21 1.79 4 4 4s4-1.79 4-4c3.31 0 6-2.69 6-6V4h-5zm-2 12c-1.1 0-2-.9-2-2h4c0 1.1-.9 2-2 2zm6-8c0 2.21-1.79 4-4 4V6h4v2zm-16 0V6h4v4c-2.21 0-4-1.79-4-4z"/>
+          </svg>
+        </span>
+        <span class="label-right" [class.selected]="!showingTournament">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-label="Game">
+            <rect x="3" y="3" width="18" height="18" rx="4" />
+            <circle cx="8" cy="8" r="1.5" fill="#fff" />
+            <circle cx="16" cy="8" r="1.5" fill="#fff" />
+            <circle cx="8" cy="16" r="1.5" fill="#fff" />
+            <circle cx="16" cy="16" r="1.5" fill="#fff" />
+          </svg>
+        </span>
+      </div>
+      <div class="game-history-nav" *ngIf="gameIsStopped && gameHistory.length > 1">
+        <button class="game-history-btn" (click)="previousHistoryGame()" aria-label="Previous Game">
+          &#8592; Previous
+        </button>
+        <span class="game-history-status">
+          Game {{gameHistoryIndex + 1}} of {{gameHistory.length}}
+        </span>
+        <button class="game-history-btn" (click)="nextHistoryGame()" aria-label="Next Game">
+          Next &#8594;
+        </button>
+      </div>
+    </div>
+    <div class="opacity-slider-container" *ngIf="rollCount() > 0">
+      <input
+        type="range"
+        min="0"
+        max="1"
+        step="0.01"
+        [(ngModel)]="blockScreenOpacity"
+        orient="vertical"
+        class="opacity-slider"
+        aria-label="Adjust overlay opacity"
+      />
+      <span class="opacity-value">{{ (blockScreenOpacity * 100) | number:'1.0-0' }}%</span>
+    </div>
   </div>
 </div>
 

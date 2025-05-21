@@ -116,6 +116,8 @@ export class AppComponent implements OnInit, AfterViewInit {
   colorType = true;
 
   showColorSettings = false;
+
+  public blockScreenOpacity: number = 0.7; // Default opacity (0 to 1)
   //#endregion  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   //#region Constructor         //    //    //    //    //    //    //
@@ -369,20 +371,20 @@ export class AppComponent implements OnInit, AfterViewInit {
     // } 
   }
 
-  // @HostListener('window:wheel', ['$event'])
-  // onScroll(event: WheelEvent): void {
-  //   if (this.showGamePause && !this.showHelpDialog) {  //  if game is paused, change opacity of the overlay
-  //     if (event.deltaY > 0) { //  Scrolled down
-  //       this.blockScreenOpacity += 0.1;
-  //       if (this.blockScreenOpacity >= 1) this.blockScreenOpacity = 1;
-  //     } else {  //  Scrolled up
-  //       if (this.showGamePause) {  //  if game is paused, change opacity of the overlay
-  //         this.blockScreenOpacity -= 0.1;
-  //         if (this.blockScreenOpacity <= 0) this.blockScreenOpacity = 0;
-  //       }
-  //     }
-  //   }
-  // }
+  @HostListener('window:wheel', ['$event'])
+  onScroll(event: WheelEvent): void {
+    if (this.showGamePause && !this.showHelpDialog) {  //  if game is paused, change opacity of the overlay
+      if (event.deltaY > 0) { //  Scrolled down
+        this.blockScreenOpacity += 0.1;
+        if (this.blockScreenOpacity >= 1) this.blockScreenOpacity = 1;
+      } else {  //  Scrolled up
+        if (this.showGamePause) {  //  if game is paused, change opacity of the overlay
+          this.blockScreenOpacity -= 0.1;
+          if (this.blockScreenOpacity <= 0) this.blockScreenOpacity = 0;
+        }
+      }
+    }
+  }
 
   // monitor keystrokes (die count input, display toggles, etc.)
   @HostListener('document:keydown', ['$event'])
