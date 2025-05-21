@@ -257,6 +257,7 @@
   </div>
 </div>
 
+<!-- Color Settings -->
 <div *ngIf="showColorSettings" class="color-picker-container">
   <div class="rocker-switch" (click)="toggleColorType()">
     <div class="switch" [class.active]="colorType"></div>
@@ -275,10 +276,10 @@
       </svg>
     </span>
   </div>
+  
+  <label *ngIf="!colorType" class="toggle-help-text">Change Density : Select one color</label>
 
   <div *ngIf="userSettings.colorOption === ColorOption.Density">
-    <br /><br />
-    <label for="colorPicker">Select Color:</label>
     <input #densityColorInput id="colorPicker" type="color" [value]="colorService.colorDensityColor"
       (input)="updateRollFrequencyDensityColor(densityColorInput.value)" />
   </div>
@@ -302,8 +303,9 @@
         </svg>
       </span>
     </div>
-
-    <br /><br />
+    
+    <label *ngIf="colorType && colorPickerAll" class="toggle-help-text">Change Color : Select all colors</label>
+    <label *ngIf="colorType && !colorPickerAll" class="toggle-help-text">Change Color : Select the end colors (then click 'Map Colors')</label>
 
     <div *ngIf="!colorPickerAll">
       <label>least frequent </label>

@@ -629,20 +629,18 @@ p {
   text-align: center;
   z-index: 1200;
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%); /* Center vertically and horizontally */
   height: auto; /* Let content determine height, or set a max-height if needed */
   max-height: 90vh;
   overflow-y: auto;
+  top: 15%;                  /* Fixed distance from the top */
+  left: 50%;
+  transform: translateX(-50%); /* Only center horizontally */
 }
-
 
 .color-picker-container label {
   display: block;  /* Ensure labels are on their own line */
   margin-bottom: 10px;  /* Add spacing below labels */
-  font-weight: bold;  /* Make labels stand out */
-  color: #333;  /* Dark gray text color */
+  margin: 5px;
 }
 
 .color-picker-container input[type="color"] {
@@ -756,4 +754,10 @@ p {
 .game-history-status {
   font-weight: bold;
   color: #333;
+}
+
+.toggle-help-text {
+  font-weight: bold;
+  font-size: 1.2em;
+  color: #5925b9;
 }
