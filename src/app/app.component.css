@@ -620,20 +620,26 @@ p {
 }
 
 .color-picker-container {
-  background-color: #ffffff;  /* White background for better visibility */
-  border: 1px solid #ccc;  /* Light gray border */
+  background-color: #ffffff; 
+  border: 1px solid #ccc; 
   border-radius: 10px;  /* Rounded corners */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);  /* Subtle shadow for depth */
   width: max(50%, 100px);
   text-align: center;
   z-index: 1200;
   position: fixed;
-  height: auto;   /* Let content determine height */
-  max-height: 90%;
+  height: auto;     /* Let content determine height*/
   overflow-y: auto;
-  top: 50%;
+  top: calc((100dvh - 694px) / 2);
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
+  max-height: 100%; 
+}
+
+@media (max-height: 695px) {
+  .color-picker-container {
+    top: 0;
+  }
 }
 
 .toggle-help-text {
@@ -642,9 +648,7 @@ p {
   color: #5925b9;
 }
 
-
 @media (max-width: 768px) {
-
   .toggle-help-text {
     font-size: 1em;
   }

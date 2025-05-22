@@ -102,8 +102,6 @@
 
       <button (click)="endGame()" class="pause-button end-button">End Game</button>
 
-      <br />
-
       <div class="rocker-switch" (click)="toggleSounds()">
         <div class="switch" [class.active]="userSettings.playSounds"></div>
         <span class="label-left" [class.selected]="!userSettings.playSounds">
@@ -119,17 +117,15 @@
         </span>
       </div>
 
-      <br />
-
-      <div class="rocker-switch" (click)="toggleDiePercent()" *ngIf="gameStats.rollHistory.length > 0">
+      <div class="rocker-switch" (click)="toggleDiePercent()">
+         <!-- *ngIf="gameStats.rollHistory.length > 0" -->
         <div class="switch" [class.active]="showDieCounts"></div>
         <span class="label-left" [class.selected]="!showDieCounts">%</span>
         <span class="label-right" [class.selected]="showDieCounts">#</span>
       </div>
 
-      <br />
-
-      <div class="rocker-switch" (click)="toggleTournamentDisplay()" *ngIf="gameHistory.length > 1">
+      <div class="rocker-switch" (click)="toggleTournamentDisplay()">
+         <!-- *ngIf="gameHistory.length > 1" -->
         <div class="switch" [class.active]="!showingTournament"></div>
         <span class="label-left" [class.selected]="showingTournament">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-label="Tournament">
