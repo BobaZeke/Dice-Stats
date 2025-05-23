@@ -132,6 +132,9 @@ export class AppComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
+    this.gameStats.breakDurationDisplay = this.formatService.defaultEmptyTime;
+    this.gameStats.playingDurationDisplay = this.formatService.defaultEmptyTime;
+    
     this.endGame();
     // Load settings on initialization
     const savedSettings = this.userSettingsService.loadSettings();
@@ -351,8 +354,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   onDocumentClick(event: MouseEvent): void {
     this.showHelpDialog = false;
 
-    //this.currentRoll = null; //  reset current roll value
-
     if (this.skipNext) {
       this.skipNext = false;
       return;
@@ -361,14 +362,11 @@ export class AppComponent implements OnInit, AfterViewInit {
     if(!this.gameIsStopped && !this.showGamePause) {
       const diceContainer = this.elRef.nativeElement.querySelector('.dice-container');
       if (diceContainer && !diceContainer.contains(event.target as Node)) {
+        this.currentRoll = null; //  reset current roll value
         // Click was outside dice-container
         if (this.isDiceContainerVisible) this.toggleDiceContainer(); //  close dice container if open
       }
     }
-
-    // if (this.showGameHistory) {
-    //   this.nextGame();
-    // } 
   }
 
   @HostListener('window:wheel', ['$event'])
@@ -590,24 +588,26 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   previousHistoryGame() {
-      this.gameHistoryIndex -= 1;
-      
-      if (this.gameHistoryIndex < 0) this.gameHistoryIndex = this.gameHistory.length - 1;
+    if (this.userSettings.playSounds) this.soundService.playSoundBump();
+    this.gameHistoryIndex -= 1;
+    
+    if (this.gameHistoryIndex < 0) this.gameHistoryIndex = this.gameHistory.length - 1;
 
-      this.gameStats = this.gameHistory[this.gameHistoryIndex];
+    this.gameStats = this.gameHistory[this.gameHistoryIndex];
 
-      this.updateDisplay();
+    this.updateDisplay();
   }
 
   nextHistoryGame() {
-      
-      this.gameHistoryIndex += 1;
-      
-      if (this.gameHistoryIndex >= this.gameHistory.length) this.gameHistoryIndex = 0;
+    if (this.userSettings.playSounds) this.soundService.playSoundBump();
+    
+    this.gameHistoryIndex += 1;
+    
+    if (this.gameHistoryIndex >= this.gameHistory.length) this.gameHistoryIndex = 0;
 
-      this.gameStats = this.gameHistory[this.gameHistoryIndex];
+    this.gameStats = this.gameHistory[this.gameHistoryIndex];
 
-      this.updateDisplay();
+    this.updateDisplay();
   }
   //#endregion
   //#region Display Toggles       //    //    //    //    //    //    //
@@ -852,6 +852,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.skipNext = true; //  skip the next click event (to prevent closing the dice container)
     this.selectedDice[column - 1] = value;
     if (this.userSettings.playSounds) this.soundService.playSoundNumberSelect();
+      this.currentRoll = null; //  reset current roll value
     // if(event) event.preventDefault(); // Prevent the default browser context menu
   }
 

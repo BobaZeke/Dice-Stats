@@ -12,6 +12,12 @@ p {
   margin-top: 5px;
   margin-bottom: 5px;
 }
+
+fieldset {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
 /* Header container spans the top and aligns content inline */
 .header-container {
   position: fixed;
@@ -52,7 +58,6 @@ p {
   flex-shrink: 0;  /* Prevent shrinking */
   display: flex;
   flex-direction: column;
-  gap: 10px;
 }
 
 .game-duration {
@@ -64,6 +69,7 @@ p {
   display: flex;
   justify-content: center;
   gap: 10px;
+  margin-top: 10px;
 }
 
 .sub-column {
@@ -164,8 +170,6 @@ p {
 }
 
 .pause-button {
-  margin-top: 10px;
-  margin-bottom: 10px;
   width: 80%;
   height: 7%;
   background-color: #165008;
@@ -181,13 +185,12 @@ p {
 }
 
 .end-button {
-  margin-top: 0;
+  margin-bottom: 10px;
   background-color: #b80b14;
 }
 
 .undo-button {
   padding: 10px;
-  margin: 10px;
   background-color: #c28618;
 }
 
@@ -530,7 +533,7 @@ p {
   -webkit-text-stroke: 2px black;  /* Outline color and thickness */
   text-align: center;  /* Center the text horizontally */
   position: absolute;  /* Position it relative to the screen */
-  top: 50%;  /* Center vertically */
+  top: 20%;
   left: 50%;  /* Center horizontally */
   transform: translate(-50%, -50%);  /* Adjust for perfect centering */
   pointer-events: none;  /* Prevent interaction with the number */
@@ -541,7 +544,6 @@ p {
   max-height: 94dvh;  /* Default: take up available height */
   overflow-y: auto;  /* Enable vertical scrolling if content overflows */
   transition: transform 0.3s ease-in-out;  /* Smooth slide-in/out animation */
-  padding-top: 10px;
 }
 
 /* Toggle bar to show/hide dice area in mobile view */

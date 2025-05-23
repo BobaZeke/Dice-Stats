@@ -1,15 +1,12 @@
 <!-- Headings -->
-<div *ngIf="gameIsStopped && showGameHistory && !showingTournament">
+<div *ngIf="gameIsStopped && !showingTournament && gameHistory.length > 1">
   <div class="game-history-index">
-    Game<br /> #{{gameHistoryIndex+1}} of {{gameHistory.length}}
+    Game #{{gameHistoryIndex+1}} of {{gameHistory.length}}
   </div>
 </div>
 
-<div *ngIf="gameIsStopped && !showGameHistory && !showingTournament && gameStats.rollHistory.length > 0"
+<div *ngIf="showingTournament && tourneyStats.rollHistory.length > 0" 
   class="game-history-index">
-  Game Stats
-</div>
-<div *ngIf="showingTournament && tourneyStats.rollHistory.length > 0" class="game-history-index">
   Tournament Stats
 </div>
 
@@ -54,8 +51,9 @@
 
     <!-- store button and some stats -->
     <div class="store-button-container">
-      <p class="counter">
-        {{showGamePause ? 'Break Duration' : 'Turn Duration:'}}
+
+      <fieldset class="counter">
+        <legend>{{showGamePause ? 'Break Duration' : 'Turn Duration:'}}</legend>
         <span class="counter-val">
           {{ 
             showingTournament
@@ -69,36 +67,37 @@
               )
           }}
         </span>
-      </p>
+      </fieldset>
       
       <button (click)="storeValues()" [disabled]="(selectedDice[0] == 0 || selectedDice[1] == 0)"
         class="gradient-btn store-button">
         Store
       </button>
 
-      <p class="counter">Roll Count:
-        <br />
-        <span class="counter-val">{{rollCount()}}</span>
-      </p>
+      <fieldset class="counter">
+        <legend>Roll Count:</legend>
+          <span class="counter-val">{{rollCount()}}</span>
+      </fieldset>
 
       <button (click)="undoLastRoll()" class="pause-button undo-button">Undo</button>
       
-      <p class="counter">Avg # Rolls between 7s:<br />
+      <fieldset>
+        <legend>Avg # Rolls <br/>between 7s:</legend>
         <span class="counter-val">{{calculateAverageInterval(7)}}</span>
         <span class="counter-avg">(6.0)</span>
         <br />
         <span class="counter-val">{{getBarPercent(7)}}%</span>
         <span class="counter-avg">(16%)</span>
-      </p>
+      </fieldset>
 
       <button (click)="pauseGame()" class="pause-button">Pause Game</button>
 
-      <p class="counter">
-        {{showingTournament ? 'Tournament Duration:' : 'Game Duration'}}
-        <span class="counter-val">
-          {{ showingTournament ? tourneyStats.playingDurationDisplay : gameStats.playingDurationDisplay }}
-        </span>
-      </p>
+      <fieldset class="counter">
+        <legend>{{showingTournament ? 'Tournament Duration:' : 'Game Duration'}}</legend>
+              <span class="counter-val">
+                {{ showingTournament ? tourneyStats.playingDurationDisplay : gameStats.playingDurationDisplay }}
+              </span>
+      </fieldset>
 
       <button (click)="endGame()" class="pause-button end-button">End Game</button>
 
@@ -237,7 +236,7 @@
           </svg>
         </span>
       </div>
-      <div class="game-history-nav" *ngIf="gameIsStopped && gameHistory.length > 1">
+      <div class="game-history-nav" *ngIf="gameIsStopped && !showingTournament && gameHistory.length > 1">
         <button class="game-history-btn" (click)="previousHistoryGame()" aria-label="Previous Game">
           &#8592; Previous
         </button>
@@ -367,10 +366,9 @@
   <div class="help-popup-content">
     <p>The left side of the screen will contain elements for entering dice rolls and various game stats and settings.
     </p>
-    <p>The center of the screen will contain a horizontal bar chart depicting the popularity of various dice rolls.</p>
-    <p>Click on the dice to select them. After entering two numbers, the sum will be displayed for confirmation.
-      If that isn't the number you want, just reselect the numbers. When ready, click the "Store" button to save the
-      roll.</p>
+    <p>The center of the screen will contain a horizontal bar chart depicting the popularity of various dice rolls.  There will be a blue bar indicating the roll's popularity during this game.  There will also be a thin red bar on the top which indicates popularity for the tournament (since last app refresh).  There is also a small triangle next to the number which indicates if this number is trending up or down (based on the last 25% of the rolls).</p>
+    <p>Click on the dice to select them. When ready, click the "Store" button to save the roll and update the stats.</p>
+    <p>After each game, you will be able to review the the statistics of the game and also review tournament stats.  If there has been more than one game, you will be able to flip through the game stats.</p>
   </div>
   <button (click)="showHelpDialog = false">Close</button>
 </div>
