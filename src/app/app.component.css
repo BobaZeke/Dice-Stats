@@ -1,4 +1,3 @@
-/* General page layout */
 body,
 html {
   margin: 0;
@@ -18,7 +17,6 @@ fieldset {
   margin-bottom: 10px;
 }
 
-/* Header container spans the top and aligns content inline */
 .header-container {
   position: fixed;
   top: 0;
@@ -45,14 +43,12 @@ fieldset {
   align-items: center;
 }
 
-/* Main container layout */
 .container {
   display: flex;
   flex-grow: 1;
   max-height: calc(100dvh - 30px);  /* set max-height for scrollbar on this area */
 }
 
-/* First div (left column) with fixed width */
 .container>div:first-child {
   width: 150px;
   flex-shrink: 0;  /* Prevent shrinking */
@@ -64,7 +60,6 @@ fieldset {
   font-size: 24px;
 }
 
-/* Dice group styles */
 .dice-group {
   display: flex;
   justify-content: center;
@@ -120,7 +115,6 @@ fieldset {
   opacity: 0.7;
 }
 
-/* Button styles */
 .gradient-btn {
   padding: 10px 20px;
   border: none;
@@ -154,7 +148,6 @@ fieldset {
   box-shadow: 10px 16px 18px rgba(66, 6, 6, 0.4);
 }
 
-/* Store button container */
 .store-button-container {
   display: flex;
   flex-direction: column;
@@ -194,7 +187,6 @@ fieldset {
   background-color: #c28618;
 }
 
-/* Counter styles */
 .counter {
   font-size: 16px;
   text-align: center;
@@ -225,7 +217,6 @@ fieldset {
   margin-left: 5px
 }
 
-/* Bar container layout */
 .bar-container {
   display: flex;
   flex-direction: column;  /* Stack bar-box elements vertically */
@@ -242,7 +233,6 @@ fieldset {
   overflow-x: hidden;  /* Hide horizontal overflow */
 }
 
-/* Bar box layout */
 .bar-box {
   display: flex;
   align-items: center;  /* Align bar-number and bar horizontally */
@@ -251,7 +241,6 @@ fieldset {
   position: relative;  /* For overlay positioning */
 }
 
-/* Bar number (vertical labels) */
 .bar-number {
   font-size: 34px;
   font-weight: bold;
@@ -261,14 +250,12 @@ fieldset {
   cursor: default;
 }
 
-/* Bar styles */
 .bar {
   height: calc((100dvh - 100px)/11);  /* Adjust height to fit below the header */
   border-radius: 5px;
   transition: width 0.3s;
 }
 
-/* Bar overlay */
 .bar-overlay {
   position: absolute;
   top: 0;
@@ -340,7 +327,6 @@ fieldset {
   margin-right: 5px;
 }
 
-/* Block app overlay */
 .block-app {
   position: fixed;
   top: 0;
@@ -372,7 +358,7 @@ fieldset {
 .help-dialog {
   z-index: 2000;
   background-color: #2166b4;
-  overflow-y: auto;      /* Enable vertical scrolling if needed */
+  overflow-y: auto;
   font-size: 1.2em;
   width: 100%;
   height: 100%;
@@ -382,7 +368,6 @@ fieldset {
   margin: 10px;
 }
 
-/* Menu container */
 .menu {
   position: fixed;
   top: 10px;
@@ -398,13 +383,11 @@ fieldset {
   z-index: 100;
 }
 
-/* Menu expands on hover */
 .menu:hover {
   width: 180px;
   height: auto;
 }
 
-/* Menu header (icon) */
 .menu-header {
   display: flex;
   align-items: center;
@@ -414,19 +397,16 @@ fieldset {
   background-color: #8da8c5;
 }
 
-/* Menu content (hidden by default) */
 .menu-content {
   display: none;
   padding: 10px;
   background-color: #a9b4c0;
 }
 
-/* Show menu content on hover */
 .menu:hover .menu-content {
   display: block;
 }
 
-/* Menu list styles */
 .menu-content ul {
   list-style: none;
   padding: 0;
@@ -776,8 +756,6 @@ fieldset {
   font-weight: bold;
   color: #333;
 }
-
-
 
 .user-message-popup .popup-flex {
   display: flex;
