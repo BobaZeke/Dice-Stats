@@ -526,7 +526,7 @@ fieldset {
 }
 
 .game-history-index {
-  font-size: min(18dvh, 18dvw);
+  font-size: min(17dvh, 15dvw);
   font-weight: bold;
   color: rgba(82, 46, 150, 0.397);  /* Black color with 10% opacity */
   mix-blend-mode: unset;
@@ -535,7 +535,7 @@ fieldset {
   position: absolute;  /* Position it relative to the screen */
   top: 20%;
   left: 50%;  /* Center horizontally */
-  transform: translate(-50%, -50%);  /* Adjust for perfect centering */
+  transform: translate(-40%, -50%);  /* Adjust for perfect centering */
   pointer-events: none;  /* Prevent interaction with the number */
   z-index: 1002;
 }
@@ -748,6 +748,7 @@ fieldset {
   justify-content: center;
   gap: 1em;
   margin: 1em 0;
+  height: 30px;
 }
 
 .game-history-btn {
@@ -782,7 +783,6 @@ fieldset {
   flex-direction: row;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 2em;
 }
 
 .popup-main-content {

@@ -1,13 +1,6 @@
-<!-- Headings -->
-<div *ngIf="gameIsStopped && !showingTournament && gameHistory.length > 1">
-  <div class="game-history-index">
-    Game #{{gameHistoryIndex+1}} of {{gameHistory.length}}
-  </div>
-</div>
-
-<div *ngIf="showingTournament && tourneyStats.rollHistory.length > 0" 
+<div *ngIf="!gameIsStopped && showingTournament" 
   class="game-history-index">
-  Tournament Stats
+  Tournament
 </div>
 
 <div class="current-roll">
@@ -53,7 +46,7 @@
     <div class="store-button-container">
 
       <fieldset class="counter">
-        <legend>{{showGamePause ? 'Break Duration' : 'Turn Duration:'}}</legend>
+        <legend>{{showGamePause ? 'Break Time' : 'Turn Duration:'}}</legend>
         <span class="counter-val">
           {{ 
             showingTournament
@@ -236,17 +229,6 @@
           </svg>
         </span>
       </div>
-      <div class="game-history-nav" *ngIf="gameIsStopped && !showingTournament && gameHistory.length > 1">
-        <button class="game-history-btn" (click)="previousHistoryGame()" aria-label="Previous Game">
-          &#8592; Previous
-        </button>
-        <span class="game-history-status">
-          Game {{gameHistoryIndex + 1}} of {{gameHistory.length}}
-        </span>
-        <button class="game-history-btn" (click)="nextHistoryGame()" aria-label="Next Game">
-          Next &#8594;
-        </button>
-      </div>
     </div>
     <div class="opacity-slider-container" *ngIf="rollCount() > 0">
       <input
@@ -254,13 +236,30 @@
         min="0"
         max="1"
         step="0.01"
-        [(ngModel)]="blockScreenOpacity"
+        [ngModel]="1 - blockScreenOpacity"
+        (ngModelChange)="blockScreenOpacity = 1 - $event"
         orient="vertical"
         class="opacity-slider"
         aria-label="Adjust overlay opacity"
       />
-      <span class="opacity-value">{{ (blockScreenOpacity * 100) | number:'1.0-0' }}%</span>
+      <span class="opacity-value">{{ ((1-blockScreenOpacity) * 100) | number:'1.0-0' }}%</span>
     </div>
+  </div>
+  <div class="game-history-nav" *ngIf="gameIsStopped && !showingTournament && gameHistory.length > 1">
+    <button class="game-history-btn" (click)="previousHistoryGame()" aria-label="Previous Game">
+      &#8592;
+    </button>
+    <span class="game-history-status">
+      Game {{gameHistoryIndex + 1}} of {{gameHistory.length}}
+    </span>
+    <button class="game-history-btn" (click)="nextHistoryGame()" aria-label="Next Game">
+      &#8594;
+    </button>
+  </div>
+  <div class="game-history-nav" *ngIf="gameIsStopped && showingTournament">
+    <span class="game-history-status">
+      Tournament Stats
+    </span>
   </div>
 </div>
 
@@ -364,7 +363,7 @@
 <div *ngIf="showHelpDialog" class="user-message-popup help-dialog">
   <h2>Welcome to Boba-Zeke's Dice Stats</h2>
   <div class="help-popup-content">
-    <p>The left side of the screen will contain elements for entering dice rolls and various game stats and settings.
+    <p>The left side of the screen contains elements for selecting dice rolls and various game stats and settings.
     </p>
     <p>The center of the screen will contain a horizontal bar chart depicting the popularity of various dice rolls.  There will be a blue bar indicating the roll's popularity during this game.  There will also be a thin red bar on the top which indicates popularity for the tournament (since last app refresh).  There is also a small triangle next to the number which indicates if this number is trending up or down (based on the last 25% of the rolls).</p>
     <p>Click on the dice to select them. When ready, click the "Store" button to save the roll and update the stats.</p>
