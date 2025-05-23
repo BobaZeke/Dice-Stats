@@ -361,7 +361,7 @@
 </div>
 
 <div *ngIf="showHelpDialog" class="user-message-popup help-dialog">
-  <h2>Welcome to Boba-Zeke's Dice Stats</h2>
+  <h2>Welcome to Boba-Zeke's<br/> Dice Stats</h2>
   <div class="help-popup-content">
     <p>The left side of the screen contains elements for selecting dice rolls and various game stats and settings.
     </p>
@@ -369,5 +369,6 @@
     <p>Click on the dice to select them. When ready, click the "Store" button to save the roll and update the stats.</p>
     <p>After each game, you will be able to review the the statistics of the game and also review tournament stats.  If there has been more than one game, you will be able to flip through the game stats.</p>
   </div>
+  <br/>
   <button (click)="showHelpDialog = false">Close</button>
 </div>
