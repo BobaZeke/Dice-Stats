@@ -118,6 +118,8 @@ export class AppComponent implements OnInit, AfterViewInit {
   showColorSettings = false;
 
   public blockScreenOpacity: number = 0.7; // Default opacity (0 to 1)
+
+  public showColorHelp = false;
   //#endregion  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   //#region Constructor         //    //    //    //    //    //    //
@@ -359,6 +361,8 @@ export class AppComponent implements OnInit, AfterViewInit {
       return;
     }
 
+    if(this.showColorHelp) this.closeColorHelp();
+
     if(!this.gameIsStopped && !this.showGamePause) {
       const diceContainer = this.elRef.nativeElement.querySelector('.dice-container');
       if (diceContainer && !diceContainer.contains(event.target as Node)) {
@@ -573,13 +577,18 @@ export class AppComponent implements OnInit, AfterViewInit {
   public showColorSettingsDialog() {
     if (this.isDiceContainerVisible) this.toggleDiceContainer();
     this.pauseGame();
-    this.showColorSettings = true;
+    this.showColorHelp = true;
+    this.skipNext = true;
   }
   public closeColorSettingsDialog() {
     this.showColorSettings = false;
     this.startResumeGame();
   }
 
+  public closeColorHelp() {
+    this.showColorHelp = false;
+    this.showColorSettings = true;
+  }
   /** prevent barbarian and knight buttons from triggering (so we can handle it) */
   ignoreEnterKey(event: KeyboardEvent): void {
     if (event.key === 'Enter') {

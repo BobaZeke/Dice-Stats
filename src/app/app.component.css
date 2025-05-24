@@ -7,14 +7,13 @@ html {
   flex-direction: column;
 }
 
-p {
-  margin-top: 5px;
-  margin-bottom: 5px;
-}
-
 fieldset {
   margin-top: 10px;
   margin-bottom: 10px;
+}
+
+h4 {
+  margin: 10px;
 }
 
 .header-container {
@@ -352,7 +351,7 @@ fieldset {
   padding: 20px;
   border-radius: 10px;
   text-align: center;
-  z-index: 1100;
+  z-index: 2100;
 }
 
 .help-dialog {
@@ -373,7 +372,6 @@ fieldset {
   .help-dialog {
     font-size: 1em;
     width: 90%;
-    /* height: 100%; */
   }
 }
 

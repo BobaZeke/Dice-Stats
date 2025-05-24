@@ -143,7 +143,7 @@
       </button>
     </div>
   </div>
-  <div class="toggle-bar" (click)="toggleDiceContainer()">☰</div>
+  <div *ngIf="!gameIsStopped && !showGamePause"  class="toggle-bar" (click)="toggleDiceContainer()">☰</div>
 
   <!-- central display : bar chart display showing how many times each number has been rolled -->
   <div class="bar-container">
@@ -199,7 +199,7 @@
 </div>
 
 <!-- start/resume game -->
-<div *ngIf="showGamePause && !showHelpDialog && !showColorSettings" class="user-message-popup">
+<div *ngIf="showGamePause && !showHelpDialog && !showColorSettings && !showColorHelp" class="user-message-popup">
   <div class="popup-flex">
     <div class="popup-main-content">
       <button (click)="startResumeGame()" class="gradient-btn-start" style="color: White;">
@@ -365,10 +365,28 @@
   <div class="help-popup-content">
     <p>The left side of the screen contains elements for selecting dice rolls and various game stats and settings.
     </p>
-    <p>The center of the screen will contain a horizontal bar chart depicting the popularity of various dice rolls.  There will be a blue bar indicating the roll's popularity during this game.  There will also be a thin red bar on the top which indicates popularity for the tournament (since last app refresh).  There is also a small triangle next to the number which indicates if this number is trending up or down (based on the last 25% of the rolls).</p>
+    <p>The center of the screen will contain a horizontal bar chart depicting the popularity of various dice rolls.  
+      The roll number will have highlighting to indicate roll popularity.
+      There will be a blue bar indicating the roll's popularity during this game.  
+      There will also be a thin red bar on the top which indicates popularity for the tournament (since last app refresh).  
+      There is also a small triangle next to the number which indicates if this number is trending up or down (based on the last 25% of the rolls).</p>
     <p>Click on the dice to select them. When ready, click the "Store" button to save the roll and update the stats.</p>
     <p>After each game, you will be able to review the the statistics of the game and also review tournament stats.  If there has been more than one game, you will be able to flip through the game stats.</p>
   </div>
   <br/>
   <button (click)="showHelpDialog = false">Close</button>
 </div>
+
+<div *ngIf="showColorHelp" class="user-message-popup help-dialog">
+    <h3>Color Options:</h3>
+      <h4>Change Density : </h4>
+      <p>You select a single color and the color opacity/density changes based on roll popularity.</p>
+      <h4>Change Color : Pick All : </h4>
+      <p>You pick different colors for each of the levels.  These colors will be used to depict popularity.</p>
+      <h4>Change Color : Pick Ends : </h4>
+      <p>You select the start and end colors, then click 'Map Colors' and the app will determine the colors so they transition smoothly from the start to the finish color.</p>
+
+  <button (click)="closeColorHelp()">Close</button>
+</div>
+
+ <!-- -->
