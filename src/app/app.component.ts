@@ -924,6 +924,8 @@ export class AppComponent implements OnInit, AfterViewInit {
 
       this.updateDisplay();
     }
+    
+    this.setDocumentFocus();
   }
 
   //#endregion
