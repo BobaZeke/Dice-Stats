@@ -1,5 +1,4 @@
-<div *ngIf="!gameIsStopped && showingTournament" 
-  class="game-history-index">
+<div *ngIf="!gameIsStopped && showingTournament" class="game-history-index">
   Tournament
 </div>
 
@@ -48,20 +47,20 @@
       <fieldset class="counter">
         <legend>{{showGamePause ? 'Break Time' : 'Turn Duration:'}}</legend>
         <span class="counter-val">
-          {{ 
+          {{
             showingTournament
-            ? tourneyStats.breakDurationDisplay
-            : ( gameIsStopped
-                ? gameStats.breakDurationDisplay
-                : ( showGamePause
-                    ? breakDurationDisplay
-                    : turnDurationDisplay
-                  )
-              )
+              ? tourneyStats.breakDurationDisplay
+              : ( gameIsStopped
+                  ? gameStats.breakDurationDisplay
+                  : ( showGamePause
+                      ? breakDurationDisplay
+                      : turnDurationDisplay
+                    )
+                )
           }}
         </span>
       </fieldset>
-      
+
       <button (click)="storeValues()" [disabled]="(selectedDice[0] == 0 || selectedDice[1] == 0)"
         class="gradient-btn store-button">
         Store
@@ -69,13 +68,13 @@
 
       <fieldset class="counter">
         <legend>Roll Count:</legend>
-          <span class="counter-val">{{rollCount()}}</span>
+        <span class="counter-val">{{rollCount()}}</span>
       </fieldset>
 
       <button (click)="undoLastRoll()" class="pause-button undo-button">Undo</button>
-      
+
       <fieldset>
-        <legend>Avg # Rolls <br/>between 7s:</legend>
+        <legend>Avg # Rolls <br />between 7s:</legend>
         <span class="counter-val">{{calculateAverageInterval(7)}}</span>
         <span class="counter-avg">(6.0)</span>
         <br />
@@ -87,9 +86,9 @@
 
       <fieldset class="counter">
         <legend>{{showingTournament ? 'Tournament Duration:' : 'Game Duration'}}</legend>
-              <span class="counter-val">
-                {{ showingTournament ? tourneyStats.playingDurationDisplay : gameStats.playingDurationDisplay }}
-              </span>
+        <span class="counter-val">
+          {{ showingTournament ? tourneyStats.playingDurationDisplay : gameStats.playingDurationDisplay }}
+        </span>
       </fieldset>
 
       <button (click)="endGame()" class="pause-button end-button">End Game</button>
@@ -110,14 +109,14 @@
       </div>
 
       <div class="rocker-switch" (click)="toggleDiePercent()">
-         <!-- *ngIf="gameStats.rollHistory.length > 0" -->
+        <!-- *ngIf="gameStats.rollHistory.length > 0" -->
         <div class="switch" [class.active]="showDieCounts"></div>
         <span class="label-left" [class.selected]="!showDieCounts">%</span>
         <span class="label-right" [class.selected]="showDieCounts">#</span>
       </div>
 
       <div class="rocker-switch" (click)="toggleTournamentDisplay()">
-         <!-- *ngIf="gameHistory.length > 1" -->
+        <!-- *ngIf="gameHistory.length > 1" -->
         <div class="switch" [class.active]="!showingTournament"></div>
         <span class="label-left" [class.selected]="showingTournament">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-label="Tournament">
@@ -143,7 +142,7 @@
       </button>
     </div>
   </div>
-  <div *ngIf="!gameIsStopped && !showGamePause"  class="toggle-bar" (click)="toggleDiceContainer()">☰</div>
+  <div *ngIf="!gameIsStopped && !showGamePause" class="toggle-bar" (click)="toggleDiceContainer()">☰</div>
 
   <!-- central display : bar chart display showing how many times each number has been rolled -->
   <div class="bar-container">
@@ -156,8 +155,7 @@
         </div>
 
         <!-- Trend indicator -->
-        <div class="trend-indicator" [title]="trendService.getTrendTooltip(tourneyStats, number)"
-          [class.rising]="trendService.isNumberRising(tourneyStats, number)"
+        <div class="trend-indicator" [class.rising]="trendService.isNumberRising(tourneyStats, number)"
           [class.falling]="!trendService.isNumberRising(tourneyStats, number)">
           {{ trendService.isNumberRising(tourneyStats, number) ? '▲' : '▼' }}
         </div>
@@ -194,8 +192,8 @@
   </div>
 </div>
 
-<div
-  [ngClass]="gameIsStopped || showGamePause || showColorSettings ? 'block-app' : 'normal'"[style.opacity]="blockScreenOpacity">
+<div [ngClass]="gameIsStopped || showGamePause || showColorSettings ? 'block-app' : 'normal'"
+  [style.opacity]="blockScreenOpacity">
 </div>
 
 <!-- start/resume game -->
@@ -205,18 +203,19 @@
       <button (click)="startResumeGame()" class="gradient-btn-start" style="color: White;">
         {{ gameIsStopped ? 'Start New Game' : 'Resume Game' }}
       </button>
-      <br/>
+      <br />
       <div class="rocker-switch" (click)="toggleDiePercent()" *ngIf="gameStats.rollHistory.length > 0">
         <div class="switch" [class.active]="showDieCounts"></div>
         <span class="label-left" [class.selected]="!showDieCounts">%</span>
         <span class="label-right" [class.selected]="showDieCounts">#</span>
       </div>
-      <br *ngIf="gameHistory.length > 1"/>
+      <br *ngIf="gameHistory.length > 1" />
       <div class="rocker-switch" (click)="toggleTournamentDisplay()" *ngIf="gameHistory.length > 1">
         <div class="switch" [class.active]="!showingTournament"></div>
         <span class="label-left" [class.selected]="showingTournament">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-label="Tournament">
-            <path d="M17 4V2H7v2H2v4c0 3.31 2.69 6 6 6 0 2.21 1.79 4 4 4s4-1.79 4-4c3.31 0 6-2.69 6-6V4h-5zm-2 12c-1.1 0-2-.9-2-2h4c0 1.1-.9 2-2 2zm6-8c0 2.21-1.79 4-4 4V6h4v2zm-16 0V6h4v4c-2.21 0-4-1.79-4-4z"/>
+            <path
+              d="M17 4V2H7v2H2v4c0 3.31 2.69 6 6 6 0 2.21 1.79 4 4 4s4-1.79 4-4c3.31 0 6-2.69 6-6V4h-5zm-2 12c-1.1 0-2-.9-2-2h4c0 1.1-.9 2-2 2zm6-8c0 2.21-1.79 4-4 4V6h4v2zm-16 0V6h4v4c-2.21 0-4-1.79-4-4z" />
           </svg>
         </span>
         <span class="label-right" [class.selected]="!showingTournament">
@@ -231,17 +230,9 @@
       </div>
     </div>
     <div class="opacity-slider-container" *ngIf="rollCount() > 0">
-      <input
-        type="range"
-        min="0"
-        max="1"
-        step="0.01"
-        [ngModel]="1 - blockScreenOpacity"
-        (ngModelChange)="blockScreenOpacity = 1 - $event"
-        orient="vertical"
-        class="opacity-slider"
-        aria-label="Adjust overlay opacity"
-      />
+      <input type="range" min="0" max="1" step="0.01" [ngModel]="1 - blockScreenOpacity"
+        (ngModelChange)="blockScreenOpacity = 1 - $event" orient="vertical" class="opacity-slider"
+        aria-label="Adjust overlay opacity" />
       <span class="opacity-value">{{ ((1-blockScreenOpacity) * 100) | number:'1.0-0' }}%</span>
     </div>
   </div>
@@ -282,7 +273,7 @@
       </svg>
     </span>
   </div>
-  
+
   <label *ngIf="!colorType" class="toggle-help-text">Change Density : Select one color</label>
 
   <div *ngIf="userSettings.colorOption === ColorOption.Density">
@@ -309,9 +300,10 @@
         </svg>
       </span>
     </div>
-    
+
     <label *ngIf="colorType && colorPickerAll" class="toggle-help-text">Change Color : Select all colors</label>
-    <label *ngIf="colorType && !colorPickerAll" class="toggle-help-text">Change Color : Select the end colors (then click 'Map Colors')</label>
+    <label *ngIf="colorType && !colorPickerAll" class="toggle-help-text">Change Color : Select the end colors (then
+      click 'Map Colors')</label>
 
     <div *ngIf="!colorPickerAll">
       <label>least frequent </label>
@@ -360,33 +352,52 @@
   <button (click)="closeColorSettingsDialog()">Close</button>
 </div>
 
+<!-- Title / About screen -->
 <div *ngIf="showHelpDialog" class="user-message-popup help-dialog">
-  <h2>Welcome to Boba-Zeke's<br/> Dice Stats</h2>
+  <h2>Welcome to Boba-Zeke's<br /> Dice Stats</h2>
+  <h3>This application allows you to track dice rolls and calculates various statistics to enhance gameplay of table-top
+    board games.</h3>
   <div class="help-popup-content">
-    <p>The left side of the screen contains elements for selecting dice rolls and various game stats and settings.
+    <p>The left side of the screen contains elements for selecting dice rolls, display of game and break durations,
+      and option toggles for percentages vs counts, and tournament view (all games played since
+      page refresh).</p>
+
+    <p>The center of the screen will contain a horizontal bar chart depicting the popularity of various dice
+      rolls.<br />
+      The dice rolls are listed down the left side of the main area (in black).
+      During the game, these numbers will have color highlighting to further depict their popularity (can be changed in
+      settings).<br />
+      Next to these are red numbers which indicate how many times that number has been rolled (or %).<br />
+      To the top-left of the roll numbers will be a triangle which indicates how that number is trending, either up or
+      down (reviews the last 25% of all the rolls).
     </p>
-    <p>The center of the screen will contain a horizontal bar chart depicting the popularity of various dice rolls.  
-      The roll number will have highlighting to indicate roll popularity.
-      There will be a blue bar indicating the roll's popularity during this game.  
-      There will also be a thin red bar on the top which indicates popularity for the tournament (since last app refresh).  
-      There is also a small triangle next to the number which indicates if this number is trending up or down (based on the last 25% of the rolls).</p>
-    <p>Click on the dice to select them. When ready, click the "Store" button to save the roll and update the stats.</p>
-    <p>After each game, you will be able to review the the statistics of the game and also review tournament stats.  If there has been more than one game, you will be able to flip through the game stats.</p>
+    <p> The bars will be blue (except 7 will be red). There will be a thin red bar on the top (blue for 7), which
+      depicts
+      the tournament frequency for quick comparison.<br />
+      Overlayed on the bar will be squares which indicate when that number was rolled. A solid square indicates that
+      number was rolled, and a hollow square indicates a different number was rolled.</p>
+
+    <p>While paused, settings toggles will be displayed as well as a vertical slider for adjusting background
+      visibility/opacity.</p>
+
+    <p>Click on the dice to select them and click the "Store" button to save the roll and update the stats.</p>
+    <p>After each game, you will be able to review the the statistics of the game and/or tournament.
+      If there has been more than one game, you will be able to flip through the game stats.</p>
   </div>
-  <br/>
+  <br />
   <button (click)="showHelpDialog = false">Close</button>
 </div>
 
+<!-- color settings info -->
 <div *ngIf="showColorHelp" class="user-message-popup help-dialog">
-    <h3>Color Options:</h3>
-      <h4>Change Density : </h4>
-      <p>You select a single color and the color opacity/density changes based on roll popularity.</p>
-      <h4>Change Color : Pick All : </h4>
-      <p>You pick different colors for each of the levels.  These colors will be used to depict popularity.</p>
-      <h4>Change Color : Pick Ends : </h4>
-      <p>You select the start and end colors, then click 'Map Colors' and the app will determine the colors so they transition smoothly from the start to the finish color.</p>
+  <h3>Color Options:</h3>
+  <h4>Change Density : </h4>
+  <p>You select a single color and the color opacity/density changes based on roll popularity.</p>
+  <h4>Change Color : Pick All : </h4>
+  <p>You pick different colors for each of the levels. These colors will be used to depict popularity.</p>
+  <h4>Change Color : Pick Ends : </h4>
+  <p>You select the start and end colors, then click 'Map Colors' and the app will determine the colors so they
+    transition smoothly from the start to the finish color.</p>
 
   <button (click)="closeColorHelp()">Close</button>
 </div>
-
- <!-- -->

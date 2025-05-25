@@ -16,6 +16,10 @@ h4 {
   margin: 10px;
 }
 
+p {
+  text-align: left;
+}
+
 .header-container {
   position: fixed;
   top: 0;
@@ -356,12 +360,13 @@ h4 {
 
 .help-dialog {
   z-index: 2000;
-  background-color: #2166b4;
+  background-color: #a48cdb;
   overflow-y: auto;
   font-size: 1.2em;
   max-height: 90%;
   width: 50%;
   height: auto;
+  color: black;
 }
 
 .help-popup-content {

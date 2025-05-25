@@ -10,21 +10,21 @@ import { PlayStats } from './gameStats';
  * The historical average is calculated from the total rolls.
  */
 @Injectable({
-    providedIn: 'root',
-})   
+  providedIn: 'root',
+})
 export class TrendService {
-      /**
-   * Determines if a number is on the rise or falling off.
-   * @param number The number to check.
-   * @returns True if the number is on the rise, false otherwise.
-   */
+  /**
+  * Determines if a number is on the rise or falling off.
+  * @param number The number to check.
+  * @returns True if the number is on the rise, false otherwise.
+  */
   isNumberRising(tourneyStats: PlayStats, number: number): boolean {
     const rollCount = tourneyStats.rollHistory.length;  // use the  stats from all night (not just this game)
     if (rollCount <= 0) return false; // No rolls to process
 
     //  determine how many recent rolls to review...
     let inspectCount = rollCount * 0.25;  //    0.1;
-    if (inspectCount < 1) { //  if less than 1, use half the rolls
+    if (inspectCount < 1) { //  if 25% is less than 1, use half the rolls
       inspectCount = Math.ceil(rollCount / 2);  //  round up
       if (inspectCount < 1) inspectCount = 1;
     }
@@ -52,16 +52,16 @@ export class TrendService {
     return rollHistory.map(roll => (roll === number ? 1 : 0)); // Map to 1 if the number was rolled, 0 otherwise
   }
 
-  /**
-   * Generates a tooltip for the trend indicator.
-   * @param number The number to check.
-   * @returns A string describing the trend.
-   */
-  getTrendTooltip(tourneyStats: PlayStats, number: number): string {
-    // if (!this.showTooltips) return ""; //  don't show tooltips if disabled
-    return this.isNumberRising(tourneyStats, number)
-                  ? `${number} is on the rise!`
-                  : `${number} is falling off.`;
-  }
+  // /**
+  //  * Generates a tooltip for the trend indicator.
+  //  * @param number The number to check.
+  //  * @returns A string describing the trend.
+  //  */
+  // getTrendTooltip(tourneyStats: PlayStats, number: number): string {
+  //   // if (!this.showTooltips) return ""; //  don't show tooltips if disabled
+  //   return this.isNumberRising(tourneyStats, number)
+  //     ? `${number} is on the rise!`
+  //     : `${number} is falling off.`;
+  // }
 
 }

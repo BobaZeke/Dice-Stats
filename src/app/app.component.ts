@@ -106,6 +106,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   @ViewChildren('bar') barElements!: QueryList<ElementRef>;
   @ViewChildren('overlay') overlayElements!: QueryList<ElementRef>;
+
   /**
    * display size of the roll history (em)
    */
@@ -157,6 +158,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.updateBarParentWidth(); // Measure the parent element after the view is initialized
     this.cdr.detectChanges(); // Trigger change detection manually
   }
+
   /**
    * Save settings when the user updates them
    */
