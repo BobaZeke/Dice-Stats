@@ -49,7 +49,7 @@ p {
 .container {
   display: flex;
   flex-grow: 1;
-  max-height: calc(100dvh - 30px);  /* set max-height for scrollbar on this area */
+  max-height: 100dvh;
 }
 
 .container>div:first-child {
@@ -163,13 +163,16 @@ p {
   color: white;
   border-radius: 10px;
   text-align: center;
+  border-style: outset;
+  border-color: rgb(63, 37, 75);
 }
 
 .pause-button {
   width: 80%;
   height: 7%;
-  background-color: #165008;
-  color: white;
+  background-color: #a37dc7;
+  font-size: 1.1em;
+  color: rgb(0, 0, 0);
   padding: 5px;
   border-radius: 10px;
   text-align: center;
@@ -187,7 +190,10 @@ p {
 
 .undo-button {
   padding: 10px;
-  background-color: #c28618;
+  background-color: #b6d34c;
+  color:#a52525;
+  font-weight: bolder;
+  font-size: 1.1em;;
 }
 
 .counter {
@@ -360,13 +366,14 @@ p {
 
 .help-dialog {
   z-index: 2000;
-  background-color: #a48cdb;
   overflow-y: auto;
   font-size: 1.2em;
   max-height: 90%;
   width: 50%;
   height: auto;
   color: black;
+  
+  background: linear-gradient(45deg, #af98e4, #c898e4, #98e4a9);
 }
 
 .help-popup-content {
@@ -534,7 +541,7 @@ p {
 }
 
 .dice-container {
-  max-height: 94dvh;  /* Default: take up available height */
+  max-height: 99dvh;  /* Default: take up available height */
   overflow-y: auto;  /* Enable vertical scrolling if content overflows */
   transition: transform 0.3s ease-in-out;  /* Smooth slide-in/out animation */
 }
@@ -663,17 +670,22 @@ p {
   cursor: pointer;  /* Pointer cursor for interactivity */
 }
 
-.color-picker-container button {
+.close-button {
   margin-top: 5px;
   margin-bottom: 10px;
   padding: 10px 20px;  /* Add padding for a larger clickable area */
-  border: none;  /* Remove default border */
+  border: outset; 
   border-radius: 5px;  /* Rounded corners */
-  background-color: #007bff;  /* Blue background */
-  color: white;  /* White text */
+  background-color: #848096; 
+  color: white; 
   font-size: 16px;  /* Larger font size */
   cursor: pointer;  /* Pointer cursor for interactivity */
   transition: background-color 0.3s;  /* Smooth hover effect */
+}
+
+button {
+  box-shadow: 4px 4px 8px 2px rgba(100, 70, 70, 0.226), 4px 6px 10px 2px rgba(134, 86, 247, 0.233);
+  border-style: outset;
 }
 
 .color-picker-container button:hover {

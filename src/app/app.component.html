@@ -8,6 +8,7 @@
 
 <!-- main area -->
 <div class="container">
+
   <!-- Left column  -->
   <div class="dice-container">
     <!-- Dice -->
@@ -82,7 +83,7 @@
         <span class="counter-avg">(16%)</span>
       </fieldset>
 
-      <button (click)="pauseGame()" class="pause-button">Pause Game</button>
+      <button (click)="pauseGame()" class="pause-button">Pause</button>
 
       <fieldset class="counter">
         <legend>{{showingTournament ? 'Tournament Duration:' : 'Game Duration'}}</legend>
@@ -343,20 +344,19 @@
       <label>most frequent</label>
     </div>
 
-    <button *ngIf="!colorPickerAll && userSettings.colorOption != ColorOption.Density"
+    <button *ngIf="!colorPickerAll && userSettings.colorOption != ColorOption.Density" class="close-button"
       (click)="mapNewColors(colorService.colorGradients[0], colorService.colorGradients[10])">
       Map Colors
     </button>
   </div>
 
-  <button (click)="closeColorSettingsDialog()">Close</button>
+  <button (click)="closeColorSettingsDialog()" class="close-button">Close</button>
 </div>
 
 <!-- Title / About screen -->
 <div *ngIf="showHelpDialog" class="user-message-popup help-dialog">
   <h2>Welcome to Boba-Zeke's<br /> Dice Stats</h2>
-  <h3>This application allows you to track dice rolls and calculates various statistics to enhance gameplay of table-top
-    board games.</h3>
+  <h3>This application tracks dice rolls and calculates various statistics to enhance gameplay of table-top board games.</h3>
   <div class="help-popup-content">
     <p>The left side of the screen contains elements for selecting dice rolls, display of game and break durations,
       and option toggles for percentages vs counts, and tournament view (all games played since
@@ -383,9 +383,17 @@
     <p>Click on the dice to select them and click the "Store" button to save the roll and update the stats.</p>
     <p>After each game, you will be able to review the the statistics of the game and/or tournament.
       If there has been more than one game, you will be able to flip through the game stats.</p>
+
+    <p>
+      There are also keyboard interactions.  Use the number keys and the enter key to enter dice rolls.  
+      Use CTRL key to toggle to Tournament view.  Use Shift key to toggle between percent and count views.  
+      While paused, the mouse scroll wheel controls opacity.
+    </p>
+
   </div>
+              
   <br />
-  <button (click)="showHelpDialog = false">Close</button>
+  <button (click)="showHelpDialog = false" class="close-button">Close</button>
 </div>
 
 <!-- color settings info -->
@@ -399,5 +407,5 @@
   <p>You select the start and end colors, then click 'Map Colors' and the app will determine the colors so they
     transition smoothly from the start to the finish color.</p>
 
-  <button (click)="closeColorHelp()">Close</button>
+  <button (click)="closeColorHelp()" class="close-button">Close</button>
 </div>
