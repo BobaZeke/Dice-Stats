@@ -140,6 +140,27 @@ export class AppComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
+    this.initializeSpeechRecognition();
+
+    this.gameStats.breakDurationDisplay = this.formatService.defaultEmptyTime;
+    this.gameStats.playingDurationDisplay = this.formatService.defaultEmptyTime;
+
+    this.endGame();
+
+    const savedSettings = this.userSettingsService.loadSettings();
+
+    if (savedSettings) {
+      this.userSettings = savedSettings;
+    }
+
+    if (this.userSettings.colorDensityColor) this.colorService.colorDensityColor = this.userSettings.colorDensityColor;
+    else this.userSettings.colorDensityColor = this.colorService.colorDensityColor;
+
+    if (this.userSettings.colorGradients) this.colorService.colorGradients = this.userSettings.colorGradients;
+    else this.userSettings.colorGradients = this.colorService.colorGradients;
+  }
+
+  initializeSpeechRecognition() {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       this.recognition = new webkitSpeechRecognition();
       this.recognition.lang = 'en-US';
@@ -152,11 +173,11 @@ export class AppComponent implements OnInit, AfterViewInit {
         var isNumber = !isNaN(Number(transcript));
 
         if (isNumber) {
-          if (Number(transcript) > 12) { //  eg:  56
+          if (transcript.length >= 2) { //  eg:  56
             var firstNum = transcript.substring(0, 1); //  first number
             var secondNum = transcript.substring(1); //  second number
             this.handleVoiceInputDouble(firstNum, secondNum);
-          } else  {//  eg:  5
+          } else {//  eg:  5
             this.handleVoiceInputSingle(transcript);
           }
         } else {  //  eg:  5-6
@@ -178,23 +199,6 @@ export class AppComponent implements OnInit, AfterViewInit {
         this.isListening = false;
       };
     }
-
-    this.gameStats.breakDurationDisplay = this.formatService.defaultEmptyTime;
-    this.gameStats.playingDurationDisplay = this.formatService.defaultEmptyTime;
-    
-    this.endGame();
-    
-    const savedSettings = this.userSettingsService.loadSettings();
-    
-    if (savedSettings) {
-      this.userSettings = savedSettings;
-    } 
-
-    if(this.userSettings.colorDensityColor) this.colorService.colorDensityColor = this.userSettings.colorDensityColor;
-    else this.userSettings.colorDensityColor = this.colorService.colorDensityColor;
-
-    if(this.userSettings.colorGradients) this.colorService.colorGradients = this.userSettings.colorGradients;
-    else this.userSettings.colorGradients = this.colorService.colorGradients;
   }
 
   toggleVoiceRecognition() {
@@ -214,7 +218,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     const number = parseInt(transcript, 10);
     if (!isNaN(number) && number >= 2 && number <= 12) {
       // Set the dice roll as if the user clicked it
-      if(number > 6) {
+      if (number > 6) {
         this.selectedDice = [6, number - 6]; // Split into two dice}
       }
       else this.selectedDice = [1, number - 1]; // Single die selection
@@ -230,7 +234,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     const number1 = parseInt(firstNum, 10);
     const number2 = parseInt(secondNum, 10);
     if (!isNaN(number1) && number1 >= 1 && number1 <= 6
-    && !isNaN(number2) && number2 >= 1 && number2 <= 6) {
+      && !isNaN(number2) && number2 >= 1 && number2 <= 6) {
       // Set the dice roll as if the user clicked it
       this.selectedDice = [number1, number2]; // Split into two dice}
       this.currentRoll = number1 + number2;;
@@ -252,7 +256,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   saveSettings(): void {
     this.userSettings.colorDensityColor = this.colorService.colorDensityColor;
     this.userSettings.colorGradients = this.colorService.colorGradients;
-    
+
     // Save settings when the user updates them
     this.userSettingsService.saveSettings(this.userSettings);
   }
@@ -305,8 +309,8 @@ export class AppComponent implements OnInit, AfterViewInit {
    * clear everything and start over
    */
   public endGame() {
-    if(this.rollCount() > 0) {
-      if(confirm('are you sure?') == false) {
+    if (this.rollCount() > 0) {
+      if (confirm('are you sure?') == false) {
         return;
       }
     }
@@ -336,7 +340,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.setDocumentFocus();
   }
 
-  public pauseGame(): void {    
+  public pauseGame(): void {
     if (this.isDiceContainerVisible) this.toggleDiceContainer(); //  close dice container if open
     this.currentRoll = null;  //  remove current roll from display
 
@@ -450,9 +454,9 @@ export class AppComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    if(this.showColorHelp) this.closeColorHelp();
+    if (this.showColorHelp) this.closeColorHelp();
 
-    if(!this.gameIsStopped && !this.showGamePause) {
+    if (!this.gameIsStopped && !this.showGamePause) {
       const diceContainer = this.elRef.nativeElement.querySelector('.dice-container');
       if (diceContainer && !diceContainer.contains(event.target as Node)) {
         this.currentRoll = null; //  reset current roll value
@@ -509,7 +513,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       if (this.userSettings.playSounds) this.soundService.playSoundEscape();
       return;
     }
-    
+
     if (!this.showingTournament && event.key.includes('Arrow')) {
       // if (this.showGameHistory) {
       //   this.gameHistoryIndex += (event.key == 'ArrowRight' || event.key == 'ArrowUp') ? +1 : -1;
@@ -520,9 +524,9 @@ export class AppComponent implements OnInit, AfterViewInit {
 
       //   this.updateDisplay();
       // } else {  //  change the roll history size
-        this.rollHistoryFontSize += (event.key == 'ArrowRight' || event.key == 'ArrowUp') ? +0.5 : -0.5;
-        if (this.rollHistoryFontSize <= 0) this.rollHistoryFontSize = 0.5;
-        if (this.rollHistoryFontSize >= 10) this.rollHistoryFontSize = 10;
+      this.rollHistoryFontSize += (event.key == 'ArrowRight' || event.key == 'ArrowUp') ? +0.5 : -0.5;
+      if (this.rollHistoryFontSize <= 0) this.rollHistoryFontSize = 0.5;
+      if (this.rollHistoryFontSize >= 10) this.rollHistoryFontSize = 10;
       // }
 
       return;
@@ -623,16 +627,16 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   updateRollFrequencyColor(index: number, hexColor: string): void {
     this.colorService.updateRollFrequencyColor(index, hexColor); // Update the color for the specific roll
-    if(this.rollCount() == 0) this.colorService.showSampleColors(this.userSettings.colorOption);
+    if (this.rollCount() == 0) this.colorService.showSampleColors(this.userSettings.colorOption);
     else this.mapRollFrequencyColor();
 
     this.saveSettings();
   }
   updateRollFrequencyDensityColor(color: string): void {
     this.colorService.updateRollFrequencyDensityColor(color); // Update the color for the specific roll
-    if(this.rollCount() == 0) this.colorService.showSampleColors(this.userSettings.colorOption);
+    if (this.rollCount() == 0) this.colorService.showSampleColors(this.userSettings.colorOption);
     else this.mapRollFrequencyColor();
-    
+
     this.saveSettings();
   }
 
@@ -688,7 +692,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   previousHistoryGame() {
     if (this.userSettings.playSounds) this.soundService.playSoundBump();
     this.gameHistoryIndex -= 1;
-    
+
     if (this.gameHistoryIndex < 0) this.gameHistoryIndex = this.gameHistory.length - 1;
 
     this.gameStats = this.gameHistory[this.gameHistoryIndex];
@@ -698,9 +702,9 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   nextHistoryGame() {
     if (this.userSettings.playSounds) this.soundService.playSoundBump();
-    
+
     this.gameHistoryIndex += 1;
-    
+
     if (this.gameHistoryIndex >= this.gameHistory.length) this.gameHistoryIndex = 0;
 
     this.gameStats = this.gameHistory[this.gameHistoryIndex];
@@ -723,7 +727,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.colorType = !this.colorType;
     if (this.userSettings.playSounds) this.soundService.playSoundBump();
 
-    if(this.userSettings.colorOption === ColorOption.Density) 
+    if (this.userSettings.colorOption === ColorOption.Density)
       this.userSettings.colorOption = ColorOption.Color;
     else
       this.userSettings.colorOption = ColorOption.Density;
@@ -950,7 +954,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.skipNext = true; //  skip the next click event (to prevent closing the dice container)
     this.selectedDice[column - 1] = value;
     if (this.userSettings.playSounds) this.soundService.playSoundNumberSelect();
-      this.currentRoll = null; //  reset current roll value
+    this.currentRoll = null; //  reset current roll value
     // if(event) event.preventDefault(); // Prevent the default browser context menu
   }
 
@@ -988,8 +992,8 @@ export class AppComponent implements OnInit, AfterViewInit {
       this.tourneyStats.rollHistory.push(this.currentRoll);
 
       if (this.userSettings.playSounds) {
-        if(this.currentRoll == 7) this.soundService.playSoundSeven();
-        else if(this.selectedDice[0] == this.selectedDice[1]) this.soundService.playSoundDouble();
+        if (this.currentRoll == 7) this.soundService.playSoundSeven();
+        else if (this.selectedDice[0] == this.selectedDice[1]) this.soundService.playSoundDouble();
         else this.soundService.playSoundSuccess();
       }
     } else if (this.userSettings.playSounds) this.soundService.playSoundFailure();
@@ -1008,7 +1012,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   undoLastRoll() {
     if (this.gameStats.rollHistory.length > 0) {
-      if(confirm('are you sure?') == false) {
+      if (confirm('are you sure?') == false) {
         return;
       }
 
@@ -1022,7 +1026,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
       this.updateDisplay();
     }
-    
+
     this.setDocumentFocus();
   }
 
