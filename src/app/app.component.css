@@ -20,6 +20,11 @@ p {
   text-align: left;
 }
 
+button {
+  box-shadow: 4px 4px 8px 2px rgba(100, 70, 70, 0.226), 4px 6px 10px 2px rgba(134, 86, 247, 0.233);
+  border-style: outset;
+}
+
 .header-container {
   position: fixed;
   top: 0;
@@ -49,7 +54,7 @@ p {
 .container {
   display: flex;
   flex-grow: 1;
-  max-height: 100dvh;
+  max-height: 97dvh;
 }
 
 .container>div:first-child {
@@ -168,9 +173,9 @@ p {
 }
 
 .pause-button {
-  width: 80%;
-  height: 7%;
-  background-color: #a37dc7;
+  width: 75%;
+  height: 5%;
+  background-color: #c9a9e7;
   font-size: 1.1em;
   color: rgb(0, 0, 0);
   padding: 5px;
@@ -185,11 +190,10 @@ p {
 
 .end-button {
   margin-bottom: 10px;
-  background-color: #b80b14;
+  background-color: #f17c82;
 }
 
 .undo-button {
-  padding: 10px;
   background-color: #b6d34c;
   color:#a52525;
   font-weight: bolder;
@@ -683,11 +687,6 @@ p {
   transition: background-color 0.3s;  /* Smooth hover effect */
 }
 
-button {
-  box-shadow: 4px 4px 8px 2px rgba(100, 70, 70, 0.226), 4px 6px 10px 2px rgba(134, 86, 247, 0.233);
-  border-style: outset;
-}
-
 .color-picker-container button:hover {
   background-color: #0056b3;  /* Darker blue on hover */
 }
@@ -727,7 +726,6 @@ button {
   display: flex; /* Use flexbox for centering */
   align-items: center; /* Center vertically */
   justify-content: center; /* Center horizontally */
-
   font-weight: bold;
   color: #666; /* Muted color for non-selected text */
   pointer-events: none;
@@ -811,4 +809,44 @@ button {
 .opacity-value {
   font-size: 0.9em;
   color: #333;
+}
+
+.undo-button:disabled, .store-button:disabled{
+  background: #bbb6b6;
+  color: #804d4d;
+  border: 1px solid #4f4e68;
+  cursor: not-allowed;
+  opacity: 0.7;
+  transform: none;
+}
+
+.mic-button {
+  margin-top: 10px;
+  margin-bottom: 5px;
+  width: 60px; 
+  height: 60px;
+  border-radius: 50%; /* Makes it round */
+  background-color: #4CAF50;
+  border: 1px solid #8381b3;
+  font-size: 24px; /* Icon size */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8); 
+  transition: background-color 0.3s, transform 0.2s; 
+}
+
+.mic-button.listening {
+  background: #7468b9;
+  color: #490a0a;
+}
+
+.mic-button:hover {
+  transform: scale(1.1); /* Slight zoom effect */
+}
+
+.mic-button:active {
+  background-color: #3e8e41; /* Even darker green when clicked */
+  transform: scale(0.95); /* Slight shrink effect */
 }

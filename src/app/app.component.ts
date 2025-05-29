@@ -1,3 +1,5 @@
+declare var webkitSpeechRecognition: any;
+
 import { Component, HostListener, OnInit, AfterViewInit, ChangeDetectorRef, ViewChildren, QueryList, ElementRef } from '@angular/core';
 import { CommonModule, KeyValue } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -121,6 +123,9 @@ export class AppComponent implements OnInit, AfterViewInit {
   public blockScreenOpacity: number = 0.7; // Default opacity (0 to 1)
 
   public showColorHelp = false;
+
+  isListening = false;
+  recognition: any;
   //#endregion  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   //#region Constructor         //    //    //    //    //    //    //
@@ -135,11 +140,50 @@ export class AppComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      this.recognition = new webkitSpeechRecognition();
+      this.recognition.lang = 'en-US';
+      this.recognition.continuous = false;
+      this.recognition.interimResults = false;
+
+      this.recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript.trim();
+        // check if one number was spoken or two...
+        var isNumber = !isNaN(Number(transcript));
+
+        if (isNumber) {
+          if (Number(transcript) > 12) { //  eg:  56
+            var firstNum = transcript.substring(0, 1); //  first number
+            var secondNum = transcript.substring(1); //  second number
+            this.handleVoiceInputDouble(firstNum, secondNum);
+          } else  {//  eg:  5
+            this.handleVoiceInputSingle(transcript);
+          }
+        } else {  //  eg:  5-6
+          var numList = transcript.replace(/[^0-9\s]/g, ' ').split(" "); // split by non-numeric characters
+          if (numList.length == 1) this.handleVoiceInputSingle(numList[0]); //  single number spoken
+          //  two numbers spoken
+          if (numList.length > 1 && !isNaN(numList[0]) && !isNaN(numList[1])) {
+            this.handleVoiceInputDouble(numList[0], numList[1]);
+          }
+        }
+        this.isListening = false;
+      };
+
+      this.recognition.onerror = (event: any) => {
+        console.error('Speech recognition error:', event);
+      };
+
+      this.recognition.onend = () => {
+        this.isListening = false;
+      };
+    }
+
     this.gameStats.breakDurationDisplay = this.formatService.defaultEmptyTime;
     this.gameStats.playingDurationDisplay = this.formatService.defaultEmptyTime;
     
     this.endGame();
-    // Load settings on initialization
+    
     const savedSettings = this.userSettingsService.loadSettings();
     
     if (savedSettings) {
@@ -151,6 +195,49 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     if(this.userSettings.colorGradients) this.colorService.colorGradients = this.userSettings.colorGradients;
     else this.userSettings.colorGradients = this.colorService.colorGradients;
+  }
+
+  toggleVoiceRecognition() {
+    if (!this.recognition) return;
+
+    if (this.isListening) {
+      this.recognition.stop();
+      this.isListening = false;
+    } else {
+      this.recognition.start();
+      this.isListening = true;
+    }
+  }
+
+  handleVoiceInputSingle(transcript: string) {
+    // Try to extract a number from the spoken input
+    const number = parseInt(transcript, 10);
+    if (!isNaN(number) && number >= 2 && number <= 12) {
+      // Set the dice roll as if the user clicked it
+      if(number > 6) {
+        this.selectedDice = [6, number - 6]; // Split into two dice}
+      }
+      else this.selectedDice = [1, number - 1]; // Single die selection
+
+      this.currentRoll = number;
+      this.storeValues();
+    } else {
+      alert('Could not recognize a valid dice roll (2-12). You said: ' + transcript);
+    }
+  }
+  handleVoiceInputDouble(firstNum: string, secondNum: string) {
+    // Try to extract a number from the spoken input
+    const number1 = parseInt(firstNum, 10);
+    const number2 = parseInt(secondNum, 10);
+    if (!isNaN(number1) && number1 >= 1 && number1 <= 6
+    && !isNaN(number2) && number2 >= 1 && number2 <= 6) {
+      // Set the dice roll as if the user clicked it
+      this.selectedDice = [number1, number2]; // Split into two dice}
+      this.currentRoll = number1 + number2;;
+      this.storeValues();
+    } else {
+      alert('Could not recognize a valid dice rolls (1-6 each). You said: ' + firstNum + ' (' + number1 + ')' + ' & ' + secondNum + ' (' + number2 + ')');
+    }
   }
 
   ngAfterViewInit(): void {
@@ -920,11 +1007,11 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   undoLastRoll() {
-    if(confirm('are you sure?') == false) {
-      return;
-    }
-
     if (this.gameStats.rollHistory.length > 0) {
+      if(confirm('are you sure?') == false) {
+        return;
+      }
+
       const lastRoll = this.gameStats.rollHistory[this.gameStats.rollHistory.length - 1]; // Get the last roll
 
       this.gameStats.rollHistory.pop(); // Remove the last roll from the game history

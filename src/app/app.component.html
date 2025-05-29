@@ -67,13 +67,18 @@
         Store
       </button>
 
+      <button class="mic-button" (click)="toggleVoiceRecognition()" [class.listening]="isListening" *ngIf="this.recognition">
+        🎤
+      </button>
+      <span *ngIf="isListening" style="color: green;">Listening...</span>
+
       <fieldset class="counter">
         <legend>Roll Count:</legend>
         <span class="counter-val">{{rollCount()}}</span>
       </fieldset>
 
-      <button (click)="undoLastRoll()" class="pause-button undo-button">Undo</button>
-
+      <button (click)="undoLastRoll()" class="pause-button undo-button" [disabled]="rollCount() === 0">Undo</button>
+      
       <fieldset>
         <legend>Avg # Rolls <br />between 7s:</legend>
         <span class="counter-val">{{calculateAverageInterval(7)}}</span>
