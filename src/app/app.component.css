@@ -7,6 +7,10 @@ html {
   flex-direction: column;
 }
 
+* {
+  user-select: none;
+}
+
 fieldset {
   margin-top: 10px;
   margin-bottom: 10px;
@@ -22,7 +26,7 @@ p {
 
 button {
   box-shadow: 4px 4px 8px 2px rgba(100, 70, 70, 0.226), 4px 6px 10px 2px rgba(134, 86, 247, 0.233);
-  border-style: outset;
+  border-width: 1px;
 }
 
 .header-container {
@@ -94,6 +98,7 @@ button {
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
+  box-shadow: 4px 4px 8px 2px rgba(70, 91, 100, 0.226), 4px 6px 10px 2px rgba(114, 223, 92, 0.144);
 }
 
 .die-one {
@@ -168,7 +173,7 @@ button {
   color: white;
   border-radius: 10px;
   text-align: center;
-  border-style: outset;
+  /* border-style: outset; */
   border-color: rgb(63, 37, 75);
 }
 
@@ -585,8 +590,13 @@ button {
 
   /* Show toggle-bar only when dice-container is hidden */
   .dice-container:not(.visible)+.toggle-bar {
-    display: block;    /* Show the toggle-bar */
+    display: block;
   }
+
+  /* Show when dice-container is NOT visible */
+  .dice-container:not(.visible) ~ .floating-mic {
+    display: block;
+  }  
 
   .dice-container.visible {
     transform: translateX(0);    /* Slide into view */
@@ -595,6 +605,14 @@ button {
   .bar-box {
     width: calc(100vw - 15px);
   }
+}
+
+.floating-mic {
+  position: fixed;
+  top: 1.5em;
+  right: 1.5em;
+  z-index: 2000;
+  display: none; /* Hide by default */
 }
 
 .tournament-bar {
@@ -799,8 +817,6 @@ button {
 }
 
 .opacity-slider {
-  writing-mode: bt-lr; /* vertical orientation for most browsers */
-  -webkit-appearance: slider-vertical; /* for Chrome/Safari */
   width: 24px;
   height: 120px;
   margin-bottom: 0.5em;
@@ -849,4 +865,33 @@ button {
 .mic-button:active {
   background-color: #3e8e41; /* Even darker green when clicked */
   transform: scale(0.95); /* Slight shrink effect */
+}
+
+.hide-dice-option {
+  font-size: 0.86em;
+}
+
+.hide-dice-btn input[type="checkbox"] {
+  display: none;
+}
+
+.hide-dice-btn {
+  display: inline-block;
+  padding: 0.2em;  /* 0.2em 0.5em; */
+  background: #d9dee2;
+  color: #1f279b;
+  border-radius: 6px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+  border: 1px solid #af62f7;
+  width: 70px;
+  box-shadow: 4px 4px 4px 2px rgba(100, 70, 70, 0.226), 4px 6px 10px 2px rgba(134, 86, 247, 0.233);
+  border-style: outset;
+}
+.hide-dice-btn:hover {
+  color: #0d47a1;
+}
+.hide-dice-text {
+  margin-left: 0.4em;
 }

@@ -126,6 +126,8 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   isListening = false;
   recognition: any;
+
+  public hideDice = false;
   //#endregion  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   //#region Constructor         //    //    //    //    //    //    //
@@ -169,23 +171,43 @@ export class AppComponent implements OnInit, AfterViewInit {
 
       this.recognition.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript.trim();
+        // console.log('Speech recognition result:', transcript);
+
         // check if one number was spoken or two...
-        var isNumber = !isNaN(Number(transcript));
+        var isNumber = this.isNumber(transcript);
 
         if (isNumber) {
+          // console.log('isNumber : Single number spoken:', transcript);
           if (transcript.length >= 2) { //  eg:  56
+            // console.log('isNumber : Two numbers spoken:', transcript);
             var firstNum = transcript.substring(0, 1); //  first number
             var secondNum = transcript.substring(1); //  second number
-            this.handleVoiceInputDouble(firstNum, secondNum);
+            
+            if (this.isNumber(firstNum) && this.isNumber(secondNum)) {
+              this.handleVoiceInputDouble(firstNum, secondNum);
+            } else alert('Could not recognize a valid dice rolls (1-6 each). You said: ' + transcript);
           } else {//  eg:  5
-            this.handleVoiceInputSingle(transcript);
+            // console.log('isNumber : Single number spoken:', transcript);
+            if(this.isNumber(numList[0])) this.handleVoiceInputSingle(transcript); //  single number spoken
+             else alert('Could not recognize a valid dice roll (2-12). You said: ' + transcript);            
           }
         } else {  //  eg:  5-6
-          var numList = transcript.replace(/[^0-9\s]/g, ' ').split(" "); // split by non-numeric characters
-          if (numList.length == 1) this.handleVoiceInputSingle(numList[0]); //  single number spoken
-          //  two numbers spoken
-          if (numList.length > 1 && !isNaN(numList[0]) && !isNaN(numList[1])) {
-            this.handleVoiceInputDouble(numList[0], numList[1]);
+          // console.log('NOT isNumber : Multiple numbers spoken:', transcript);
+          //                            split by non-numeric characters (remove blanks)
+          var numList = transcript.replace(/[^0-9\s]/g, ' ').split(" ").filter(Boolean);
+          if(numList.length == 0) {
+            alert('Could not recognize a valid dice roll (2-12). You said: ' + transcript);
+            return;
+          }
+          else if (numList.length == 1 ) {
+            // console.log('NOT isNumber : Single number spoken:', numList[0]);
+             if(this.isNumber(numList[0])) this.handleVoiceInputSingle(numList[0]); //  single number spoken
+             else alert('Could not recognize a valid dice roll (2-12). You said: ' + transcript);
+          } else if (numList.length > 1 ){  //  two numbers spoken
+            // console.log('NOT isNumber : Two numbers spoken:', numList);
+            if (this.isNumber(numList[0]) && this.isNumber(numList[1])) {
+              this.handleVoiceInputDouble(numList[0], numList[1]);
+            } else alert('Could not recognize a valid dice rolls (1-6 each). You said: ' + transcript);
           }
         }
         this.isListening = false;
@@ -199,6 +221,9 @@ export class AppComponent implements OnInit, AfterViewInit {
         this.isListening = false;
       };
     }
+  }
+  isNumber(value: string): boolean {
+    return !isNaN(Number(value));
   }
 
   toggleVoiceRecognition() {

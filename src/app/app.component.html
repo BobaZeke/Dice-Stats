@@ -11,8 +11,16 @@
 
   <!-- Left column  -->
   <div class="dice-container">
+
+    <div *ngIf="this.recognition" class="hide-dice-option">
+      <label class="hide-dice-btn">
+        <input type="checkbox" [(ngModel)]="hideDice" />
+        <span class="hide-dice-text">{{ hideDice ? "Show Dice" : "Hide Dice" }}</span>
+      </label>
+    </div>
+
     <!-- Dice -->
-    <div class="dice-group">
+    <div class="dice-group" *ngIf="!hideDice">
       <div class="sub-column">
         <div *ngFor="let die of dice | slice:0:3" (click)="selectDie(1, die)" class="dice die-one"
           [class.selected]="selectedDice[0] === die" [class.has-selected]="haveSelectedYellowDie()">
@@ -27,7 +35,7 @@
       </div>
     </div>
 
-    <div class="dice-group">
+    <div class="dice-group" *ngIf="!hideDice">
       <div class="sub-column">
         <div *ngFor="let die of dice | slice:0:3" (click)="selectDie(2, die)" class="dice die-two"
           [class.selected]="selectedDice[1] === die" [class.has-selected]="haveSelectedRedDie()">
@@ -62,7 +70,7 @@
         </span>
       </fieldset>
 
-      <button (click)="storeValues()" [disabled]="(selectedDice[0] == 0 || selectedDice[1] == 0)"
+      <button (click)="storeValues()" *ngIf="!hideDice" [disabled]="(selectedDice[0] == 0 || selectedDice[1] == 0)"
         class="gradient-btn store-button">
         Store
       </button>
@@ -148,7 +156,15 @@
       </button>
     </div>
   </div>
+
   <div *ngIf="!gameIsStopped && !showGamePause" class="toggle-bar" (click)="toggleDiceContainer()">☰</div>
+
+  <div class="floating-mic" *ngIf="!gameIsStopped && !showGamePause && this.recognition">
+    <button class="mic-button" (click)="toggleVoiceRecognition()" [class.listening]="isListening">
+      🎤
+    </button>
+    <span *ngIf="isListening" style="color: green;">Listening...</span>
+  </div>
 
   <!-- central display : bar chart display showing how many times each number has been rolled -->
   <div class="bar-container">
@@ -238,6 +254,7 @@
     <div class="opacity-slider-container" *ngIf="rollCount() > 0">
       <input type="range" min="0" max="1" step="0.01" [ngModel]="1 - blockScreenOpacity"
         (ngModelChange)="blockScreenOpacity = 1 - $event" orient="vertical" class="opacity-slider"
+        style="writing-mode: vertical-lr; direction: rtl"
         aria-label="Adjust overlay opacity" />
       <span class="opacity-value">{{ ((1-blockScreenOpacity) * 100) | number:'1.0-0' }}%</span>
     </div>
