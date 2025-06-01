@@ -102,6 +102,17 @@ button {
   background-color: rgb(59, 38, 134);
 }
 
+.dice.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+  filter: grayscale(0.7);
+  background: #e0e0e0;
+  color: #888;
+  box-shadow: none;
+  border-color: #ccc;
+  cursor: not-allowed;
+}
+
 .dice:hover {
   background-color: #e0e0e0;
   transform: scale(1.1);
@@ -167,24 +178,6 @@ button {
   text-align: center;
   /* border-style: outset; */
   border-color: rgb(63, 37, 75);
-}
-
-.pause-button {
-  width: 75%;
-  height: 5%;
-  background-color: #c9a9e7;
-  font-size: 1.1em;
-  color: rgb(0, 0, 0);
-  padding: 5px;
-  border-radius: 10px;
-  text-align: center;
-  transition: background 0.3s, transform 0.2s;
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
-
-.pause-button:hover {
-  transform: scale(1.05);
 }
 
 .end-button {
@@ -864,6 +857,18 @@ fieldset {
   display: flex;
   align-items: center;
   justify-content: center;
+  
+  text-shadow:
+    1px 1px 2px #bbb,   /* subtle shadow for depth */
+    0 2px 6px #888;     /* larger, softer shadow */
+  letter-spacing: 0.5px;
+}
+
+.undo-button:active {
+  text-shadow:
+    0 1px 1px #fff,
+    0 0 8px #aaa;
+  color: #222;
 }
 
 .undo-button svg {
@@ -876,13 +881,111 @@ fieldset {
 .undo-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
-
-.undo-button:disabled{
+  
   background: #bbb6b6;
   color: #804d4d;
   border: 1px solid #4f4e68;
   cursor: not-allowed;
   opacity: 0.7;
   transform: none;
+}
+
+.undo-button.clicked {
+  animation: undo-bounce 0.5s;
+}
+
+@keyframes undo-bounce {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(0.85); }
+  60%  { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.pause-split-dropdown-container {
+  display: inline-flex;
+  position: relative;
+  width: 90%;
+  margin: 0 auto;
+}
+
+
+.pause-button {
+  flex: 1 1 0;
+  min-width: 0;
+  box-sizing: border-box;
+  border: 1px solid #bbb;
+  border-right: none; /* Remove right border to avoid double border */
+  border-radius: 10px 0 0 10px; /* Only round left side */
+  padding: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  transition: background 0.3s, transform 0.2s;
+}
+
+/* When the dropdown arrow is present, square off the right side and remove right border */
+.pause-button + .pause-dropdown-arrow {
+  /* Remove right border-radius and border on the pause button */
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  border-right: none !important;
+}
+
+/* When the dropdown arrow is NOT present, keep both sides rounded and border on all sides */
+.pause-split-dropdown-container:not(:has(.pause-dropdown-arrow)) .pause-button {
+  border-radius: 10px !important;
+  border-right: 1px solid #bbb !important;
+}
+
+.pause-dropdown-arrow {
+  flex: 0 0 48px;
+  max-width: 48px;
+  min-width: 40px;
+  box-sizing: border-box;
+  border: 1px solid #bbb;
+  border-left: none; /* Remove left border to avoid double border */
+  border-radius: 0 10px 10px 0; /* Only round right side */
+  background: #f5f5f5;
+  cursor: pointer;
+  padding: 0 0.7em;
+  font-size: 1.1em;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pause-dropdown-arrow:hover {
+  background: #e0e0e0;
+}
+
+.pause-dropdown-menu {
+  position: absolute;
+  left: 20px;
+  top: 48px;
+  min-width: 120px;
+  background: #fff;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  z-index: 10;
+  padding: 0.25em 0;
+}
+
+.dropdown-item {
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 0.5em 1em;
+  cursor: pointer;
+  color: #922020;
+  transition: background 0.2s;
+  font-size: 0.9em;
+  font-weight: bold;
+}
+
+.dropdown-item:hover {
+  background: #f0f0f0;
 }

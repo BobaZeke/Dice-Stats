@@ -121,6 +121,8 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   public showColorHelp = false;
 
+  undoButtonClicked = false;
+  pauseDropdownOpen = false;
   //#endregion  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   //#region Constructor         //    //    //    //    //    //    //
@@ -240,7 +242,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     this.stopTurnTimer();
 
-    this.pauseGame();
+    this.doPauseIntervals();
 
     this.updateDisplay();
 
@@ -253,6 +255,11 @@ export class AppComponent implements OnInit, AfterViewInit {
     if (this.isDiceContainerVisible) this.toggleDiceContainer(); //  close dice container if open
     this.currentRoll = null;  //  remove current roll from display
 
+    if(this.gameIsStopped) {
+      this.startResumeGame();
+      return; //  if game is stopped, just start/resume the game
+    }
+
     if (!this.gameIsStopped) {
       //  start break timer
       if (!this.breakIntervalId) { // Prevent multiple intervals from being created
@@ -264,15 +271,19 @@ export class AppComponent implements OnInit, AfterViewInit {
       }
     }
 
-    this.stopTurnTimer();
-    if (this.gameStartTime !== null) {
-      this.savedGameDuration += this.formatService.calculateDuration(this.gameStartTime, Date.now());
-    }
-
-    this.showGamePause = true;
-    clearInterval(this.gameIntervalId);
-    this.gameIntervalId = null; // Reset the interval tracker
+    this.doPauseIntervals();
   }
+
+  private doPauseIntervals() {
+      this.stopTurnTimer();
+      if (this.gameStartTime !== null) {
+        this.savedGameDuration += this.formatService.calculateDuration(this.gameStartTime, Date.now());
+      }
+
+      this.showGamePause = !this.showGamePause;
+      clearInterval(this.gameIntervalId);
+      this.gameIntervalId = null; // Reset the interval tracker
+    }
 
   public startResumeGame(): void {
     this.closeTournamentDisplay(); //  close tournament display if open
@@ -298,7 +309,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       }
 
       this.savedGameDuration = 0;
-      this.gameIsStopped = false;
+      this.gameIsStopped = false; console.log('startResulmeGame() - gameIsStopped = false');
 
       this.updateGameBreakTotal(0);
 
@@ -596,15 +607,13 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
   //#endregion
   //#region Display Toggles       //    //    //    //    //    //    //
-  // showColorPicker(): void {
-  //   this.showColorPickerColors = !this.showColorPickerColors;
+  togglePauseDropdown() {
+    this.pauseDropdownOpen = !this.pauseDropdownOpen;
+  }
 
-  //   if(this.showColorPickerColors) {
-  //       this.colorService.showSampleColors(this.userSettings.colorOption);
-  //   } else {
-  //     this.updateDisplay();
-  //   }
-  // }
+  closePauseDropdown() {
+    this.pauseDropdownOpen = false;
+  }
 
   toggleColorType(): void {
     this.colorType = !this.colorType;
@@ -877,23 +886,28 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   undoLastRoll() {
-    if (this.gameStats.rollHistory.length > 0) {
-      if (confirm('are you sure you want to undo the last roll?') == false) {
-        return;
+    // Add the clicked class for animation
+    this.undoButtonClicked = true;
+    setTimeout(() => {
+      this.undoButtonClicked = false;
+      if (this.gameStats.rollHistory.length > 0) {
+        if (confirm('are you sure you want to undo the last roll?') == false) {
+          return;
+        }
+
+        const lastRoll = this.gameStats.rollHistory[this.gameStats.rollHistory.length - 1]; // Get the last roll
+
+        this.gameStats.rollHistory.pop(); // Remove the last roll from the game history
+        this.tourneyStats.rollHistory.pop(); // Remove the last roll from the tournament history
+
+        this.gameStats.rolls[lastRoll] = (this.gameStats.rolls[lastRoll] || 0) - 1; // Decrease the count for that roll
+        this.tourneyStats.rolls[lastRoll] = (this.tourneyStats.rolls[lastRoll] || 0) - 1; // Decrease the count for that roll
+
+        this.updateDisplay();
       }
 
-      const lastRoll = this.gameStats.rollHistory[this.gameStats.rollHistory.length - 1]; // Get the last roll
-
-      this.gameStats.rollHistory.pop(); // Remove the last roll from the game history
-      this.tourneyStats.rollHistory.pop(); // Remove the last roll from the tournament history
-
-      this.gameStats.rolls[lastRoll] = (this.gameStats.rolls[lastRoll] || 0) - 1; // Decrease the count for that roll
-      this.tourneyStats.rolls[lastRoll] = (this.tourneyStats.rolls[lastRoll] || 0) - 1; // Decrease the count for that roll
-
-      this.updateDisplay();
-    }
-
-    this.setDocumentFocus();
+      this.setDocumentFocus();
+    }, 250);
   }
 
   //#endregion
