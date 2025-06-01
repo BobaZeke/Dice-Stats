@@ -247,9 +247,7 @@ fieldset {
   padding-left: 10px;
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-
   height: calc(100dvh - 20px);  /* Adjust height to fit below the header */
-
   overflow-y: auto;  /* Enable vertical scrolling if content overflows */
   overflow-x: hidden;  /* Hide horizontal overflow */
 }
@@ -260,6 +258,7 @@ fieldset {
   width: calc(100vw - 185px);  /* Ensure bars stretch horizontally */
   flex-grow: 1;  /* Allow bar-box to grow and fill vertical space proportionally */
   position: relative;  /* For overlay positioning */
+  background: white;
 }
 
 .bar-number {
@@ -292,7 +291,7 @@ fieldset {
   box-sizing: border-box;  /* Include padding in the element's width */
   line-height: 0.6;  /* Reduce space between lines : 1.0 = size of font*/
   cursor: default;
-  color: #fff !important;
+  color: white !important;
   mix-blend-mode: difference;
 }
 
