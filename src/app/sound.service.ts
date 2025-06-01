@@ -13,7 +13,6 @@ export class SoundService {
     private success: HTMLAudioElement = new Audio();
     private number_select: HTMLAudioElement = new Audio();
     private error: HTMLAudioElement = new Audio();
-    private double: HTMLAudioElement = new Audio();
     private seven: HTMLAudioElement = new Audio();
     private bump: HTMLAudioElement = new Audio();
     private escape: HTMLAudioElement = new Audio();
@@ -22,7 +21,6 @@ export class SoundService {
         this.success = new Audio('assets/sounds/success.mp3');
         this.error = new Audio('assets/sounds/error.mp3');
         this.number_select = new Audio('assets/sounds/number_select.mp3');
-        this.double = new Audio('assets/sounds/double.mp3');
         this.seven = new Audio('assets/sounds/seven.mp3');
         this.bump = new Audio('assets/sounds/bump.mp3');
         this.escape = new Audio('assets/sounds/escape.mp3');
@@ -36,10 +34,7 @@ export class SoundService {
     }
     public playSoundNumberSelect(): void {
         this.playSound(this.number_select)
-    }
-    public playSoundDouble(): void {
-        this.playSound(this.double)
-    }
+    }    
     public playSoundSeven(): void {
         this.playSound(this.seven)
     }

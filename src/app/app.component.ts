@@ -21,13 +21,15 @@ export class AppComponent implements OnInit, AfterViewInit {
   //#region Properties           //    //    //    //    //    //    //
 
   /** number of sides per die */
-  public dice = [1, 2, 3, 4, 5, 6];
+  public dice = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+  public diceCol1 = this.dice.filter((_, i) => i % 2 === 0); // left column
+  public diceCol2 = this.dice.filter((_, i) => i % 2 === 1); // right column
 
   /** possible combinations of 2, 6 sided, dice > 2-12 */
   public numberRange = Array.from({ length: 11 }, (_, i) => i + 2);
 
   /** the selections for the two dice */
-  public selectedDice = [0, 0];
+  public selectedDie = 0;
   public bars: Array<number> = [];  //  bars to display how many times a given number was rolled
 
   public gameStats: PlayStats = new PlayStats();     //  game stats
@@ -59,11 +61,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   private breakIntervalId: any;
   private gameBreakSeconds = 0;
   private gameBreakTotalSeconds = 0;
-
-  /** tracks # of keystrokes so we can toggle dice (used by handleGlobalKeydown)
-   * if the user messes up, but hasn't hit enter, they can just re-key the values until they get the ones they want
-   */
-  private keystrokeCount: number = 0;
 
   /** used to ignore the next mouse click */
   private skipNext = false;
@@ -126,6 +123,8 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   isListening = false;
   recognition: any;
+  private recognitionTimeout: any;
+  private readonly recognitionDurationMs = 5000; // e.g., 5 seconds
 
   public hideDice = false;
   //#endregion  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -171,45 +170,34 @@ export class AppComponent implements OnInit, AfterViewInit {
 
       this.recognition.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript.trim();
-        // console.log('Speech recognition result:', transcript);
+        console.log('Speech recognition result:', transcript);
 
-        // check if one number was spoken or two...
-        var isNumber = this.isNumber(transcript);
+        // is the input a number?
+        let number = parseInt(transcript, 10);
+        // console.log('Parsed number:', number);
 
-        if (isNumber) {
-          // console.log('isNumber : Single number spoken:', transcript);
-          if (transcript.length >= 2) { //  eg:  56
-            // console.log('isNumber : Two numbers spoken:', transcript);
-            var firstNum = transcript.substring(0, 1); //  first number
-            var secondNum = transcript.substring(1); //  second number
-            
-            if (this.isNumber(firstNum) && this.isNumber(secondNum)) {
-              this.handleVoiceInputDouble(firstNum, secondNum);
-            } else alert('Could not recognize a valid dice rolls (1-6 each). You said: ' + transcript);
-          } else {//  eg:  5
-            // console.log('isNumber : Single number spoken:', transcript);
-            if(this.isNumber(numList[0])) this.handleVoiceInputSingle(transcript); //  single number spoken
-             else alert('Could not recognize a valid dice roll (2-12). You said: ' + transcript);            
-          }
-        } else {  //  eg:  5-6
-          // console.log('NOT isNumber : Multiple numbers spoken:', transcript);
-          //                            split by non-numeric characters (remove blanks)
-          var numList = transcript.replace(/[^0-9\s]/g, ' ').split(" ").filter(Boolean);
-          if(numList.length == 0) {
-            alert('Could not recognize a valid dice roll (2-12). You said: ' + transcript);
-            return;
-          }
-          else if (numList.length == 1 ) {
-            // console.log('NOT isNumber : Single number spoken:', numList[0]);
-             if(this.isNumber(numList[0])) this.handleVoiceInputSingle(numList[0]); //  single number spoken
-             else alert('Could not recognize a valid dice roll (2-12). You said: ' + transcript);
-          } else if (numList.length > 1 ){  //  two numbers spoken
-            // console.log('NOT isNumber : Two numbers spoken:', numList);
-            if (this.isNumber(numList[0]) && this.isNumber(numList[1])) {
-              this.handleVoiceInputDouble(numList[0], numList[1]);
-            } else alert('Could not recognize a valid dice rolls (1-6 each). You said: ' + transcript);
-          }
+        // if not a number, try to convert it from words
+        if (isNaN(number) || number <= 0) {
+          number = this.wordToNumber(transcript);
+          // console.log('Converted number from words:', number);
         }
+
+        // if still not a number, try to find the first spelled number in the transcript
+        if(isNaN(number) || number <= 0) {
+          number = this.findFirstNumberOrSpelled(transcript);
+          // console.log('Found first spelled number:', number);
+        }
+
+        // console.log('Final number:', number);
+        // if we have a number, and it is between 2 and 12, set the selectedDie
+        if (!isNaN(number) && number >= 2 && number <= 12) {
+          this.selectedDie = number;
+          this.currentRoll = number;
+          this.storeValues();
+        } else {  //  no numbers spoken
+          alert('Could not recognize a valid dice roll (2-12). You said: ' + transcript);
+        }
+
         this.isListening = false;
       };
 
@@ -222,52 +210,65 @@ export class AppComponent implements OnInit, AfterViewInit {
       };
     }
   }
-  isNumber(value: string): boolean {
-    return !isNaN(Number(value));
-  }
+  
+  /**
+   * extracts the first number or spelled-out number from the sentence.
+   * @param text 
+   * @returns 
+   */
+  findFirstNumberOrSpelled(text: string): number {
+    const map: { [key: string]: number } = {
+      "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
+      "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11, "twelve": 12
+    };
 
-  toggleVoiceRecognition() {
-    if (!this.recognition) return;
+    // Regex to match either a number or a spelled-out number
+    const regex = /\b(\d+|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\b/i;
+    const match = text.match(regex);
 
-    if (this.isListening) {
-      this.recognition.stop();
-      this.isListening = false;
-    } else {
-      this.recognition.start();
-      this.isListening = true;
-    }
-  }
-
-  handleVoiceInputSingle(transcript: string) {
-    // Try to extract a number from the spoken input
-    const number = parseInt(transcript, 10);
-    if (!isNaN(number) && number >= 2 && number <= 12) {
-      // Set the dice roll as if the user clicked it
-      if (number > 6) {
-        this.selectedDice = [6, number - 6]; // Split into two dice}
+    if (match) {
+      const value = match[1].toLowerCase();
+      if (map[value]) {
+        return map[value];
+      } else if (!isNaN(Number(value))) {
+        return Number(value);
       }
-      else this.selectedDice = [1, number - 1]; // Single die selection
+    }
+    return 0;
+  }
+  /**
+   * converts a spelled-out number (two, three, etc.) to its numeric value (2, 3, etc.).
+   * @param word 
+   * @returns 
+   */
+  wordToNumber(word: string): number {
+    const map: { [key: string]: number } = {
+      "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
+      "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11, "twelve": 12
+    };
+    const normalized = word.trim().toLowerCase();
+    return map[normalized] ?? 0;
+  }
 
-      this.currentRoll = number;
-      this.storeValues();
-    } else {
-      alert('Could not recognize a valid dice roll (2-12). You said: ' + transcript);
-    }
+toggleVoiceRecognition() {
+  if (!this.recognition) return;
+
+  if (this.isListening) {
+    this.recognition.stop();
+    this.isListening = false;
+    clearTimeout(this.recognitionTimeout);
+  } else {
+    this.recognition.start();
+    this.isListening = true;
+    // Set a timeout to stop listening after N ms
+    this.recognitionTimeout = setTimeout(() => {
+      if (this.isListening) {
+        this.recognition.stop();
+        this.isListening = false;
+      }
+    }, this.recognitionDurationMs);
   }
-  handleVoiceInputDouble(firstNum: string, secondNum: string) {
-    // Try to extract a number from the spoken input
-    const number1 = parseInt(firstNum, 10);
-    const number2 = parseInt(secondNum, 10);
-    if (!isNaN(number1) && number1 >= 1 && number1 <= 6
-      && !isNaN(number2) && number2 >= 1 && number2 <= 6) {
-      // Set the dice roll as if the user clicked it
-      this.selectedDice = [number1, number2]; // Split into two dice}
-      this.currentRoll = number1 + number2;;
-      this.storeValues();
-    } else {
-      alert('Could not recognize a valid dice rolls (1-6 each). You said: ' + firstNum + ' (' + number1 + ')' + ' & ' + secondNum + ' (' + number2 + ')');
-    }
-  }
+}
 
   ngAfterViewInit(): void {
     this.adjustOverlayFontSize();
@@ -352,7 +353,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       this.showGameHistory = true;
     }
 
-    this.selectedDice = [0, 0];
+    this.selectedDie = 0;
 
     this.stopTurnTimer();
 
@@ -391,7 +392,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   public startResumeGame(): void {
-    this.rollHistoryFontSize = this.maxRollHistorySize;
     this.closeTournamentDisplay(); //  close tournament display if open
 
     this.showGamePause = false;
@@ -403,6 +403,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.updateTurnDuration();
 
     if (this.gameIsStopped) {  //  starting a new game
+      this.rollHistoryFontSize = this.maxRollHistorySize;
       this.gameStats = new PlayStats();
       this.gameStats.breakDurationDisplay = this.formatService.defaultEmptyTime;
       this.gameStats.playingDurationDisplay = this.formatService.defaultEmptyTime;
@@ -531,9 +532,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       return;
     }
     else if (event.key == 'Escape') {
-      this.keystrokeCount = 0;  //  reset keystroke count
-      this.selectedDice[0] = 0; //  reset selected dice values
-      this.selectedDice[1] = 0;
+      this.selectedDie = 0;
       this.currentRoll = null; //  reset current roll value
       if (this.userSettings.playSounds) this.soundService.playSoundEscape();
       return;
@@ -562,30 +561,6 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
 
     this.currentRoll = null; //  reset current roll value
-
-    if (event.key == 'Enter') {
-      this.closeTournamentDisplay(); //  close tournament display if open
-      this.storeValues();
-      this.keystrokeCount = 0;
-      if (this.isDiceContainerVisible) this.toggleDiceContainer(); //  hide the dice container when submitting a roll
-      return;
-    }
-
-    //  if we get here, then let's try to process as a roll
-    const num = parseInt(event.key);
-    if (num >= 0 && num < 7) {  //  include zero as a way of clearing selections
-      if (!this.isDiceContainerVisible) this.toggleDiceContainer(); //  show the dice container while selecting #s (if not already visible)
-      this.closeTournamentDisplay(); //  close tournament display if open
-      this.keystrokeCount++;
-      this.selectDie(this.keystrokeCount, num);
-      if (this.keystrokeCount >= 2) this.keystrokeCount = 0;
-    }
-
-    //  if we have two dice selected, calculate the current roll value
-    //  (this is done in the storeValues() function, but we need it here to update the display)
-    if ((this.selectedDice[0] > 0 && this.selectedDice[1] > 0)) {
-      this.currentRoll = this.selectedDice[0] + this.selectedDice[1];
-    }
   }
 
   //#endregion
@@ -975,30 +950,13 @@ export class AppComponent implements OnInit, AfterViewInit {
    * @param column 
    * @param value 
    */
-  selectDie(column: number, value: number) {
+  selectDiceRoll(value: number) {  //  column: number, 
     this.skipNext = true; //  skip the next click event (to prevent closing the dice container)
-    this.selectedDice[column - 1] = value;
+    this.selectedDie = value;
     if (this.userSettings.playSounds) this.soundService.playSoundNumberSelect();
     this.currentRoll = null; //  reset current roll value
     // if(event) event.preventDefault(); // Prevent the default browser context menu
-  }
-
-  /**
-   * Do we have a Yellow Die selection?
-   * (die color bears no significance)
-   * @returns 
-   */
-  haveSelectedYellowDie() {
-    return this.selectedDice[0] > 0;
-  }
-
-  /**
-   * Do we have a Red Die selection?
-   * (die color bears no significance)
-   * @returns 
-   */
-  haveSelectedRedDie() {
-    return this.selectedDice[1] > 0;
+    this.storeValues();
   }
 
   /**
@@ -1006,9 +964,9 @@ export class AppComponent implements OnInit, AfterViewInit {
    */
   storeValues() {
     //  if valid entry, process the selections...
-    if ((this.selectedDice[0] > 0 && this.selectedDice[1] > 0)) {
+    if ((this.selectedDie > 0)) {
       if (this.isDiceContainerVisible) this.toggleDiceContainer(); //  close dice container if open
-      this.currentRoll = this.selectedDice[0] + this.selectedDice[1];
+      this.currentRoll = this.selectedDie;
 
       this.gameStats.rolls[this.currentRoll] = (this.gameStats.rolls[this.currentRoll] || 0) + 1;
       this.tourneyStats.rolls[this.currentRoll] = (this.tourneyStats.rolls[this.currentRoll] || 0) + 1;
@@ -1018,13 +976,13 @@ export class AppComponent implements OnInit, AfterViewInit {
 
       if (this.userSettings.playSounds) {
         if (this.currentRoll == 7) this.soundService.playSoundSeven();
-        else if (this.selectedDice[0] == this.selectedDice[1]) this.soundService.playSoundDouble();
+        // else if (this.selectedDice[0] == this.selectedDice[1]) this.soundService.playSoundDouble();
         else this.soundService.playSoundSuccess();
       }
     } else if (this.userSettings.playSounds) this.soundService.playSoundFailure();
 
     //  clear current selections
-    this.selectedDice = [0, 0];
+    this.selectedDie = 0;
 
     this.updateDisplay();
 

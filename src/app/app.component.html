@@ -12,46 +12,33 @@
   <!-- Left column  -->
   <div class="dice-container">
 
-    <div *ngIf="this.recognition" class="hide-dice-option">
-      <label class="hide-dice-btn">
-        <input type="checkbox" [(ngModel)]="hideDice" />
-        <span class="hide-dice-text">{{ hideDice ? "Show Dice" : "Hide Dice" }}</span>
-      </label>
-    </div>
-
     <!-- Dice -->
     <div class="dice-group" *ngIf="!hideDice">
       <div class="sub-column">
-        <div *ngFor="let die of dice | slice:0:3" (click)="selectDie(1, die)" class="dice die-one"
-          [class.selected]="selectedDice[0] === die" [class.has-selected]="haveSelectedYellowDie()">
+        <div *ngFor="let die of diceCol1" (click)="selectDiceRoll(die)" class="dice"
+          [class.selected]="selectedDie === die">
           {{ die }}
         </div>
       </div>
       <div class="sub-column">
-        <div *ngFor="let die of dice | slice:3:6" (click)="selectDie(1, die)" class="dice die-one"
-          [class.selected]="selectedDice[0] === die" [class.has-selected]="haveSelectedYellowDie()">
+        <div *ngFor="let die of diceCol2" (click)="selectDiceRoll(die)" class="dice"
+          [class.selected]="selectedDie === die">
           {{ die }}
         </div>
-      </div>
-    </div>
-
-    <div class="dice-group" *ngIf="!hideDice">
-      <div class="sub-column">
-        <div *ngFor="let die of dice | slice:0:3" (click)="selectDie(2, die)" class="dice die-two"
-          [class.selected]="selectedDice[1] === die" [class.has-selected]="haveSelectedRedDie()">
-          {{ die }}
-        </div>
-      </div>
-      <div class="sub-column">
-        <div *ngFor="let die of dice | slice:3:6" (click)="selectDie(2, die)" class="dice die-two"
-          [class.selected]="selectedDice[1] === die" [class.has-selected]="haveSelectedRedDie()">
-          {{ die }}
+        <!-- Mic button in the empty spot -->
+        <div *ngIf="this.recognition" >
+          <button class="mic-button" (click)="toggleVoiceRecognition()" [class.listening]="isListening">
+            🎤
+          </button>
+          <span *ngIf="isListening" style="color: green;">Listening...</span>
         </div>
       </div>
     </div>
 
     <!-- store button and some stats -->
     <div class="store-button-container">
+
+      <button (click)="undoLastRoll()" class="pause-button undo-button" [disabled]="rollCount() === 0">Undo</button>
 
       <fieldset class="counter">
         <legend>{{showGamePause ? 'Break Time' : 'Turn Duration:'}}</legend>
@@ -70,22 +57,10 @@
         </span>
       </fieldset>
 
-      <button (click)="storeValues()" *ngIf="!hideDice" [disabled]="(selectedDice[0] == 0 || selectedDice[1] == 0)"
-        class="gradient-btn store-button">
-        Store
-      </button>
-
-      <button class="mic-button" (click)="toggleVoiceRecognition()" [class.listening]="isListening" *ngIf="this.recognition">
-        🎤
-      </button>
-      <span *ngIf="isListening" style="color: green;">Listening...</span>
-
       <fieldset class="counter">
         <legend>Roll Count:</legend>
         <span class="counter-val">{{rollCount()}}</span>
       </fieldset>
-
-      <button (click)="undoLastRoll()" class="pause-button undo-button" [disabled]="rollCount() === 0">Undo</button>
       
       <fieldset>
         <legend>Avg # Rolls <br />between 7s:</legend>
@@ -408,7 +383,7 @@
 
     <p>If your browser supports voice recognition, you will see a microphone button.  Just click the button and say the two numbers that were rolled (# for each die).</p>
     <p>
-      There are also keyboard interactions.  Use the number keys and the enter key to enter dice rolls.  
+      There are also keyboard interactions.
       Use CTRL key to toggle to Tournament view.  Use Shift key to toggle between percent and count views.  
       While paused, the mouse scroll wheel controls opacity.
     </p>

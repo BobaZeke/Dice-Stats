@@ -75,8 +75,7 @@ button {
 .dice-group {
   display: flex;
   justify-content: center;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 15px;
 }
 
 .sub-column {
@@ -99,16 +98,8 @@ button {
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
   box-shadow: 4px 4px 8px 2px rgba(70, 91, 100, 0.226), 4px 6px 10px 2px rgba(114, 223, 92, 0.144);
-}
-
-.die-one {
   color: white;
-  background-color: rgb(133, 133, 41);
-}
-
-.die-two {
-  color: white;
-  background-color: rgb(134, 38, 38);
+  background-color: rgb(59, 38, 134);
 }
 
 .dice:hover {
@@ -153,7 +144,8 @@ button {
   font-size: 16px;
   cursor: pointer;
   transition: background 1s, box-shadow 0.3s;
-  box-shadow: 5px 8px 9px rgba(4, 14, 56, 0.4)
+  box-shadow: 5px 8px 9px rgba(4, 14, 56, 0.4);
+  margin: 20px;
 }
 
 .gradient-btn-start:hover {
@@ -187,6 +179,8 @@ button {
   border-radius: 10px;
   text-align: center;
   transition: background 0.3s, transform 0.2s;
+  margin-top: 10px;
+  margin-bottom: 10px;;
 }
 
 .pause-button:hover {
@@ -202,8 +196,17 @@ button {
   background-color: #b6d34c;
   color:#a52525;
   font-weight: bolder;
-  font-size: 1.1em;;
+  font-size: 1.1em;
+  margin-top: 10px;
+  margin-bottom: 10px;;
 }
+
+fieldset {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  margin: 5px;
+}
+
 
 .counter {
   font-size: 16px;
@@ -240,7 +243,7 @@ button {
   flex-direction: column;  /* Stack bar-box elements vertically */
   justify-content: space-between;  /* Distribute bar-box elements evenly */
   align-items: flex-start;  /* Align items to the left */
-  background-color: #f1f1f1;
+  background-color: white;
   padding-left: 10px;
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -718,7 +721,7 @@ button {
   position: relative;
   cursor: pointer;
   box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.2);
-  margin-top: 15px;
+  margin-top: 5px;
 }
 
 .switch {
@@ -837,10 +840,9 @@ button {
 }
 
 .mic-button {
-  margin-top: 10px;
   margin-bottom: 5px;
-  width: 60px; 
-  height: 60px;
+  width: 50px; 
+  height: 50px;
   border-radius: 50%; /* Makes it round */
   background-color: #4CAF50;
   border: 1px solid #8381b3;
