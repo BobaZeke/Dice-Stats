@@ -284,7 +284,6 @@ fieldset {
   height: auto;  /* Allow height to adjust based on content */
   width: calc(100vw - 250px);  /* calc so that boxes wrap appropriately */
   pointer-events: none;  /* Prevent interaction */
-  mix-blend-mode: difference;  /* Contrast the background */
   white-space: normal;  /* Allow text to wrap to the next line */
   word-wrap: break-word;  /* Break long words if necessary */
   overflow-wrap: break-word;  /* Ensure compatibility for breaking long words */
@@ -293,6 +292,8 @@ fieldset {
   box-sizing: border-box;  /* Include padding in the element's width */
   line-height: 0.6;  /* Reduce space between lines : 1.0 = size of font*/
   cursor: default;
+  color: #fff !important;
+  mix-blend-mode: difference;
 }
 
 @media (max-width: 768px) {
