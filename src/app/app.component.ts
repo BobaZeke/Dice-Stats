@@ -124,7 +124,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   isListening = false;
   recognition: any;
   private recognitionTimeout: any;
-  private readonly recognitionDurationMs = 5000; // e.g., 5 seconds
+  private readonly recognitionDurationMs = 1500; // 1.5 seconds
 
   public hideDice = false;
   //#endregion  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -169,28 +169,31 @@ export class AppComponent implements OnInit, AfterViewInit {
         if (result.state === 'denied') {
           alert('Microphone access is denied. Please enable it in your browser settings for voice features.');
         } else if (result.state === 'prompt') {
-          // Optionally, you can prompt the user or show a message
           //console.log('Microphone permission will be requested when needed.');
-          this.recognition.start(); // Start recognition to trigger the permission request
-          this.recognition.stop();
         } //else if (result.state === 'granted') {
           //console.log('Microphone permission granted.');
         //}
       }).catch(err => {
-        console.warn('Could not check microphone permissions:', err);
+        alert('Error checking microphone permissions: '+ err.error);
+        this.checkUserMedia();
       });
     } else {
-      navigator.mediaDevices.getUserMedia({ audio: true })
-        .then(stream => {
-          //console.log("Microphone permission granted");
-          stream.getTracks().forEach(track => track.stop()); // Stop the stream (we are done with it)
-        })
-        .catch(err => {
-          const msg = 'Microphone access was denied or there was an error';
-          console.warn(msg, err);
-          alert(msg);
-        });
+      this.checkUserMedia();
     }
+  }
+
+  checkUserMedia() {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(stream => {
+        //console.log("Microphone permission granted");
+        stream.getTracks().forEach(track => track.stop()); // Stop the stream (we are done with it)
+      })
+      .catch(err => {
+        const msg = 'Microphone access was denied or there was an error';
+        // console.warn(msg, err);
+        alert(msg + ': ' + err.error);
+      });
+
   }
 
   initializeSpeechRecognition() {
@@ -234,7 +237,8 @@ export class AppComponent implements OnInit, AfterViewInit {
       };
 
       this.recognition.onerror = (event: any) => {
-        console.error('Speech recognition error:', event);
+        alert('Error occurred in speech recognition: ' + event.error);
+        // console.error('Speech recognition error:', event);
       };
 
       this.recognition.onend = () => {
