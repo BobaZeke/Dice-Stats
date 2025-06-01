@@ -142,7 +142,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.initializeSpeechRecognition();
-    this.checkMicrophonePermissions();
+    // this.checkMicrophonePermissions();
 
     this.gameStats.breakDurationDisplay = this.formatService.defaultEmptyTime;
     this.gameStats.playingDurationDisplay = this.formatService.defaultEmptyTime;
@@ -162,39 +162,38 @@ export class AppComponent implements OnInit, AfterViewInit {
     else this.userSettings.colorGradients = this.colorService.colorGradients;
   }
 
-  checkMicrophonePermissions() {
-    // try the permission API first, then fall back to getUserMedia
-    if (navigator.permissions) {
-      navigator.permissions.query({ name: 'microphone' as PermissionName }).then((result) => {
-        if (result.state === 'denied') {
-          alert('Microphone access is denied. Please enable it in your browser settings for voice features.');
-        } else if (result.state === 'prompt') {
-          //console.log('Microphone permission will be requested when needed.');
-        } //else if (result.state === 'granted') {
-          //console.log('Microphone permission granted.');
-        //}
-      }).catch(err => {
-        alert('Error checking microphone permissions: '+ err.error);
-        this.checkUserMedia();
-      });
-    } else {
-      this.checkUserMedia();
-    }
-  }
+  // checkMicrophonePermissions() {
+  //   // try the permission API first, then fall back to getUserMedia
+  //   if (navigator.permissions) {
+  //     navigator.permissions.query({ name: 'microphone' as PermissionName }).then((result) => {
+  //       if (result.state === 'denied') {
+  //         alert('Microphone access is denied. Please enable it in your browser settings for voice features.');
+  //       } else if (result.state === 'prompt') {
+  //         //console.log('Microphone permission will be requested when needed.');
+  //       } //else if (result.state === 'granted') {
+  //         //console.log('Microphone permission granted.');
+  //       //}
+  //     }).catch(err => {
+  //       alert('Error checking microphone permissions: '+ err.error);
+  //       this.checkUserMedia();
+  //     });
+  //   } else {
+  //     this.checkUserMedia();
+  //   }
+  // }
 
-  checkUserMedia() {
-    navigator.mediaDevices.getUserMedia({ audio: true })
-      .then(stream => {
-        //console.log("Microphone permission granted");
-        stream.getTracks().forEach(track => track.stop()); // Stop the stream (we are done with it)
-      })
-      .catch(err => {
-        const msg = 'Microphone access was denied or there was an error';
-        // console.warn(msg, err);
-        alert(msg + ': ' + err.error);
-      });
-
-  }
+  // checkUserMedia() {
+  //   navigator.mediaDevices.getUserMedia({ audio: true })
+  //     .then(stream => {
+  //       //console.log("Microphone permission granted");
+  //       stream.getTracks().forEach(track => track.stop()); // Stop the stream (we are done with it)
+  //     })
+  //     .catch(err => {
+  //       const msg = 'Microphone access was denied or there was an error';
+  //       // console.warn(msg, err);
+  //       alert(msg + ': ' + err.error);
+  //     });
+  // }
 
   initializeSpeechRecognition() {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
