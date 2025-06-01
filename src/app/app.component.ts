@@ -142,6 +142,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.initializeSpeechRecognition();
+    this.checkMicrophonePermissions();
 
     this.gameStats.breakDurationDisplay = this.formatService.defaultEmptyTime;
     this.gameStats.playingDurationDisplay = this.formatService.defaultEmptyTime;
@@ -159,6 +160,37 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     if (this.userSettings.colorGradients) this.colorService.colorGradients = this.userSettings.colorGradients;
     else this.userSettings.colorGradients = this.colorService.colorGradients;
+  }
+
+  checkMicrophonePermissions() {
+    // try the permission API first, then fall back to getUserMedia
+    if (navigator.permissions) {
+      navigator.permissions.query({ name: 'microphone' as PermissionName }).then((result) => {
+        if (result.state === 'denied') {
+          alert('Microphone access is denied. Please enable it in your browser settings for voice features.');
+        } else if (result.state === 'prompt') {
+          // Optionally, you can prompt the user or show a message
+          //console.log('Microphone permission will be requested when needed.');
+          this.recognition.start(); // Start recognition to trigger the permission request
+          this.recognition.stop();
+        } //else if (result.state === 'granted') {
+          //console.log('Microphone permission granted.');
+        //}
+      }).catch(err => {
+        console.warn('Could not check microphone permissions:', err);
+      });
+    } else {
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+          //console.log("Microphone permission granted");
+          stream.getTracks().forEach(track => track.stop()); // Stop the stream (we are done with it)
+        })
+        .catch(err => {
+          const msg = 'Microphone access was denied or there was an error';
+          console.warn(msg, err);
+          alert(msg);
+        });
+    }
   }
 
   initializeSpeechRecognition() {
@@ -183,7 +215,7 @@ export class AppComponent implements OnInit, AfterViewInit {
         }
 
         // if still not a number, try to find the first spelled number in the transcript
-        if(isNaN(number) || number <= 0) {
+        if (isNaN(number) || number <= 0) {
           number = this.findFirstNumberOrSpelled(transcript);
           // console.log('Found first spelled number:', number);
         }
@@ -210,7 +242,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       };
     }
   }
-  
+
   /**
    * extracts the first number or spelled-out number from the sentence.
    * @param text 
@@ -250,25 +282,25 @@ export class AppComponent implements OnInit, AfterViewInit {
     return map[normalized] ?? 0;
   }
 
-toggleVoiceRecognition() {
-  if (!this.recognition) return;
+  toggleVoiceRecognition() {
+    if (!this.recognition) return;
 
-  if (this.isListening) {
-    this.recognition.stop();
-    this.isListening = false;
-    clearTimeout(this.recognitionTimeout);
-  } else {
-    this.recognition.start();
-    this.isListening = true;
-    // Set a timeout to stop listening after N ms
-    this.recognitionTimeout = setTimeout(() => {
-      if (this.isListening) {
-        this.recognition.stop();
-        this.isListening = false;
-      }
-    }, this.recognitionDurationMs);
+    if (this.isListening) {
+      this.recognition.stop();
+      this.isListening = false;
+      clearTimeout(this.recognitionTimeout);
+    } else {
+      this.recognition.start();
+      this.isListening = true;
+      // Set a timeout to stop listening after N ms
+      this.recognitionTimeout = setTimeout(() => {
+        if (this.isListening) {
+          this.recognition.stop();
+          this.isListening = false;
+        }
+      }, this.recognitionDurationMs);
+    }
   }
-}
 
   ngAfterViewInit(): void {
     this.adjustOverlayFontSize();
