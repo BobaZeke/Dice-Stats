@@ -121,12 +121,6 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   public showColorHelp = false;
 
-  isListening = false;
-  recognition: any;
-  private recognitionTimeout: any;
-  private readonly recognitionDurationMs = 1500; // 1.5 seconds
-
-  public hideDice = false;
   //#endregion  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   //#region Constructor         //    //    //    //    //    //    //
@@ -141,9 +135,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
-    this.initializeSpeechRecognition();
-    // this.checkMicrophonePermissions();
-
     this.gameStats.breakDurationDisplay = this.formatService.defaultEmptyTime;
     this.gameStats.playingDurationDisplay = this.formatService.defaultEmptyTime;
 
@@ -160,149 +151,6 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     if (this.userSettings.colorGradients) this.colorService.colorGradients = this.userSettings.colorGradients;
     else this.userSettings.colorGradients = this.colorService.colorGradients;
-  }
-
-  // checkMicrophonePermissions() {
-  //   // try the permission API first, then fall back to getUserMedia
-  //   if (navigator.permissions) {
-  //     navigator.permissions.query({ name: 'microphone' as PermissionName }).then((result) => {
-  //       if (result.state === 'denied') {
-  //         alert('Microphone access is denied. Please enable it in your browser settings for voice features.');
-  //       } else if (result.state === 'prompt') {
-  //         //console.log('Microphone permission will be requested when needed.');
-  //       } //else if (result.state === 'granted') {
-  //         //console.log('Microphone permission granted.');
-  //       //}
-  //     }).catch(err => {
-  //       alert('Error checking microphone permissions: '+ err.error);
-  //       this.checkUserMedia();
-  //     });
-  //   } else {
-  //     this.checkUserMedia();
-  //   }
-  // }
-
-  // checkUserMedia() {
-  //   navigator.mediaDevices.getUserMedia({ audio: true })
-  //     .then(stream => {
-  //       //console.log("Microphone permission granted");
-  //       stream.getTracks().forEach(track => track.stop()); // Stop the stream (we are done with it)
-  //     })
-  //     .catch(err => {
-  //       const msg = 'Microphone access was denied or there was an error';
-  //       // console.warn(msg, err);
-  //       alert(msg + ': ' + err.error);
-  //     });
-  // }
-
-  initializeSpeechRecognition() {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      this.recognition = new webkitSpeechRecognition();
-      this.recognition.lang = 'en-US';
-      this.recognition.continuous = false;
-      this.recognition.interimResults = false;
-
-      this.recognition.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript.trim();
-        console.log('Speech recognition result:', transcript);
-
-        // is the input a number?
-        let number = parseInt(transcript, 10);
-        // console.log('Parsed number:', number);
-
-        // if not a number, try to convert it from words
-        if (isNaN(number) || number <= 0) {
-          number = this.wordToNumber(transcript);
-          // console.log('Converted number from words:', number);
-        }
-
-        // if still not a number, try to find the first spelled number in the transcript
-        if (isNaN(number) || number <= 0) {
-          number = this.findFirstNumberOrSpelled(transcript);
-          // console.log('Found first spelled number:', number);
-        }
-
-        // console.log('Final number:', number);
-        // if we have a number, and it is between 2 and 12, set the selectedDie
-        if (!isNaN(number) && number >= 2 && number <= 12) {
-          this.selectedDie = number;
-          this.currentRoll = number;
-          this.storeValues();
-        } else {  //  no numbers spoken
-          alert('Could not recognize a valid dice roll (2-12). You said: ' + transcript);
-        }
-
-        this.isListening = false;
-      };
-
-      this.recognition.onerror = (event: any) => {
-        alert('Error occurred in speech recognition: ' + event.error);
-        // console.error('Speech recognition error:', event);
-      };
-
-      this.recognition.onend = () => {
-        this.isListening = false;
-      };
-    }
-  }
-
-  /**
-   * extracts the first number or spelled-out number from the sentence.
-   * @param text 
-   * @returns 
-   */
-  findFirstNumberOrSpelled(text: string): number {
-    const map: { [key: string]: number } = {
-      "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
-      "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11, "twelve": 12
-    };
-
-    // Regex to match either a number or a spelled-out number
-    const regex = /\b(\d+|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\b/i;
-    const match = text.match(regex);
-
-    if (match) {
-      const value = match[1].toLowerCase();
-      if (map[value]) {
-        return map[value];
-      } else if (!isNaN(Number(value))) {
-        return Number(value);
-      }
-    }
-    return 0;
-  }
-  /**
-   * converts a spelled-out number (two, three, etc.) to its numeric value (2, 3, etc.).
-   * @param word 
-   * @returns 
-   */
-  wordToNumber(word: string): number {
-    const map: { [key: string]: number } = {
-      "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
-      "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11, "twelve": 12
-    };
-    const normalized = word.trim().toLowerCase();
-    return map[normalized] ?? 0;
-  }
-
-  toggleVoiceRecognition() {
-    if (!this.recognition) return;
-
-    if (this.isListening) {
-      this.recognition.stop();
-      this.isListening = false;
-      clearTimeout(this.recognitionTimeout);
-    } else {
-      this.recognition.start();
-      this.isListening = true;
-      // Set a timeout to stop listening after N ms
-      this.recognitionTimeout = setTimeout(() => {
-        if (this.isListening) {
-          this.recognition.stop();
-          this.isListening = false;
-        }
-      }, this.recognitionDurationMs);
-    }
   }
 
   ngAfterViewInit(): void {
@@ -371,7 +219,7 @@ export class AppComponent implements OnInit, AfterViewInit {
    */
   public endGame() {
     if (this.rollCount() > 0) {
-      if (confirm('are you sure?') == false) {
+      if (confirm('are you sure you want to end the game?') == false) {
         return;
       }
     }
@@ -1030,7 +878,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   undoLastRoll() {
     if (this.gameStats.rollHistory.length > 0) {
-      if (confirm('are you sure?') == false) {
+      if (confirm('are you sure you want to undo the last roll?') == false) {
         return;
       }
 

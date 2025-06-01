@@ -180,7 +180,7 @@ button {
   text-align: center;
   transition: background 0.3s, transform 0.2s;
   margin-top: 10px;
-  margin-bottom: 10px;;
+  margin-bottom: 10px;
 }
 
 .pause-button:hover {
@@ -191,14 +191,38 @@ button {
   margin-bottom: 10px;
   background-color: #f17c82;
 }
-
+.undo-container {
+  height: 50px;
+  width: 50px;
+  border-radius: 8px;
+  background: #f8f8f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0.2em 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.07);
+  transition: background 0.2s, box-shadow 0.2s;
+}
 .undo-button {
+  margin-bottom: 5px;
+  width: 50px; 
+  height: 50px;
+  border-radius: 50%; 
+  border: 1px solid #8381b3;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8); 
+  transition: background-color 0.3s, transform 0.2s; 
+
   background-color: #b6d34c;
   color:#a52525;
   font-weight: bolder;
-  font-size: 1.1em;
-  margin-top: 10px;
-  margin-bottom: 10px;;
+  /* font-size: 1.1em; */
+  height: 100%;
+  width: 100%;
+  background-color: grey;
 }
 
 fieldset {
@@ -830,70 +854,35 @@ fieldset {
   color: #333;
 }
 
-.undo-button:disabled, .store-button:disabled{
+.undo-button {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.undo-button svg {
+  width: 70%;
+  height: 70%;
+  stroke: #333;
+  display: block;
+}
+
+.undo-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.undo-button:disabled{
   background: #bbb6b6;
   color: #804d4d;
   border: 1px solid #4f4e68;
   cursor: not-allowed;
   opacity: 0.7;
   transform: none;
-}
-
-.mic-button {
-  margin-bottom: 5px;
-  width: 50px; 
-  height: 50px;
-  border-radius: 50%; /* Makes it round */
-  background-color: #4CAF50;
-  border: 1px solid #8381b3;
-  font-size: 24px; /* Icon size */
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8); 
-  transition: background-color 0.3s, transform 0.2s; 
-}
-
-.mic-button.listening {
-  background: #7468b9;
-  color: #490a0a;
-}
-
-.mic-button:hover {
-  transform: scale(1.1); /* Slight zoom effect */
-}
-
-.mic-button:active {
-  background-color: #3e8e41; /* Even darker green when clicked */
-  transform: scale(0.95); /* Slight shrink effect */
-}
-
-.hide-dice-option {
-  font-size: 0.86em;
-}
-
-.hide-dice-btn input[type="checkbox"] {
-  display: none;
-}
-
-.hide-dice-btn {
-  display: inline-block;
-  padding: 0.2em;  /* 0.2em 0.5em; */
-  background: #d9dee2;
-  color: #1f279b;
-  border-radius: 6px;
-  cursor: pointer;
-  user-select: none;
-  transition: background 0.2s;
-  border: 1px solid #af62f7;
-  width: 70px;
-  box-shadow: 4px 4px 4px 2px rgba(100, 70, 70, 0.226), 4px 6px 10px 2px rgba(134, 86, 247, 0.233);
-  border-style: outset;
-}
-.hide-dice-btn:hover {
-  color: #0d47a1;
-}
-.hide-dice-text {
-  margin-left: 0.4em;
 }

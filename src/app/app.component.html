@@ -13,7 +13,7 @@
   <div class="dice-container">
 
     <!-- Dice -->
-    <div class="dice-group" *ngIf="!hideDice">
+    <div class="dice-group">
       <div class="sub-column">
         <div *ngFor="let die of diceCol1" (click)="selectDiceRoll(die)" class="dice"
           [class.selected]="selectedDie === die">
@@ -25,21 +25,14 @@
           [class.selected]="selectedDie === die">
           {{ die }}
         </div>
-        <!-- Mic button in the empty spot -->
-        <div *ngIf="this.recognition" >
-          <button class="mic-button" (click)="toggleVoiceRecognition()" [class.listening]="isListening">
-            🎤
-          </button>
-          <span *ngIf="isListening" style="color: green;">Listening...</span>
+        <div class="undo-container">
+          <button (click)="undoLastRoll()" class="undo-button" [disabled]="rollCount() === 0">Undo</button>
         </div>
       </div>
     </div>
 
     <!-- store button and some stats -->
     <div class="store-button-container">
-
-      <button (click)="undoLastRoll()" class="pause-button undo-button" [disabled]="rollCount() === 0">Undo</button>
-
       <fieldset class="counter">
         <legend>{{showGamePause ? 'Break Time' : 'Turn Duration:'}}</legend>
         <span class="counter-val">
@@ -133,13 +126,6 @@
   </div>
 
   <div *ngIf="!gameIsStopped && !showGamePause" class="toggle-bar" (click)="toggleDiceContainer()">☰</div>
-
-  <div class="floating-mic" *ngIf="!gameIsStopped && !showGamePause && this.recognition">
-    <button class="mic-button" (click)="toggleVoiceRecognition()" [class.listening]="isListening">
-      🎤
-    </button>
-    <span *ngIf="isListening" style="color: green;">Listening...</span>
-  </div>
 
   <!-- central display : bar chart display showing how many times each number has been rolled -->
   <div class="bar-container">
