@@ -258,7 +258,7 @@ fieldset {
   width: calc(100vw - 185px);  /* Ensure bars stretch horizontally */
   flex-grow: 1;  /* Allow bar-box to grow and fill vertical space proportionally */
   position: relative;  /* For overlay positioning */
-  background: white;
+  background: white;  /* fixes issue in Safart where overlay is white on white instead of contrasting */
 }
 
 .bar-number {
