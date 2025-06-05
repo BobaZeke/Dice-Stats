@@ -1,4 +1,4 @@
-<div *ngIf="!gameIsStopped && showingTournament" class="game-history-index">
+<div *ngIf="showingTournament" class="game-history-index">
   Tournament
 </div>
 
@@ -12,25 +12,76 @@
   <!-- Left column  -->
   <div class="dice-container">
 
+    <!-- start/pause/end game button -->
+    <div class="pause-split-dropdown-container">
+      <button (click)="pauseGame()" class="pause-button" [class.pause-active]="!gameIsStopped && !gameIsPaused">
+        <span *ngIf="gameIsStopped">
+          <!-- Play -->
+            <svg class="icon-large" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+              <polygon points="8,5 8,19 19,12" />
+            </svg>
+        </span>
+        <span *ngIf="gameIsPaused && !gameIsStopped">
+          <!-- Play -->
+           <svg class="icon-large" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+            <polygon points="8,5 8,19 19,12" />
+          </svg>
+        </span>
+        <span *ngIf="!gameIsStopped && !gameIsPaused">
+          <!-- Pause -->
+           <svg class="icon-large" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+            <rect x="6" y="5" width="4" height="14"/>
+            <rect x="14" y="5" width="4" height="14"/>
+          </svg>
+        </span>
+      </button>
+      <!-- End Game button (shows only when game is running) -->
+      <button *ngIf="!gameIsStopped" class="end-game-button" (click)="endGame()" title="End Game" aria-label="End Game">
+        <!-- Stop -->
+         <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+          <rect x="6" y="6" width="12" height="12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- game history navigation -->
+    <div class="game-history-nav" *ngIf="gameIsStopped && !showingTournament && gameHistory.length > 1">
+      <button class="game-history-btn " (click)="previousHistoryGame()" aria-label="Previous Game">
+        <svg class="history-arrow" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <polyline points="15 6 9 12 15 18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <span class="game-history-status">
+        Game {{gameHistoryIndex + 1}} of {{gameHistory.length}}
+      </span>
+      <button class="game-history-btn" (click)="nextHistoryGame()" aria-label="Next Game">
+        <svg class="history-arrow" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <polyline points="9 6 15 12 9 18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
     <!-- Dice -->
-    <div class="dice-group">
+    <div class="dice-group" 
+     [class.visible]="!gameIsPaused && !gameIsStopped"
+     [class.hidden]="gameIsPaused || gameIsStopped">
       <div class="sub-column">
-        <div *ngFor="let die of diceCol1" (click)="selectDiceRoll(die)" class="dice"
+        <div *ngFor="let die of diceLeftCol" (click)="selectDiceRoll(die)" class="dice"
           [class.selected]="selectedDie === die"
-          [class.disabled]="showGamePause || gameIsStopped">
+          [class.disabled]="showingTournament">
           {{ die }}
         </div>
       </div>
       <div class="sub-column">
-        <div *ngFor="let die of diceCol2" (click)="selectDiceRoll(die)" class="dice"
+        <div *ngFor="let die of diceRightCol" (click)="selectDiceRoll(die)" class="dice"
           [class.selected]="selectedDie === die"
-          [class.disabled]="showGamePause || gameIsStopped">
+          [class.disabled]="showingTournament">
           {{ die }}
         </div>
 
         <div class="undo-container">
           <button (click)="undoLastRoll()" class="undo-button" 
-            [disabled]="rollCount() === 0 || showGamePause || gameIsStopped"
+            [disabled]="rollCount() === 0 || gameIsPaused || gameIsStopped || showingTournament"
             [class.clicked]="undoButtonClicked">
             Undo
           </button>
@@ -38,18 +89,18 @@
       </div>
     </div>
 
-    <!-- stats -->
     <div class="store-button-container">
+
       <fieldset class="counter">
-        <legend>{{showGamePause ? 'Break Time' : 'Turn Duration:'}}</legend>
+        <legend>{{gameIsStopped ? 'Total Breaks' : gameIsPaused ? 'Break Time' : 'Turn Duration:'}}</legend>
         <span class="counter-val">
           {{
             showingTournament
-              ? tourneyStats.breakDurationDisplay
+              ? (tourneyStats ? tourneyStats.breakDurationDisplay : '')
               : ( gameIsStopped
-                  ? gameStats.breakDurationDisplay
-                  : ( showGamePause
-                      ? breakDurationDisplay
+                  ? (gameStats ? gameStats.breakDurationDisplay : '')
+                  : ( gameIsPaused
+                      ? (this.gameStats ? this.gameStats.breakDurationDisplay : '')
                       : turnDurationDisplay
                     )
                 )
@@ -71,23 +122,12 @@
         <span class="counter-avg">(16%)</span>
       </fieldset>
 
-      <div class="pause-split-dropdown-container" (mouseleave)="closePauseDropdown()">
-        <button (click)="pauseGame()" class="pause-button">
-          {{ gameIsStopped ? 'Start' : showGamePause ? 'Resume' : 'Pause' }}
-        </button>
-        <button
-          *ngIf="!gameIsStopped"
-          class="pause-dropdown-arrow"
-          (click)="togglePauseDropdown()"
-          aria-label="More actions">
-          ▼
-        </button>
-        <div class="pause-dropdown-menu" *ngIf="pauseDropdownOpen && !gameIsStopped">
-          <button (click)="endGame(); closePauseDropdown()" class="dropdown-item">
-            End Game
-          </button>
-        </div>
-      </div>
+      <fieldset class="counter" *ngIf="!gameIsStopped && !gameIsPaused">
+        <legend>Since Last Break</legend>
+        <span class="counter-val">
+          {{ betweenBreaksDuration }}
+        </span>
+      </fieldset>
 
       <fieldset class="counter">
         <legend>{{showingTournament ? 'Tournament Duration:' : 'Game Duration'}}</legend>
@@ -112,14 +152,12 @@
       </div>
 
       <div class="rocker-switch" (click)="toggleDiePercent()">
-        <!-- *ngIf="gameStats.rollHistory.length > 0" -->
         <div class="switch" [class.active]="showDieCounts"></div>
         <span class="label-left" [class.selected]="!showDieCounts">%</span>
         <span class="label-right" [class.selected]="showDieCounts">#</span>
       </div>
 
       <div class="rocker-switch" (click)="toggleTournamentDisplay()">
-        <!-- *ngIf="gameHistory.length > 1" -->
         <div class="switch" [class.active]="!showingTournament"></div>
         <span class="label-left" [class.selected]="showingTournament">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-label="Tournament">
@@ -146,7 +184,7 @@
     </div>
   </div>
 
-  <div *ngIf="!gameIsStopped && !showGamePause" class="toggle-bar" (click)="toggleDiceContainer()">☰</div>
+  <div *ngIf="!gameIsStopped && !gameIsPaused" class="toggle-bar" (click)="toggleDiceContainer()">☰</div>
 
   <!-- central display : bar chart display showing how many times each number has been rolled -->
   <div class="bar-container">
@@ -196,9 +234,7 @@
   </div>
 </div>
 
-<div [ngClass]="showHelpDialog || showColorSettings ? 'block-app' : 'normal'"
-  [style.opacity]="blockScreenOpacity">
-</div>
+<div [ngClass]="showHelpDialog || showColorSettings ? 'block-app' : 'normal'"></div>
 
 <!-- Color Settings -->
 <div *ngIf="showColorSettings" class="color-picker-container">
@@ -322,17 +358,14 @@
       Overlayed on the bar will be squares which indicate when that number was rolled. A solid square indicates that
       number was rolled, and a hollow square indicates a different number was rolled.</p>
 
-    <p>While paused, settings toggles will be displayed as well as a vertical slider for adjusting background
-      visibility/opacity.</p>
-
-    <p>Click on the dice to select them and click the "Store" button to save the roll and update the stats.</p>
+    <p>Click on the dice to select them and update the stats.</p>
     <p>After each game, you will be able to review the the statistics of the game and/or tournament.
       If there has been more than one game, you will be able to flip through the game stats.</p>
 
     <p>
       There are also keyboard interactions.
-      Use CTRL key to toggle to Tournament view.  Use Shift key to toggle between percent and count views.  
-      While paused, the mouse scroll wheel controls opacity.
+      Use CTRL key to toggle to Tournament view.
+      Use Shift key to toggle between percent and count views.
     </p>
 
   </div>

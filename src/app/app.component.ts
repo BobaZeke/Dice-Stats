@@ -10,6 +10,7 @@ import { ColorOption } from './color-option.enum'; // Import the enum
 import { ColorService } from './color.service';
 import { TrendService } from './trend.service';
 import { UserSettingsService } from './user-settings.service';
+import { GameTimerService, TimerHandle } from './timer.service';
 
 @Component({
   selector: 'app-root',
@@ -22,51 +23,34 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   /** number of sides per die */
   public dice = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-  public diceCol1 = this.dice.filter((_, i) => i % 2 === 0); // left column
-  public diceCol2 = this.dice.filter((_, i) => i % 2 === 1); // right column
+  public diceLeftCol = this.dice.filter((_, i) => i % 2 === 0);
+  public diceRightCol = this.dice.filter((_, i) => i % 2 === 1);
 
   /** possible combinations of 2, 6 sided, dice > 2-12 */
   public numberRange = Array.from({ length: 11 }, (_, i) => i + 2);
 
-  /** the selections for the two dice */
   public selectedDie = 0;
-  public bars: Array<number> = [];  //  bars to display how many times a given number was rolled
+  /* bars to display how many times a given number was rolled */
+  public bars: Array<number> = [];
 
-  public gameStats: PlayStats = new PlayStats();     //  game stats
-  public tourneyStats: PlayStats = new PlayStats();  //  tournament stats
+  public gameStats: PlayStats = new PlayStats();
+  public tourneyStats: PlayStats = new PlayStats(); 
 
-  public gameHistory: PlayStats[] = []; //  game history object
+  public gameHistory: PlayStats[] = [];
 
-  // temp variable for swapping game, tourney, and history display
+  /* temp variable for swapping game, tourney, and history display */
   private saveStats: PlayStats = new PlayStats();
-
-  /** tracks the person's turn duration */
-  public turnDurationDisplay: string = '';
-  private turnIntervalId: any;
-  private turnStartTime: number | null = null;
-
-  /** tracks game duration */
-  private gameIntervalId: any;
-  private gameStartTime: number | null = null;
 
   /** toggle between game info and trounrament info */
   public showingTournament = false;
 
-  /** tracks trournament duration (incl. breaks) */
-  private tournamentSeconds = 0;
-  private tournamentBreakSeconds: number = 0;
-
-  /** tracks the total time spent on break */
-  public breakDurationDisplay: string = '';
-  private breakIntervalId: any;
-  private gameBreakSeconds = 0;
-  private gameBreakTotalSeconds = 0;
-
   /** used to ignore the next mouse click */
   private skipNext = false;
 
-  public rollHistoryHit = "&#9632;";      //  solid square (black square)
-  public rollHistoryMiss = "&#9633;";   //  empty square (white square)
+  /* solid square (black square) */
+  public rollHistoryHit = "&#9632;";
+  /* empty square (white square) */
+  public rollHistoryMiss = "&#9633;";
 
   /**
    * toggle between showing die counts and percentages
@@ -74,25 +58,22 @@ export class AppComponent implements OnInit, AfterViewInit {
   public showDieCounts = true;
 
   /** pause the game */
-  public showGamePause = true;
-
-  /** store duration while paused */
-  private savedGameDuration = 0;
+  public gameIsPaused = true;
 
   /** when 'new game' is clicked */
   public gameIsStopped = true;
 
-  public currentRoll: number | null = null; //  current roll value (sum of the two dice)
+  public currentRoll: number | null = null;
 
-  //  variables for 'game history' display
   public showGameHistory = false;
   public gameHistoryIndex: number = 0;
 
+  /* flag to control the visibility of the dice container (for mobile devices) */
   public isDiceContainerVisible: boolean = true;
 
-  public barParentWidth: number = 1; // Default value to prevent division by zero
-
-  public showHelpDialog: boolean = true; // Flag to control the visibility of the help popup
+  public barParentWidth: number = 1;
+  
+  public showHelpDialog: boolean = true;
 
   public ColorOption = ColorOption; // Expose the enum to the template
   public userSettings: any = {
@@ -107,22 +88,35 @@ export class AppComponent implements OnInit, AfterViewInit {
   @ViewChildren('overlay') overlayElements!: QueryList<ElementRef>;
 
   /**
+   * max size of the roll history (in em)
+   */
+  private readonly maxRollHistorySize = 5;
+   /**
    * display size of the roll history (em)
    */
-  private readonly maxRollHistorySize = 5; //  max size of the roll history (in em)
   public rollHistoryFontSize = this.maxRollHistorySize;
-  // showColorPickerColors = false; // Flag to control the visibility of the color picker
-  colorPickerAll = true; // Flag to control the visibility of the color picker
-  colorType = true;
-
-  showColorSettings = false;
-
-  public blockScreenOpacity: number = 0.7; // Default opacity (0 to 1)
 
   public showColorHelp = false;
+  public showColorSettings = false;
+  public colorPickerAll = true;
+  public colorType = true;
 
   undoButtonClicked = false;
   pauseDropdownOpen = false;
+
+  /* tracks time spent within a turn */
+  private turnTimer!: TimerHandle;
+    public turnDurationDisplay: string = '';
+  /* tracks time spent within a game */
+  private gameTimer!: TimerHandle; 
+  /* tracks time spent within a break */
+  private breakTimer!: TimerHandle;
+    public totalBreakDuration: string = ""; //  total break time for game
+  /* tracks total break time for game */
+  private breakTotalTimer!: TimerHandle;
+  /*  tracks time between breaks */
+  private betweenBreaksTimer!: TimerHandle;
+    public betweenBreaksDuration: string = "";
   //#endregion  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   //#region Constructor         //    //    //    //    //    //    //
@@ -133,12 +127,12 @@ export class AppComponent implements OnInit, AfterViewInit {
     public colorService: ColorService,
     public trendService: TrendService,
     private userSettingsService: UserSettingsService,
-    private elRef: ElementRef
+    private elRef: ElementRef,
+    private timerService: GameTimerService
   ) { }
 
   ngOnInit() {
-    this.gameStats.breakDurationDisplay = this.formatService.defaultEmptyTime;
-    this.gameStats.playingDurationDisplay = this.formatService.defaultEmptyTime;
+    this.initializeTimers();
 
     this.endGame();
 
@@ -159,6 +153,30 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.adjustOverlayFontSize();
     this.updateBarParentWidth(); // Measure the parent element after the view is initialized
     this.cdr.detectChanges(); // Trigger change detection manually
+  }
+
+  initializeTimers(): void {  
+    this.turnDurationDisplay = this.formatService.defaultEmptyTime;
+    this.gameStats.playingDurationDisplay = this.formatService.defaultEmptyTime;
+    this.gameStats.breakDurationDisplay = this.formatService.defaultEmptyTime;
+    this.tourneyStats.playingDurationDisplay = this.formatService.defaultEmptyTime;
+    this.tourneyStats.breakDurationDisplay = this.formatService.defaultEmptyTime;
+    this.betweenBreaksDuration = this.formatService.defaultEmptyTime;
+
+    this.turnTimer = this.timerService.createTimer();
+    this.timerService.getDisplay(this.turnTimer).subscribe(val => this.turnDurationDisplay = val);
+
+    this.gameTimer = this.timerService.createTimer();
+    this.timerService.getDisplay(this.gameTimer).subscribe(val => this.gameStats.playingDurationDisplay = val);
+
+    this.breakTimer = this.timerService.createTimer();
+    this.timerService.getDisplay(this.breakTimer).subscribe(val => this.gameStats.breakDurationDisplay = val);
+
+    this.breakTotalTimer = this.timerService.createTimer();
+    this.timerService.getDisplay(this.breakTotalTimer).subscribe(val => this.totalBreakDuration = val);
+
+    this.betweenBreaksTimer = this.timerService.createTimer();
+    this.timerService.getDisplay(this.betweenBreaksTimer).subscribe(val => this.betweenBreaksDuration = val);
   }
 
   /**
@@ -230,6 +248,17 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     this.gameIsStopped = true;
 
+    this.selectedDie = 0;
+
+    this.timerService.reset(this.turnTimer);
+    this.timerService.stop(this.gameTimer);
+    this.timerService.reset(this.breakTimer);
+    this.timerService.reset(this.betweenBreaksTimer);
+
+    //  save the current game stats to tournament stats
+    this.tourneyStats.breakDurationDisplay = this.addTimeStrings(this.tourneyStats.breakDurationDisplay, this.gameStats.breakDurationDisplay);
+    this.tourneyStats.playingDurationDisplay = this.addTimeStrings(this.tourneyStats.playingDurationDisplay, this.gameStats.playingDurationDisplay);
+
     //  save the current game stats to history
     if (this.gameStats.rollHistory.length > 0) {
       this.gameHistory.push(this.gameStats);
@@ -238,12 +267,8 @@ export class AppComponent implements OnInit, AfterViewInit {
       this.showGameHistory = true;
     }
 
-    this.selectedDie = 0;
-
-    this.stopTurnTimer();
-
-    this.doPauseIntervals();
-
+    this.gameStats.breakDurationDisplay = this.totalBreakDuration;
+    
     this.updateDisplay();
 
     //  after the user clicks a button, the button retains focus.  
@@ -251,52 +276,78 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.setDocumentFocus();
   }
 
+  /**
+   * add two time strings together : format hh:mm:ss or mm:ss
+   * @param time1 
+   * @param time2 
+   * @returns 
+   */
+  addTimeStrings(time1: string, time2: string): string {
+    console.log(`addTimeStrings: time1='${time1}', time2='${time2}'`);
+    function toSeconds(time: string): number {
+      const parts = time.split(':').map(Number);
+      if (parts.length === 2) parts.unshift(0); // If format is mm:ss
+      const [h, m, s] = parts;
+      return h * 3600 + m * 60 + s;
+    }
+
+    function toTimeString(totalSeconds: number): string {
+      const h = Math.floor(totalSeconds / 3600);
+      const m = Math.floor((totalSeconds % 3600) / 60);
+      const s = totalSeconds % 60;
+      return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
+
+    const sumSeconds = toSeconds(time1) + toSeconds(time2);
+    var result = toTimeString(sumSeconds);
+    console.log(`addTimeStrings result: '${result}'`);
+    return result;
+  }
   public pauseGame(): void {
     if (this.isDiceContainerVisible) this.toggleDiceContainer(); //  close dice container if open
     this.currentRoll = null;  //  remove current roll from display
 
-    if(this.gameIsStopped) {
+    if (this.gameIsStopped) {
       this.startResumeGame();
       return; //  if game is stopped, just start/resume the game
     }
 
-    if (!this.gameIsStopped) {
-      //  start break timer
-      if (!this.breakIntervalId) { // Prevent multiple intervals from being created
-        this.breakIntervalId = setInterval(() => {
-          this.updateGameBreak(1);
-          this.updateGameBreakTotal(1);
-          this.updateTournamentBreakDuration(1);
-        }, 1000); // Update every second
+    this.gameIsPaused = !this.gameIsPaused;
+
+    if (this.gameIsPaused) { //  Pause the game
+      this.timerService.stop(this.turnTimer);
+      this.timerService.stop(this.gameTimer);
+      this.timerService.reset(this.betweenBreaksTimer);
+
+      if(!this.gameIsStopped) {
+        this.timerService.start(this.breakTimer);
+        this.timerService.start(this.breakTotalTimer);
       }
+    } else {  //  Resume the game
+      this.timerService.reset(this.turnTimer);
+      this.timerService.start(this.turnTimer);
+      this.timerService.start(this.gameTimer);
+      this.timerService.reset(this.breakTimer);
+      this.timerService.stop(this.breakTotalTimer);
+      this.timerService.start(this.betweenBreaksTimer);
     }
 
-    this.doPauseIntervals();
+    this.setDocumentFocus();
   }
-
-  private doPauseIntervals() {
-      this.stopTurnTimer();
-      if (this.gameStartTime !== null) {
-        this.savedGameDuration += this.formatService.calculateDuration(this.gameStartTime, Date.now());
-      }
-
-      this.showGamePause = !this.showGamePause;
-      clearInterval(this.gameIntervalId);
-      this.gameIntervalId = null; // Reset the interval tracker
-    }
 
   public startResumeGame(): void {
     this.closeTournamentDisplay(); //  close tournament display if open
 
-    this.showGamePause = false;
+    this.gameIsPaused = false;
     this.currentRoll = null;  //  remove current roll from display
     this.showGameHistory = false;
 
-    this.stopBreakTimer();
-    this.startTurnTimer();
-    this.updateTurnDuration();
-
+    this.timerService.reset(this.breakTimer);
+    this.timerService.stop(this.breakTotalTimer);
+    this.timerService.start(this.turnTimer);
+    
     if (this.gameIsStopped) {  //  starting a new game
+      this.timerService.start(this.betweenBreaksTimer);
       this.rollHistoryFontSize = this.maxRollHistorySize;
       this.gameStats = new PlayStats();
       this.gameStats.breakDurationDisplay = this.formatService.defaultEmptyTime;
@@ -308,23 +359,16 @@ export class AppComponent implements OnInit, AfterViewInit {
         this.tourneyStats.playingDurationDisplay = this.formatService.defaultEmptyTime;
       }
 
-      this.savedGameDuration = 0;
-      this.gameIsStopped = false; console.log('startResulmeGame() - gameIsStopped = false');
-
-      this.updateGameBreakTotal(0);
+      this.gameIsStopped = false;
 
       this.colorService.clearMappedColors();
+      
+      this.setDocumentFocus();
     }
 
-    //  restart the game timer (we saved off the duration @ pause)
-    if (!this.gameIntervalId) { // It should be null >> Prevent multiple intervals from being created
-      this.gameStartTime = Date.now();
-      this.updateGameDuration();  //  to show zeros @ start
-      this.gameIntervalId = setInterval(() => {
-        this.incrementTournamentDuration();
-        this.updateGameDuration();
-      }, 1000); // Update every second
-    }
+    //  restart the game timer
+    this.timerService.reset(this.gameTimer);
+    this.timerService.start(this.gameTimer);
 
     this.updateDisplay();
   }
@@ -368,15 +412,17 @@ export class AppComponent implements OnInit, AfterViewInit {
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     this.showHelpDialog = false;
-
+    
     if (this.skipNext) {
       this.skipNext = false;
       return;
     }
 
+    this.currentRoll = null; //  reset current roll value
+
     if (this.showColorHelp) this.closeColorHelp();
 
-    if (!this.gameIsStopped && !this.showGamePause) {
+    if (!this.gameIsStopped && !this.gameIsPaused) {
       const diceContainer = this.elRef.nativeElement.querySelector('.dice-container');
       if (diceContainer && !diceContainer.contains(event.target as Node)) {
         this.currentRoll = null; //  reset current roll value
@@ -386,31 +432,16 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
   }
 
-  @HostListener('window:wheel', ['$event'])
-  onScroll(event: WheelEvent): void {
-    if (this.showGamePause && !this.showHelpDialog) {  //  if game is paused, change opacity of the overlay
-      if (event.deltaY > 0) { //  Scrolled down
-        this.blockScreenOpacity += 0.1;
-        if (this.blockScreenOpacity >= 1) this.blockScreenOpacity = 1;
-      } else {  //  Scrolled up
-        if (this.showGamePause) {  //  if game is paused, change opacity of the overlay
-          this.blockScreenOpacity -= 0.1;
-          if (this.blockScreenOpacity <= 0) this.blockScreenOpacity = 0;
-        }
-      }
-    }
-  }
-
   // monitor keystrokes (die count input, display toggles, etc.)
   @HostListener('document:keydown', ['$event'])
   handleGlobalKeydown(event: KeyboardEvent): void {
     //console.log(`key down : '${event.key}'`);
 
-    if (event.key == 'Shift') {
+    if (event.key == 'Shift' && this.rollCount() > 0) {
       this.toggleDiePercent();
       return;
     }
-    if (event.key == 'Control') {
+    if (event.key == 'Control' && this.rollCount() > 0) {
       this.toggleTournamentDisplay();
       return;
     }
@@ -433,24 +464,15 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
 
     if (!this.showingTournament && event.key.includes('Arrow')) {
-      // if (this.showGameHistory) {
-      //   this.gameHistoryIndex += (event.key == 'ArrowRight' || event.key == 'ArrowUp') ? +1 : -1;
-      //   if (this.gameHistoryIndex >= this.gameHistory.length) this.gameHistoryIndex = 0;
-      //   if (this.gameHistoryIndex < 0) this.gameHistoryIndex = this.gameHistory.length - 1;
-
-      //   this.gameStats = this.gameHistory[this.gameHistoryIndex];
-
-      //   this.updateDisplay();
-      // } else {  //  change the roll history size
+      //  change the roll history size
       this.rollHistoryFontSize += (event.key == 'ArrowRight' || event.key == 'ArrowUp') ? +0.5 : -0.5;
       if (this.rollHistoryFontSize <= 0) this.rollHistoryFontSize = 0.5;
       if (this.rollHistoryFontSize >= 10) this.rollHistoryFontSize = 10;
-      // }
 
       return;
     }
 
-    if (this.showGamePause) {
+    if (this.gameIsPaused) {
       return;
     }
 
@@ -459,59 +481,15 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   //#endregion
   //#region Display Updates       //    //    //    //    //    //    //
-
-  private updateGameBreak(setValue: number) {
-    if (setValue == 0) this.gameBreakSeconds = 0;
-    else this.gameBreakSeconds += setValue;
-
-    if (this.gameBreakSeconds > 0) {
-      this.breakDurationDisplay = this.formatService.formatDuration(this.gameBreakSeconds);
-    }
-    else this.breakDurationDisplay = this.formatService.defaultEmptyTime;
-  }
-
-  private updateGameBreakTotal(setValue: number) {
-    if (setValue == 0) this.gameBreakTotalSeconds = 0;
-    else this.gameBreakTotalSeconds += setValue;
-
-    if (this.gameBreakTotalSeconds > 0) {
-      this.gameStats.breakDurationDisplay = this.formatService.formatDuration(this.gameBreakTotalSeconds);
-    }
-    else this.gameStats.breakDurationDisplay = this.formatService.defaultEmptyTime;
-  }
-
-  private updateTournamentBreakDuration(setValue: number) {
-    if (setValue == 0) this.tournamentBreakSeconds = 0;
-    else this.tournamentBreakSeconds += setValue;
-
-    if (this.tournamentBreakSeconds > 0) {
-      this.tourneyStats.breakDurationDisplay = this.formatService.formatDuration(this.tournamentBreakSeconds);
-    }
-    else this.tourneyStats.breakDurationDisplay = this.formatService.defaultEmptyTime;
-  }
-
-  private incrementTournamentDuration() {
-    this.tournamentSeconds = this.tournamentSeconds + 1;
-
-    this.tourneyStats.playingDurationDisplay = this.formatService.formatDuration(this.tournamentSeconds);
-  }
-
-  private updateGameDuration() {
-    if (this.gameStartTime !== null) {
-      this.gameStats.playingDurationDisplay = this.formatService.calcAndFormatDuration(this.gameStartTime, Date.now(), this.savedGameDuration);
-    }
-    else this.gameStats.playingDurationDisplay = this.formatService.defaultEmptyTime;
-  }
-
-  private updateTurnDuration() {
-    if (this.turnStartTime !== null) {
-      this.turnDurationDisplay = this.formatService.calcAndFormatDuration(this.turnStartTime, Date.now());
-    }
-    else this.turnDurationDisplay = this.formatService.defaultEmptyTime;
-  }
-
+  
   private updateDisplay() {
-    this.updateBars();
+    //update the bar chart data (tracks how many times a number has rolled)
+    if(this.gameStats?.rolls) {
+      this.numberRange.forEach(num => {
+        this.bars[num] = this.gameStats.rolls[num] || 0;
+      });
+    }
+    
     this.mapRollFrequencyColor();
   }
 
@@ -546,14 +524,6 @@ export class AppComponent implements OnInit, AfterViewInit {
     return +b.key - +a.key;
   }
 
-  /**
-   * update the bar chart data (tracks how many times a number has rolled)
-   */
-  updateBars() {
-    this.numberRange.forEach(num => {
-      this.bars[num] = this.gameStats.rolls[num] || 0;
-    });
-  }
 
   //#endregion
   //#region Button Events         //    //    //    //    //    //    //
@@ -575,12 +545,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   public closeColorHelp() {
     this.showColorHelp = false;
     this.showColorSettings = true;
-  }
-  /** prevent barbarian and knight buttons from triggering (so we can handle it) */
-  ignoreEnterKey(event: KeyboardEvent): void {
-    if (event.key === 'Enter') {
-      event.preventDefault(); // Prevent the default behavior of the Enter key
-    }
   }
 
   previousHistoryGame() {
@@ -708,7 +672,7 @@ export class AppComponent implements OnInit, AfterViewInit {
    * @returns Count of total rolls this game
    */
   rollCount() {
-    return this.gameStats.rollHistory.length;
+    return this.gameStats?.rollHistory?.length ?? 0;
   }
 
   /**
@@ -728,9 +692,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     let foundChar = this.rollHistoryHit.toUpperCase();
     let missChar = this.rollHistoryMiss.toUpperCase();
 
-    const joinChar = '';
-
-    return this.gameStats.rollHistory.map(roll => roll === number ? foundChar : missChar).join(joinChar);
+    return this.gameStats.rollHistory.map(roll => roll === number ? foundChar : missChar).join('');
   }
 
   /**
@@ -738,6 +700,7 @@ export class AppComponent implements OnInit, AfterViewInit {
    * @returns 
    */
   maxRollCount() {
+    if(!this.gameStats) return 0; //  no rolls, return 0
     var maxRollCount = Math.max(...Object.values(this.gameStats.rolls));
     return maxRollCount;
   }
@@ -747,6 +710,8 @@ export class AppComponent implements OnInit, AfterViewInit {
    * @returns 
    */
   calculateAverageInterval(dieNumber: number) {
+    if(this.gameStats.rollHistory.length === 0) return 0; //  no rolls, return 0
+
     let indices: number[] = []; // Array to store indices where dieNumber occurs
 
     // Find indices where dieNumber is rolled
@@ -805,36 +770,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   //#endregion
-  //#region Timers                //    //    //    //    //    //    //
-
-  /**
-   * Start the turn timer
-   */
-  startTurnTimer(): void {
-    if (!this.turnIntervalId) { // Prevent multiple intervals from being created
-      this.turnStartTime = Date.now();
-      this.turnIntervalId = setInterval(() => {
-        this.updateTurnDuration();
-      }, 1000); // Update every second
-    }
-  }
-
-  /**
-   * stop the turn timer
-   */
-  stopTurnTimer(): void {
-    clearInterval(this.turnIntervalId);
-    this.turnIntervalId = null; // Reset the interval tracker
-  }
-
-  private stopBreakTimer() {
-    clearInterval(this.breakIntervalId);
-    this.breakIntervalId = null; // Reset the interval tracker
-
-    this.updateGameBreak(0);
-  }
-
-  //#endregion
   //#region Dice                  //    //    //    //    //    //    //
 
   /**
@@ -868,7 +803,6 @@ export class AppComponent implements OnInit, AfterViewInit {
 
       if (this.userSettings.playSounds) {
         if (this.currentRoll == 7) this.soundService.playSoundSeven();
-        // else if (this.selectedDice[0] == this.selectedDice[1]) this.soundService.playSoundDouble();
         else this.soundService.playSoundSuccess();
       }
     } else if (this.userSettings.playSounds) this.soundService.playSoundFailure();
@@ -881,8 +815,8 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.adjustOverlayFontSize()
 
     //  turn ended / next turn begins
-    this.stopTurnTimer();
-    this.startTurnTimer();
+    this.timerService.reset(this.turnTimer);
+    this.timerService.start(this.turnTimer);
   }
 
   undoLastRoll() {
