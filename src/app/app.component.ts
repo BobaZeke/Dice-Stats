@@ -132,6 +132,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
+
     this.initializeTimers();
 
     this.endGame();
@@ -147,6 +148,8 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     if (this.userSettings.colorGradients) this.colorService.colorGradients = this.userSettings.colorGradients;
     else this.userSettings.colorGradients = this.colorService.colorGradients;
+    
+    if(this.isMobile() && !this.isDiceContainerVisible) this.toggleDiceContainer();
   }
 
   ngAfterViewInit(): void {
@@ -179,6 +182,13 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.timerService.getDisplay(this.betweenBreaksTimer).subscribe(val => this.betweenBreaksDuration = val);
   }
 
+  hasNoGameActivity(): boolean {
+    return this.rollCount() == 0 && this.gameHistory.length == 0;
+  }
+
+  isMobile(): boolean {
+    return window.innerWidth <= 768; // or your mobile breakpoint
+  }
   /**
    * Save settings when the user updates them
    */
@@ -271,6 +281,8 @@ export class AppComponent implements OnInit, AfterViewInit {
     
     this.updateDisplay();
 
+    if (this.isDiceContainerVisible) this.toggleDiceContainer(); //  close dice container if open
+
     //  after the user clicks a button, the button retains focus.  
     // Then, when they try to enter the next roll, the enter key event is sent to the button, instead of our function
     this.setDocumentFocus();
@@ -303,8 +315,9 @@ export class AppComponent implements OnInit, AfterViewInit {
     console.log(`addTimeStrings result: '${result}'`);
     return result;
   }
+
   public pauseGame(): void {
-    if (this.isDiceContainerVisible) this.toggleDiceContainer(); //  close dice container if open
+    // if (this.isDiceContainerVisible) this.toggleDiceContainer(); //  close dice container if open
     this.currentRoll = null;  //  remove current roll from display
 
     if (this.gameIsStopped) {
@@ -413,6 +426,8 @@ export class AppComponent implements OnInit, AfterViewInit {
   onDocumentClick(event: MouseEvent): void {
     this.showHelpDialog = false;
     
+    if(this.hasNoGameActivity()) return;
+    
     if (this.skipNext) {
       this.skipNext = false;
       return;
@@ -422,13 +437,10 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     if (this.showColorHelp) this.closeColorHelp();
 
-    if (!this.gameIsStopped && !this.gameIsPaused) {
-      const diceContainer = this.elRef.nativeElement.querySelector('.dice-container');
-      if (diceContainer && !diceContainer.contains(event.target as Node)) {
-        this.currentRoll = null; //  reset current roll value
-        // Click was outside dice-container
-        if (this.isDiceContainerVisible) this.toggleDiceContainer(); //  close dice container if open
-      }
+    const diceContainer = this.elRef.nativeElement.querySelector('.dice-container');
+    if (diceContainer && !diceContainer.contains(event.target as Node)) {
+      // Click was outside dice-container
+      if (this.isDiceContainerVisible) this.toggleDiceContainer(); //  close dice container if open
     }
   }
 
