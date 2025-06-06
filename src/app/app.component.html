@@ -89,8 +89,7 @@
       </div>
     </div>
 
-    <div class="store-button-container">
-
+    <div class="store-button-container" *ngIf="!hasNoGameActivity()">
       <fieldset class="counter">
         <legend>{{gameIsStopped ? 'Total Breaks' : gameIsPaused ? 'Break Time' : 'Turn Duration:'}}</legend>
         <span class="counter-val">
