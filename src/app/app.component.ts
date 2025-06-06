@@ -317,7 +317,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   public pauseGame(): void {
-    // if (this.isDiceContainerVisible) this.toggleDiceContainer(); //  close dice container if open
     this.currentRoll = null;  //  remove current roll from display
 
     if (this.gameIsStopped) {
@@ -427,7 +426,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.showHelpDialog = false;
     
     if(this.hasNoGameActivity()) return;
-    
+
     if (this.skipNext) {
       this.skipNext = false;
       return;
