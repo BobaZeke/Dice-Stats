@@ -13,7 +13,14 @@ html {
 
 fieldset {
   margin-top: 10px;
-  margin-bottom: 10px;
+  box-shadow: 4px 4px 4px 0px rgba(100, 70, 70, 0.226);
+  min-width: 100px;
+  max-width: 100px;
+  
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding-top: 0;
+  padding-bottom: 5px;
 }
 
 h4 {
@@ -25,29 +32,8 @@ p {
 }
 
 button {
-  box-shadow: 4px 4px 8px 2px rgba(100, 70, 70, 0.226), 4px 6px 10px 2px rgba(134, 86, 247, 0.233);
+  box-shadow: 4px 4px 4px 0px rgba(100, 70, 70, 0.226);
   border-width: 1px;
-}
-
-.header-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  background-color: #f8f9fa;
-  padding: 10px 20px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-  display: flex;  /* Use flexbox for inline alignment */
-  align-items: center;  /* Vertically center items */
-  justify-content: space-between;  /* Space out items */
-}
-
-.header-container h1 {
-  margin: 0;
-  font-size: 24px;
-  font-weight: bold;
-  flex-shrink: 0;  /* Prevent the h1 from shrinking */
 }
 
 .column {
@@ -60,6 +46,7 @@ button {
   flex-grow: 1;
   max-height: 97dvh;
 }
+
 
 .container>div:first-child {
   width: 150px;
@@ -74,11 +61,10 @@ button {
 
 .dice-group {
   display: flex;
-  justify-content: center;
+  margin-left: 5px;
   gap: 15px;
-
   opacity: 1;
-  max-height: 500px; /* Set to a value larger than your expected content height */
+  max-height: 500px; /* Set to a value larger than the expected content height */
   transform: translateY(0);
   transition:
     opacity 0.5s ease,
@@ -121,7 +107,7 @@ button {
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
-  box-shadow: 4px 4px 8px 2px rgba(70, 91, 100, 0.226), 4px 6px 10px 2px rgba(114, 223, 92, 0.144);
+  box-shadow: 4px 4px 4px 0px rgba(100, 70, 70, 0.226);
   color: white;
   background-color: rgb(59, 38, 134);
 }
@@ -132,7 +118,6 @@ button {
   filter: grayscale(0.7);
   background: #e0e0e0;
   color: #888;
-  box-shadow: none;
   border-color: #ccc;
   cursor: not-allowed;
 }
@@ -170,28 +155,10 @@ button {
   transform: scale(1.05);
 }
 
-.gradient-btn-start {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  background-color: #863add;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background 1s, box-shadow 0.3s;
-  box-shadow: 5px 8px 9px rgba(4, 14, 56, 0.4);
-  margin: 20px;
-}
-
-.gradient-btn-start:hover {
-  background-color: #810736;
-  box-shadow: 10px 16px 18px rgba(66, 6, 6, 0.4);
-}
-
 .store-button-container {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: left;
 }
 
 .store-button {
@@ -200,14 +167,16 @@ button {
   color: white;
   border-radius: 10px;
   text-align: center;
-  /* border-style: outset; */
+  border-style: outset;
   border-color: rgb(63, 37, 75);
+  margin-bottom: 10px;
 }
 
 .end-button {
   margin-bottom: 10px;
   background-color: #f17c82;
 }
+
 .undo-container {
   height: 50px;
   width: 50px;
@@ -220,6 +189,7 @@ button {
   box-shadow: 0 2px 4px rgba(0,0,0,0.07);
   transition: background 0.2s, box-shadow 0.2s;
 }
+
 .undo-button {
   margin-bottom: 5px;
   width: 50px; 
@@ -232,22 +202,13 @@ button {
   justify-content: center;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8); 
   transition: background-color 0.3s, transform 0.2s; 
-
   background-color: #b6d34c;
   color:#a52525;
   font-weight: bolder;
-  /* font-size: 1.1em; */
   height: 100%;
   width: 100%;
   background-color: grey;
 }
-
-fieldset {
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  margin: 5px;
-}
-
 
 .counter {
   font-size: 16px;
@@ -288,9 +249,9 @@ fieldset {
   padding-left: 10px;
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  height: calc(100dvh - 20px);  /* Adjust height to fit below the header */
-  overflow-y: auto;  /* Enable vertical scrolling if content overflows */
-  overflow-x: hidden;  /* Hide horizontal overflow */
+  height: calc(100dvh - 20px);
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .bar-box {
@@ -306,13 +267,13 @@ fieldset {
   font-size: 34px;
   font-weight: bold;
   margin-right: 10px;  /* Add spacing between the number and the bar */
-  width: 35px;  /* Fixed width for alignment */
-  text-align: center;  /* Align text to the right */
+  width: 35px;
+  text-align: center;
   cursor: default;
 }
 
 .bar {
-  height: calc((100dvh - 100px)/11);  /* Adjust height to fit below the header */
+  height: calc((100dvh - 100px)/11);
   border-radius: 5px;
   transition: width 0.3s;
 }
@@ -322,15 +283,15 @@ fieldset {
   top: 0;
   left: 80px;
   height: auto;  /* Allow height to adjust based on content */
-  width: calc(100vw - 250px);  /* calc so that boxes wrap appropriately */
+  width: calc(100vw - 250px);
   pointer-events: none;  /* Prevent interaction */
   white-space: normal;  /* Allow text to wrap to the next line */
   word-wrap: break-word;  /* Break long words if necessary */
   overflow-wrap: break-word;  /* Ensure compatibility for breaking long words */
   word-break: break-word;  /* Ensure long words break */
-  display: block;  /* Ensure the overlay behaves as a block element */
+  display: block;
   box-sizing: border-box;  /* Include padding in the element's width */
-  line-height: 0.6;  /* Reduce space between lines : 1.0 = size of font*/
+  line-height: 0.6;
   cursor: default;
   color: white !important;
   mix-blend-mode: difference;
@@ -361,11 +322,11 @@ fieldset {
   font-size: 34px;
   color: red;
   width: 35px;
-  height: 35px;  /* Add height to make it a square */
+  height: 35px;
   display: flex;  /* Use flexbox for centering */
   align-items: center;  /* Vertically center the content */
   justify-content: left;  /* Horizontally center the content */
-  text-align: center;  /* Ensure text alignment */
+  text-align: center;
   cursor: default;
 }
 
@@ -373,19 +334,19 @@ fieldset {
   position: absolute;
   color: blue;
   font-size: 0.5em;
-  position: relative;  /* Enable relative positioning */
-  top: -0.7em;  /* Move the number higher */
+  position: relative;
+  top: -0.7em;
   justify-content: right;  /* Horizontally center the content */
 }
 
 .bar-percent {
-  font-size: 24px;  /* Large font size for the number */
+  font-size: 24px;
 }
 
 .percent-sign {
-  font-size: 14px;  /* Smaller font size for the % sign */
-  vertical-align: super;  /* Superscript alignment */
-  color: black;  /* Black color for the % sign */
+  font-size: 14px;
+  vertical-align: super;
+  color: black;
   margin-right: 5px;
 }
 
@@ -499,81 +460,16 @@ fieldset {
   text-decoration: underline;
 }
 
-.context-menu {
-  position: absolute;
-  background-color: white;
-  border: 1px solid #ccc;
-  box-shadow: 0 0 100px rgba(0, 0, 0, 0.7);  /* Add a subtle drop shadow */
-  z-index: 2000;
-  width: 150px;
-  padding: 5px 0;
-  background-color: #fdfdfd;
-  color: black;
-  border-radius: 5px;  /* Optional: Add rounded corners for a modern look */
-}
-
-.context-menu ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  position: relative;
-}
-
-.context-menu ul li {
-  padding: 5px 10px;
-  cursor: pointer;
-  position: relative;
-}
-
-.context-menu ul li:hover {
-  background-color: #f0f0f0;
-}
-
-.context-menu ul li ul {
-  display: none;
-  position: absolute;
-  left: 100%;
-  top: 0;
-  background-color: white;
-  border: 1px solid #ccc;
-  z-index: 1000;
-  min-width: 150px;  /* Ensure the sub-menu has a consistent width */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);  /* Add a subtle shadow for better visibility */
-}
-
-.context-menu ul li:hover ul {
-  display: block;
-}
-
-.context-menu ul li ul li.selected {
-  background-color: #007bff;  /* Highlight color (blue) */
-  color: white;  /* Text color for better contrast */
-}
-
-.context-menu .menu-separator {
-  height: 0.5px;  /* Make the separator thinner */
-  background-color: #ccc;  /* Light gray color */
-  margin: 5px 0;  /* Add spacing above and below the separator */
-  list-style: none;  /* Remove bullet point styling */
-  display: block;  /* Ensure it behaves as a block element */
-  pointer-events: none;  /* Prevent hover or interaction */
-}
-
-.context-menu .menu-separator:hover {
-  background-color: #ccc;  /* Keep the original color */
-  cursor: default;  /* Change the cursor to default (not clickable) */
-}
-
 .current-roll {
   font-size: min(75dvh, 75dvw);
   font-weight: bold;
-  color: rgba(172, 34, 161, 0.5);  /* Black color with 10% opacity */
+  color: rgba(172, 34, 161, 0.5);
   -webkit-text-stroke: 2px black;  /* Outline color and thickness */
   text-align: center;  /* Center the text horizontally */
   position: absolute;  /* Position it relative to the screen */
   top: 50%;  /* Center vertically */
   left: 50%;  /* Center horizontally */
-  transform: translate(-50%, -50%);  /* Adjust for perfect centering */
+  transform: translate(-50%, -50%);  /* center */
   pointer-events: none;  /* Prevent interaction with the number */
   z-index: 1002;
 }
@@ -581,50 +477,33 @@ fieldset {
 .game-history-index {
   font-size: min(17dvh, 15dvw);
   font-weight: bold;
-  color: rgba(82, 46, 150, 0.397);  /* Black color with 10% opacity */
+  color: rgba(82, 46, 150, 0.397);
   mix-blend-mode: unset;
   -webkit-text-stroke: 2px black;  /* Outline color and thickness */
   text-align: center;  /* Center the text horizontally */
   position: absolute;  /* Position it relative to the screen */
   top: 20%;
   left: 50%;  /* Center horizontally */
-  transform: translate(-40%, -50%);  /* Adjust for perfect centering */
+  transform: translate(-40%, -50%);  /* center */
   pointer-events: none;  /* Prevent interaction with the number */
   z-index: 1002;
 }
 
 .dice-container {
-  max-height: 99dvh;  /* Default: take up available height */
-  overflow-y: auto;  /* Enable vertical scrolling if content overflows */
+  height: calc(100dvh - 20px);
+  max-height: 100dvh;
+  width: 100%;
+  overflow-y: auto;
   transition: transform 0.3s ease-in-out;  /* Smooth slide-in/out animation */
-}
-
-/* Toggle bar to show/hide dice area in mobile view */
-.toggle-bar {
-  position: fixed;
-  top: 5px;  /* Position at the top-left of the screen */
-  left: 5px;
-  background-color: #007bff;
-  color: white;
-  padding: 5px;
-  border-radius: 5px;
-  cursor: pointer;
-  z-index: 1001;  /* Ensure it appears above other content */
-  display: none;  /* Hide by default */
 }
 
 /* Hide dice-container on smaller screens */
 @media (max-width: 768px) {
   .dice-container {
-    transform: translateX(-100%);    /* Slide out of view to the left */
+    transform: translateX(-110%);    /* Slide out of view to the left */
     position: fixed;    /* Fix it to the side of the screen */
-    margin-top: 15px;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 250px;
-    background-color: #f1f1f1;    /* Background color for the container */
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);    /* Add a shadow for better visibility */
+    background-color: white;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
     z-index: 1000;
   }
 
@@ -637,33 +516,30 @@ fieldset {
     display: block;
   }
 
-  /* Show when dice-container is NOT visible */
-  .dice-container:not(.visible) ~ .floating-mic {
-    display: block;
-  }  
-
-  .dice-container.visible {
-    transform: translateX(0);    /* Slide into view */
-  }
-
   .bar-box {
     width: calc(100vw - 15px);
   }
 }
 
-.floating-mic {
+/* Toggle bar to show/hide dice area in mobile view */
+.toggle-bar {
   position: fixed;
-  top: 1.5em;
-  right: 1.5em;
-  z-index: 2000;
-  display: none; /* Hide by default */
+  top: 5px;
+  left: 5px;
+  background-color: #007bff;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  z-index: 1001;  /* Ensure it appears above other content */
+  display: none;  /* Hide by default */
 }
 
 .tournament-bar {
   position: absolute;
-  top: 0;  /* Align it to the top of the bar */
+  top: 0;
   left: 80px;
-  height: 5px;  /* Thin red bar */
+  height: 5px;
   z-index: 1;  /* Ensure it appears above the blue bar */
   border-radius: 5px;  /* Match the blue bar's border radius */
 }
@@ -671,8 +547,8 @@ fieldset {
 .trend-indicator {
   position: absolute;  /* Position relative to the container */
   top: 0;  /* Align to the top of the bar-number */
-  left: 0%;  /* Center horizontally */
-  transform: translateX(-50%);  /* Adjust for perfect centering */
+  left: 0%;
+  transform: translateX(-50%);  /* center */
   font-size: 16px;
   font-weight: bold;
   color: gray;
@@ -690,13 +566,13 @@ fieldset {
 .color-picker-container {
   background-color: #ffffff; 
   border: 1px solid #ccc; 
-  border-radius: 10px;  /* Rounded corners */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);  /* Subtle shadow for depth */
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   width: max(50%, 100px);
   text-align: center;
   z-index: 1200;
   position: fixed;
-  height: auto;     /* Let content determine height*/
+  height: auto;
   overflow-y: auto;
   top: calc((100dvh - 694px) / 2);
   left: 50%;
@@ -724,29 +600,29 @@ fieldset {
 
 .color-picker-container label {
   display: block;  /* Ensure labels are on their own line */
-  margin-bottom: 10px;  /* Add spacing below labels */
+  margin-bottom: 10px;
   margin: 5px;
 }
 
 .color-picker-container input[type="color"] {
-  width: 100%;  /* Full width for the color picker */
-  height: 40px;  /* Larger height for better usability */
-  border: none;  /* Remove default border */
-  border-radius: 5px;  /* Rounded corners */
-  cursor: pointer;  /* Pointer cursor for interactivity */
+  width: 100%;
+  height: 40px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
 .close-button {
   margin-top: 5px;
   margin-bottom: 10px;
-  padding: 10px 20px;  /* Add padding for a larger clickable area */
+  padding: 10px 20px;
   border: outset; 
-  border-radius: 5px;  /* Rounded corners */
+  border-radius: 5px;
   background-color: #848096; 
   color: white; 
-  font-size: 16px;  /* Larger font size */
-  cursor: pointer;  /* Pointer cursor for interactivity */
-  transition: background-color 0.3s;  /* Smooth hover effect */
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 .color-picker-container button:hover {
@@ -757,18 +633,18 @@ fieldset {
   display: inline-block;
   width: 120px;
   height: 40px;
-  background-color: #ccc; /* Muted background for the toggle */
+  background-color: #ccc;
   border-radius: 20px;
   position: relative;
   cursor: pointer;
-  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.2);
-  margin-top: 5px;
+  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.2), 4px 4px 4px 0px rgba(100, 70, 70, 0.226);
+  margin-top: 15px;
 }
 
 .switch {
   width: 50%;
   height: 100%;
-  background-color: #777777; /* Lighter background for the selected side */
+  background-color: #777777;
   border-radius: 20px;
   position: absolute;
   top: 0;
@@ -789,7 +665,7 @@ fieldset {
   align-items: center; /* Center vertically */
   justify-content: center; /* Center horizontally */
   font-weight: bold;
-  color: #666; /* Muted color for non-selected text */
+  color: #666;
   pointer-events: none;
   transition: color 0.3s ease;
 }
@@ -812,8 +688,9 @@ fieldset {
   align-items: center;
   justify-content: center;
   gap: 0.5em;
-  margin: 1em 0;
+  margin: 1em 1em 1em 0;
   height: 30px;
+  width: 90%;
 }
 
 .game-history-btn {
@@ -841,7 +718,7 @@ fieldset {
 }
 
 .history-arrow {
-  width: 28px;   /* Make the arrow icon larger */
+  width: 28px;
   height: 28px;
   display: block;
 }
@@ -890,8 +767,7 @@ fieldset {
   cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center;
-  
+  justify-content: center;  
   text-shadow:
     1px 1px 2px #bbb,   /* subtle shadow for depth */
     0 2px 6px #888;     /* larger, softer shadow */
@@ -939,8 +815,8 @@ fieldset {
   display: inline-flex;
   position: relative;
   width: 90%;
-  margin: 0 auto;
-   max-width: 120px;
+  /* margin: 0 auto; */
+  /* max-width: auto; */
 }
 
 .pause-button {

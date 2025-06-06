@@ -12,6 +12,23 @@
   <!-- Left column  -->
   <div class="dice-container">
 
+    <!-- game history navigation -->
+    <div class="game-history-nav" *ngIf="gameIsStopped && gameHistory.length > 1">
+      <button class="game-history-btn " (click)="previousHistoryGame()" aria-label="Previous Game" [disabled]="showingTournament">
+        <svg class="history-arrow" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <polyline points="15 6 9 12 15 18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <span class="game-history-status">
+        Game {{gameHistoryIndex + 1}} of {{gameHistory.length}}
+      </span>
+      <button class="game-history-btn" (click)="nextHistoryGame()" aria-label="Next Game" [disabled]="showingTournament">
+        <svg class="history-arrow" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <polyline points="9 6 15 12 9 18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
     <!-- start/pause/end game button -->
     <div class="pause-split-dropdown-container">
       <button (click)="pauseGame()" class="pause-button" [class.pause-active]="!gameIsStopped && !gameIsPaused">
@@ -40,23 +57,6 @@
         <!-- Stop -->
          <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
           <rect x="6" y="6" width="12" height="12"/>
-        </svg>
-      </button>
-    </div>
-
-    <!-- game history navigation -->
-    <div class="game-history-nav" *ngIf="gameIsStopped && !showingTournament && gameHistory.length > 1">
-      <button class="game-history-btn " (click)="previousHistoryGame()" aria-label="Previous Game">
-        <svg class="history-arrow" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <polyline points="15 6 9 12 15 18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-      <span class="game-history-status">
-        Game {{gameHistoryIndex + 1}} of {{gameHistory.length}}
-      </span>
-      <button class="game-history-btn" (click)="nextHistoryGame()" aria-label="Next Game">
-        <svg class="history-arrow" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <polyline points="9 6 15 12 9 18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
     </div>
@@ -96,11 +96,11 @@
         <span class="counter-val">
           {{
             showingTournament
-              ? (tourneyStats ? tourneyStats.breakDurationDisplay : '')
+              ? (tourneyStats ? tourneyStats.breakDurationDisplay : '0:00:00')
               : ( gameIsStopped
-                  ? (gameStats ? gameStats.breakDurationDisplay : '')
+                  ? (gameStats ? gameStats.breakDurationDisplay : '0:00:00')
                   : ( gameIsPaused
-                      ? (this.gameStats ? this.gameStats.breakDurationDisplay : '')
+                      ? (this.gameStats ? this.gameStats.breakDurationDisplay : '0:00:00')
                       : turnDurationDisplay
                     )
                 )
@@ -123,7 +123,7 @@
       </fieldset>
 
       <fieldset class="counter" *ngIf="!gameIsStopped && !gameIsPaused">
-        <legend>Since Last Break</legend>
+        <legend>Since Break</legend>
         <span class="counter-val">
           {{ betweenBreaksDuration }}
         </span>
@@ -184,8 +184,8 @@
     </div>
   </div>
 
-  <div *ngIf="!gameIsStopped && !gameIsPaused" class="toggle-bar" (click)="toggleDiceContainer()">☰</div>
-
+  <div class="toggle-bar" (click)="toggleDiceContainer()">☰</div>
+  
   <!-- central display : bar chart display showing how many times each number has been rolled -->
   <div class="bar-container">
     <div *ngFor="let number of numberRange"> <!--  2 - 12 -->

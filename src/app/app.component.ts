@@ -614,15 +614,21 @@ export class AppComponent implements OnInit, AfterViewInit {
   closeTournamentDisplay() {
     if (this.showingTournament) this.toggleTournamentDisplay(); //  close tournament display if open
   }
+
   toggleTournamentDisplay() {
     this.showingTournament = !this.showingTournament;
     if (this.userSettings.playSounds) this.soundService.playSoundBump();
 
     if (this.gameIsStopped) { //  game is stopped, so we need to toggle between history and tournament
       if (this.showingTournament) {
+        //  save the current game values
+        this.saveStats = this.gameStats;
+        //  switch to the tournament values
         this.gameStats = this.tourneyStats;
-      } else {
+      } else if (this.showGameHistory) {
         this.gameStats = this.gameHistory[this.gameHistoryIndex];
+      } else {
+        this.gameStats = this.saveStats;
       }
     } else {  //  game is in progress, so we need to save the current game values, then toggle between game and tournament
       if (this.showingTournament) {
