@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { PlayStats } from './gameStats';
+import { Stats } from '../models/stats';
 
 /**
  * Service to manage trends in dice rolls.
@@ -18,7 +18,7 @@ export class TrendService {
   * @param number The number to check.
   * @returns True if the number is on the rise, false otherwise.
   */
-  isNumberRising(tourneyStats: PlayStats, number: number): boolean {
+  isNumberRising(tourneyStats: Stats, number: number): boolean {
     const rollCount = tourneyStats.rollHistory.length;  // use the  stats from all night (not just this game)
     if (rollCount <= 0) return false; // No rolls to process
 
@@ -47,7 +47,7 @@ export class TrendService {
    * @param count The number of recent rolls to consider.
    * @returns An array of recent rolls for the specified number.
    */
-  getRecentRolls(tourneyStats: PlayStats, number: number, count: number): number[] {
+  getRecentRolls(tourneyStats: Stats, number: number, count: number): number[] {
     const rollHistory = tourneyStats.rollHistory.slice(-count); // Get the last 'count' rolls
     return rollHistory.map(roll => (roll === number ? 1 : 0)); // Map to 1 if the number was rolled, 0 otherwise
   }

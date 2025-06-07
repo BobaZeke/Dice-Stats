@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { PlayStats } from './gameStats';
-import { ColorOption } from './color-option.enum'; // Import the enum
+import { Stats } from '../models/stats';
+import { ColorOption } from '../models/color-option.enum'; // Import the enum
 
 /**
  * Service to manage color mapping for dice rolls based on frequency.
@@ -92,7 +92,7 @@ export class ColorService {
         };
     }
 
-    mapRollFrequencyColor(rollCount: number, colorOption: ColorOption, gameStats: PlayStats, maxRollCount: number) {
+    mapRollFrequencyColor(rollCount: number, colorOption: ColorOption, gameStats: Stats, maxRollCount: number) {
         if (rollCount <= 0) { //  no rolls to process
             this.clearMappedColors();
             return;
@@ -109,7 +109,7 @@ export class ColorService {
     /**
      * Map rolls to a single color with changing density
      */
-    private mapRollsToDensity(gameStats: PlayStats, maxRollCount: number): void {
+    private mapRollsToDensity(gameStats: Stats, maxRollCount: number): void {
         // Extract RGB components from the colorDensityColor
         const rgbMatch = this.colorDensityColor.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
         if (!rgbMatch) {
@@ -135,7 +135,7 @@ export class ColorService {
      * dice which have been rolled the same number of times get the same color
      * color is based on where the die's count lies within the 11 spread spectrum
      */
-    private mapRollsToColors(gameStats: PlayStats): void {
+    private mapRollsToColors(gameStats: Stats): void {
         this.clearMappedColors(); // Reset the colors before mapping
 
         // Get the rolls and their frequencies

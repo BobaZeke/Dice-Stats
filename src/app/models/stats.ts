@@ -1,4 +1,4 @@
- export class PlayStats {
+ export class Stats {
    
     /** tracks the history of the rolls (in order) */
     public rollHistory: number[] = [];

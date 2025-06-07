@@ -3,15 +3,16 @@ declare var webkitSpeechRecognition: any;
 import { Component, HostListener, OnInit, AfterViewInit, ChangeDetectorRef, ViewChildren, QueryList, ElementRef } from '@angular/core';
 import { CommonModule, KeyValue } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { PlayStats } from './gameStats';
-import { SoundService } from './sound.service';
-import { TimeFormatService } from './time-format.service'; // Add this line
-import { ColorOption } from './color-option.enum'; // Import the enum
-import { ColorService } from './color.service';
-import { TrendService } from './trend.service';
-import { UserSettingsService } from './user-settings.service';
-import { GameTimerService, TimerHandle } from './timer.service';
+import { Stats } from './models/stats';
+import { SoundService } from './services/sound.service';
+import { TimeFormatService } from './services/time-format.service'; // Add this line
+import { ColorOption } from './models/color-option.enum'; // Import the enum
+import { ColorService } from './services/color.service';
+import { TrendService } from './services/trend.service';
+import { UserSettingsService } from './services/user-settings.service';
+import { GameTimerService, TimerHandle } from './services/timer.service';
 import { cloneDeep } from 'lodash'; // or use a manual clone
+import { Settings } from './models/settings';
 
 @Component({
   selector: 'app-root',
@@ -34,13 +35,13 @@ export class AppComponent implements OnInit, AfterViewInit {
   /* bars to display how many times a given number was rolled */
   public bars: Array<number> = [];
 
-  public gameStats: PlayStats = new PlayStats();
-  public tourneyStats: PlayStats = new PlayStats(); 
+  public gameStats: Stats = new Stats();
+  public tourneyStats: Stats = new Stats(); 
 
-  public gameHistory: PlayStats[] = [];
+  public gameHistory: Stats[] = [];
 
   /* temp variable for swapping game, tourney, and history display */
-  private saveStats: PlayStats = new PlayStats();
+  private saveStats: Stats = new Stats();
 
   /** toggle between game info and trounrament info */
   public showingTournament = false;
@@ -52,11 +53,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   public rollHistoryHit = "&#9632;";
   /* empty square (white square) */
   public rollHistoryMiss = "&#9633;";
-
-  /**
-   * toggle between showing die counts and percentages
-   */
-  public showDieCounts = true;
 
   /** pause the game */
   public gameIsPaused = true;
@@ -76,14 +72,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   
   public showHelpDialog: boolean = true;
 
-  public ColorOption = ColorOption; // Expose the enum to the template
-  public userSettings: any = {
-    playSounds: true,
-    showTooltips: true,
-    colorOption: ColorOption.Density,
-    colorDensityColor: "",
-    colorGradients: []
-  };
+  public settings: Settings = new Settings(); // Initialize user settings
 
   @ViewChildren('bar') barElements!: QueryList<ElementRef>;
   @ViewChildren('overlay') overlayElements!: QueryList<ElementRef>;
@@ -138,16 +127,15 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.endGame();
 
     const savedSettings = this.userSettingsService.loadSettings();
-
     if (savedSettings) {
-      this.userSettings = savedSettings;
-    }
+      this.settings = savedSettings;
+    } 
 
-    if (this.userSettings.colorDensityColor) this.colorService.colorDensityColor = this.userSettings.colorDensityColor;
-    else this.userSettings.colorDensityColor = this.colorService.colorDensityColor;
+    if (this.settings.colorDensityColor) this.colorService.colorDensityColor = this.settings.colorDensityColor;
+    else this.settings.colorDensityColor = this.colorService.colorDensityColor;
 
-    if (this.userSettings.colorGradients) this.colorService.colorGradients = this.userSettings.colorGradients;
-    else this.userSettings.colorGradients = this.colorService.colorGradients;
+    if (this.settings.colorGradients) this.colorService.colorGradients = this.settings.colorGradients;
+    else this.settings.colorGradients = this.colorService.colorGradients;
     
     if(this.isMobile() && !this.isDiceContainerVisible) this.toggleDiceContainer();
   }
@@ -196,11 +184,11 @@ export class AppComponent implements OnInit, AfterViewInit {
    * Save settings when the user updates them
    */
   saveSettings(): void {
-    this.userSettings.colorDensityColor = this.colorService.colorDensityColor;
-    this.userSettings.colorGradients = this.colorService.colorGradients;
+    this.settings.colorDensityColor = this.colorService.colorDensityColor;
+    this.settings.colorGradients = this.colorService.colorGradients;
 
     // Save settings when the user updates them
-    this.userSettingsService.saveSettings(this.userSettings);
+    this.userSettingsService.saveSettings(this.settings);
   }
 
   /**
@@ -374,7 +362,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     
     //  reset to zeros for next game
-    this.gameStats = new PlayStats();
+    this.gameStats = new Stats();
     this.timerService.reset(this.turnTimer);
     this.timerService.reset(this.breakTimer);
     this.timerService.reset(this.betweenBreaksTimer);    
@@ -384,7 +372,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     if (this.gameIsStopped) {  //  starting a new game
       this.timerService.start(this.betweenBreaksTimer);
       this.rollHistoryFontSize = this.maxRollHistorySize;
-      this.gameStats = new PlayStats();
+      this.gameStats = new Stats();
       this.gameStats.breakDurationDisplay = this.formatService.defaultEmptyTime;
       this.gameStats.playingDurationDisplay = this.formatService.defaultEmptyTime;
 
@@ -402,6 +390,20 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.updateDisplay();
   }
 
+  /**
+   * determines if the color option is set to 'Density'
+   * @returns 
+   */
+  public colorSyleChoiceIsDensity() {
+    return this.settings.colorOption === ColorOption.Density
+  }
+  /**
+   * determines if the color option is set to 'Color'
+   * @returns 
+   */
+  public colorSyleChoiceIsColor() {
+    return this.settings.colorOption === ColorOption.Color;
+  }
   //#endregion
   //#region Document events       //    //    //    //    //    //    //
 
@@ -480,14 +482,14 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
 
     if (event.key == 'Escape' && this.showHelpDialog) {
-      if (this.userSettings.playSounds) this.soundService.playSoundEscape();
+      if (this.settings.playSounds) this.soundService.playSoundEscape();
       this.showHelpDialog = false; // Close the help dialog
       return;
     }
     else if (event.key == 'Escape') {
       this.selectedDie = 0;
       this.currentRoll = null; //  reset current roll value
-      if (this.userSettings.playSounds) this.soundService.playSoundEscape();
+      if (this.settings.playSounds) this.soundService.playSoundEscape();
       return;
     }
 
@@ -522,19 +524,19 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   private mapRollFrequencyColor() {
-    this.colorService.mapRollFrequencyColor(this.rollCount(), this.userSettings.colorOption, this.gameStats, this.maxRollCount()); //  map the roll frequency colors
+    this.colorService.mapRollFrequencyColor(this.rollCount(), this.settings.colorOption, this.gameStats, this.maxRollCount()); //  map the roll frequency colors
   }
 
   updateRollFrequencyColor(index: number, hexColor: string): void {
     this.colorService.updateRollFrequencyColor(index, hexColor); // Update the color for the specific roll
-    if (this.rollCount() == 0) this.colorService.showSampleColors(this.userSettings.colorOption);
+    if (this.rollCount() == 0) this.colorService.showSampleColors(this.settings.colorOption);
     else this.mapRollFrequencyColor();
 
     this.saveSettings();
   }
   updateRollFrequencyDensityColor(color: string): void {
     this.colorService.updateRollFrequencyDensityColor(color); // Update the color for the specific roll
-    if (this.rollCount() == 0) this.colorService.showSampleColors(this.userSettings.colorOption);
+    if (this.rollCount() == 0) this.colorService.showSampleColors(this.settings.colorOption);
     else this.mapRollFrequencyColor();
 
     this.saveSettings();
@@ -542,7 +544,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   mapNewColors(lowColor: string, highColor: string): void {
     this.colorService.generateGradient(lowColor, highColor);
-    this.colorService.showSampleColors(this.userSettings.colorOption);
+    this.colorService.showSampleColors(this.settings.colorOption);
     this.colorPickerAll = true;  //  toggle to show generated colors
 
     this.saveSettings();
@@ -576,7 +578,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   previousHistoryGame() {
-    if (this.userSettings.playSounds) this.soundService.playSoundBump();
+    if (this.settings.playSounds) this.soundService.playSoundBump();
     this.gameHistoryIndex -= 1;
 
     if (this.gameHistoryIndex < 0) this.gameHistoryIndex = this.gameHistory.length - 1;
@@ -587,7 +589,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   nextHistoryGame() {
-    if (this.userSettings.playSounds) this.soundService.playSoundBump();
+    if (this.settings.playSounds) this.soundService.playSoundBump();
 
     this.gameHistoryIndex += 1;
 
@@ -609,12 +611,12 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   toggleColorType(): void {
     this.colorType = !this.colorType;
-    if (this.userSettings.playSounds) this.soundService.playSoundBump();
+    if (this.settings.playSounds) this.soundService.playSoundBump();
 
-    if (this.userSettings.colorOption === ColorOption.Density)
-      this.userSettings.colorOption = ColorOption.Color;
+    if (this.settings.colorOption === ColorOption.Density)
+      this.settings.colorOption = ColorOption.Color;
     else
-      this.userSettings.colorOption = ColorOption.Density;
+      this.settings.colorOption = ColorOption.Density;
 
     this.saveSettings();
   }
@@ -636,7 +638,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   toggleColorPicker(): void {
     this.colorPickerAll = !this.colorPickerAll;
-    if (this.userSettings.playSounds) this.soundService.playSoundBump();
+    if (this.settings.playSounds) this.soundService.playSoundBump();
   }
 
   closeTournamentDisplay() {
@@ -645,7 +647,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   toggleTournamentDisplay() {
     this.showingTournament = !this.showingTournament;
-    if (this.userSettings.playSounds) this.soundService.playSoundBump();
+    if (this.settings.playSounds) this.soundService.playSoundBump();
 
     if (this.gameIsStopped) { //  game is stopped, so we need to toggle between history and tournament
       if (this.showingTournament) {
@@ -670,8 +672,9 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   toggleDiePercent() {
-    if (this.userSettings.playSounds) this.soundService.playSoundBump();
-    this.showDieCounts = !this.showDieCounts;
+    if (this.settings.playSounds) this.soundService.playSoundBump();
+    this.settings.showDiceCounts = !this.settings.showDiceCounts;
+    this.saveSettings();
   }
 
   //#endregion
@@ -765,15 +768,15 @@ export class AppComponent implements OnInit, AfterViewInit {
    * @param option 'density' or 'color'
    */
   setColorOption(option: ColorOption): void {
-    this.userSettings.colorOption = option;
+    this.settings.colorOption = option;
     this.mapRollFrequencyColor();
 
-    this.userSettingsService.saveSettings(this.userSettings);
+    this.userSettingsService.saveSettings(this.settings);
   }
 
   toggleSounds(): void {
-    this.userSettings.playSounds = !this.userSettings.playSounds;
-    if (this.userSettings.playSounds) this.soundService.playSoundBump();
+    this.settings.playSounds = !this.settings.playSounds;
+    if (this.settings.playSounds) this.soundService.playSoundBump();
     else this.soundService.playSoundEscape();
 
     this.saveSettings(); // Save the updated settings
@@ -790,7 +793,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   selectDiceRoll(value: number) {  //  column: number, 
     this.skipNext = true; //  skip the next click event (to prevent closing the dice container)
     this.selectedDie = value;
-    if (this.userSettings.playSounds) this.soundService.playSoundNumberSelect();
+    if (this.settings.playSounds) this.soundService.playSoundNumberSelect();
     this.currentRoll = null; //  reset current roll value
     // if(event) event.preventDefault(); // Prevent the default browser context menu
     this.storeValues();
@@ -811,11 +814,11 @@ export class AppComponent implements OnInit, AfterViewInit {
       this.gameStats.rollHistory.push(this.currentRoll);
       this.tourneyStats.rollHistory.push(this.currentRoll);
 
-      if (this.userSettings.playSounds) {
+      if (this.settings.playSounds) {
         if (this.currentRoll == 7) this.soundService.playSoundSeven();
         else this.soundService.playSoundSuccess();
       }
-    } else if (this.userSettings.playSounds) this.soundService.playSoundFailure();
+    } else if (this.settings.playSounds) this.soundService.playSoundFailure();
 
     //  clear current selections
     this.selectedDie = 0;

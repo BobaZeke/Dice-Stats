@@ -36,11 +36,6 @@ button {
   border-width: 1px;
 }
 
-.column {
-  display: flex;
-  align-items: center;
-}
-
 .container {
   display: flex;
   flex-grow: 1;
@@ -53,10 +48,6 @@ button {
   flex-shrink: 0;  /* Prevent shrinking */
   display: flex;
   flex-direction: column;
-}
-
-.game-duration {
-  font-size: 24px;
 }
 
 .dice-group {
@@ -155,13 +146,13 @@ button {
   transform: scale(1.05);
 }
 
-.store-button-container {
+.side-bar-container {
   display: flex;
   flex-direction: column;
   align-items: left;
 }
 
-.store-button {
+.color-settings-btn {
   width: 80%;
   background-color: #0b5fb8;
   color: white;
@@ -220,18 +211,6 @@ button {
   font-size: 20px;
   font-weight: bold;
   color: #007bff;
-}
-
-.row-value {
-  font-size: 30px;
-  font-weight: bold;
-}
-
-.row-label {
-  font-size: 20px;
-  max-width: 80px;
-  font-weight: bold;
-  color: #3d3342;
 }
 
 .counter-avg {
@@ -324,19 +303,10 @@ button {
   width: 35px;
   height: 35px;
   display: flex;  /* Use flexbox for centering */
-  align-items: center;  /* Vertically center the content */
-  justify-content: left;  /* Horizontally center the content */
+  align-items: center; 
+  justify-content: left; 
   text-align: center;
   cursor: default;
-}
-
-.tournament-count {
-  position: absolute;
-  color: blue;
-  font-size: 0.5em;
-  position: relative;
-  top: -0.7em;
-  justify-content: right;  /* Horizontally center the content */
 }
 
 .bar-percent {
@@ -385,8 +355,7 @@ button {
   max-height: 90%;
   width: 50%;
   height: auto;
-  color: black;
-  
+  color: black;  
   background: linear-gradient(45deg, #af98e4, #c898e4, #98e4a9);
 }
 
@@ -399,65 +368,6 @@ button {
     font-size: 1em;
     width: 90%;
   }
-}
-
-.menu {
-  position: fixed;
-  top: 10px;
-  left: 10px;
-  width: 20px;
-  height: 20px;
-  color: white;
-  border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-  overflow: hidden;
-  transition: width 0.3s, height 0.3s;
-  z-index: 100;
-}
-
-.menu:hover {
-  width: 180px;
-  height: auto;
-}
-
-.menu-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  height: 20px;
-  background-color: #8da8c5;
-}
-
-.menu-content {
-  display: none;
-  padding: 10px;
-  background-color: #a9b4c0;
-}
-
-.menu:hover .menu-content {
-  display: block;
-}
-
-.menu-content ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.menu-content li {
-  margin: 10px 0;
-}
-
-.menu-content a {
-  color: white;
-  text-decoration: none;
-  font-size: 16px;
-}
-
-.menu-content a:hover {
-  text-decoration: underline;
 }
 
 .current-roll {
@@ -474,7 +384,7 @@ button {
   z-index: 1002;
 }
 
-.game-history-index {
+.tournament-header {
   font-size: min(17dvh, 15dvw);
   font-weight: bold;
   color: rgba(82, 46, 150, 0.397);
@@ -735,29 +645,6 @@ button {
   justify-content: space-between;
 }
 
-.popup-main-content {
-  flex: 1 1 auto;
-}
-
-.opacity-slider-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-left: 1em;
-  min-width: 48px;
-}
-
-.opacity-slider {
-  width: 24px;
-  height: 120px;
-  margin-bottom: 0.5em;
-}
-
-.opacity-value {
-  font-size: 0.9em;
-  color: #333;
-}
-
 .undo-button {
   width: 100%;
   height: 100%;
@@ -815,8 +702,6 @@ button {
   display: inline-flex;
   position: relative;
   width: 90%;
-  /* margin: 0 auto; */
-  /* max-width: auto; */
 }
 
 .pause-button {
