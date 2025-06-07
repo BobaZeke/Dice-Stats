@@ -11,6 +11,7 @@ import { ColorService } from './color.service';
 import { TrendService } from './trend.service';
 import { UserSettingsService } from './user-settings.service';
 import { GameTimerService, TimerHandle } from './timer.service';
+import { cloneDeep } from 'lodash'; // or use a manual clone
 
 @Component({
   selector: 'app-root',
@@ -132,7 +133,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
-
     this.initializeTimers();
 
     this.endGame();
@@ -162,22 +162,25 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.turnDurationDisplay = this.formatService.defaultEmptyTime;
     this.gameStats.playingDurationDisplay = this.formatService.defaultEmptyTime;
     this.gameStats.breakDurationDisplay = this.formatService.defaultEmptyTime;
+    this.betweenBreaksDuration = this.formatService.defaultEmptyTime;
+    this.totalBreakDuration = this.formatService.defaultEmptyTime;
+
     this.tourneyStats.playingDurationDisplay = this.formatService.defaultEmptyTime;
     this.tourneyStats.breakDurationDisplay = this.formatService.defaultEmptyTime;
-    this.betweenBreaksDuration = this.formatService.defaultEmptyTime;
+
 
     this.turnTimer = this.timerService.createTimer();
     this.timerService.getDisplay(this.turnTimer).subscribe(val => this.turnDurationDisplay = val);
 
     this.gameTimer = this.timerService.createTimer();
     this.timerService.getDisplay(this.gameTimer).subscribe(val => this.gameStats.playingDurationDisplay = val);
-
+    
     this.breakTimer = this.timerService.createTimer();
     this.timerService.getDisplay(this.breakTimer).subscribe(val => this.gameStats.breakDurationDisplay = val);
-
+    
     this.breakTotalTimer = this.timerService.createTimer();
     this.timerService.getDisplay(this.breakTotalTimer).subscribe(val => this.totalBreakDuration = val);
-
+    
     this.betweenBreaksTimer = this.timerService.createTimer();
     this.timerService.getDisplay(this.betweenBreaksTimer).subscribe(val => this.betweenBreaksDuration = val);
   }
@@ -260,24 +263,24 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     this.selectedDie = 0;
 
-    this.timerService.reset(this.turnTimer);
+    // stop applicable timers (rest happens @ startResumeGame)
+    this.timerService.stop(this.turnTimer);
     this.timerService.stop(this.gameTimer);
-    this.timerService.reset(this.breakTimer);
-    this.timerService.reset(this.betweenBreaksTimer);
+    this.timerService.stop(this.breakTimer);
+    this.timerService.stop(this.betweenBreaksTimer);
+    this.timerService.stop(this.breakTotalTimer);
 
-    //  save the current game stats to tournament stats
-    this.tourneyStats.breakDurationDisplay = this.addTimeStrings(this.tourneyStats.breakDurationDisplay, this.gameStats.breakDurationDisplay);
-    this.tourneyStats.playingDurationDisplay = this.addTimeStrings(this.tourneyStats.playingDurationDisplay, this.gameStats.playingDurationDisplay);
-
+    this.gameStats.breakDurationDisplay = this.totalBreakDuration;  //  save the total break time for this game (during game it only monitors time during a break)
+    this.totalBreakDuration = this.formatService.defaultEmptyTime; // reset for next game
+    
     //  save the current game stats to history
     if (this.gameStats.rollHistory.length > 0) {
-      this.gameHistory.push(this.gameStats);
+      this.gameHistory.push(cloneDeep(this.gameStats));
       this.gameHistoryIndex = this.gameHistory.length - 1; //  set to the last index (current game)
-      this.gameStats = this.gameHistory[this.gameHistoryIndex]; //  set to this game (from history)
       this.showGameHistory = true;
     }
 
-    this.gameStats.breakDurationDisplay = this.totalBreakDuration;
+    this.calcTournamentDurations();
     
     this.updateDisplay();
 
@@ -289,13 +292,28 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   /**
+   * ensure that the tournament stats are updated
+   */
+  calcTournamentDurations(): void {
+    let totalPlay = '0:00:00';
+    let totalBreak = '0:00:00';
+
+    for (const stats of this.gameHistory) {
+      totalPlay = this.addTimeStrings(totalPlay, stats.playingDurationDisplay || '0:00:00');
+      totalBreak = this.addTimeStrings(totalBreak, stats.breakDurationDisplay || '0:00:00');
+    }
+
+    this.tourneyStats.breakDurationDisplay = totalBreak;
+    this.tourneyStats.playingDurationDisplay = totalPlay;
+  }
+
+  /**
    * add two time strings together : format hh:mm:ss or mm:ss
    * @param time1 
    * @param time2 
    * @returns 
    */
   addTimeStrings(time1: string, time2: string): string {
-    console.log(`addTimeStrings: time1='${time1}', time2='${time2}'`);
     function toSeconds(time: string): number {
       const parts = time.split(':').map(Number);
       if (parts.length === 2) parts.unshift(0); // If format is mm:ss
@@ -312,7 +330,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     const sumSeconds = toSeconds(time1) + toSeconds(time2);
     var result = toTimeString(sumSeconds);
-    console.log(`addTimeStrings result: '${result}'`);
+
     return result;
   }
 
@@ -354,8 +372,13 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.currentRoll = null;  //  remove current roll from display
     this.showGameHistory = false;
 
+    
+    //  reset to zeros for next game
+    this.gameStats = new PlayStats();
+    this.timerService.reset(this.turnTimer);
     this.timerService.reset(this.breakTimer);
-    this.timerService.stop(this.breakTotalTimer);
+    this.timerService.reset(this.betweenBreaksTimer);    
+    this.timerService.reset(this.breakTotalTimer);
     this.timerService.start(this.turnTimer);
     
     if (this.gameIsStopped) {  //  starting a new game
@@ -364,12 +387,6 @@ export class AppComponent implements OnInit, AfterViewInit {
       this.gameStats = new PlayStats();
       this.gameStats.breakDurationDisplay = this.formatService.defaultEmptyTime;
       this.gameStats.playingDurationDisplay = this.formatService.defaultEmptyTime;
-
-      if (this.tourneyStats.rollHistory.length == 0) { //  no history, so init
-        this.tourneyStats = new PlayStats();
-        this.tourneyStats.breakDurationDisplay = this.formatService.defaultEmptyTime;
-        this.tourneyStats.playingDurationDisplay = this.formatService.defaultEmptyTime;
-      }
 
       this.gameIsStopped = false;
 
@@ -632,24 +649,20 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     if (this.gameIsStopped) { //  game is stopped, so we need to toggle between history and tournament
       if (this.showingTournament) {
-        //  save the current game values
-        this.saveStats = this.gameStats;
         //  switch to the tournament values
-        this.gameStats = this.tourneyStats;
-      } else if (this.showGameHistory) {
-        this.gameStats = this.gameHistory[this.gameHistoryIndex];
-      } else {
-        this.gameStats = this.saveStats;
-      }
+        this.gameStats = cloneDeep(this.tourneyStats);
+      } else { //if (this.showGameHistory) 
+        this.gameStats = cloneDeep(this.gameHistory[this.gameHistoryIndex]);
+      } 
     } else {  //  game is in progress, so we need to save the current game values, then toggle between game and tournament
       if (this.showingTournament) {
         //  save the current game values
-        this.saveStats = this.gameStats;
+        this.saveStats = cloneDeep(this.gameStats);
         //  switch to the tournament values
-        this.gameStats = this.tourneyStats;
+        this.gameStats = cloneDeep(this.tourneyStats);
       } else {
         // reload game values from save
-        this.gameStats = this.saveStats;
+        this.gameStats = cloneDeep(this.saveStats);
       }
     }
 
@@ -659,26 +672,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   toggleDiePercent() {
     if (this.userSettings.playSounds) this.soundService.playSoundBump();
     this.showDieCounts = !this.showDieCounts;
-  }
-
-  toggleGameHistory() {
-    if (this.gameHistory.length <= 0) {
-      this.showGameHistory = false;
-      return; //  no history to show
-    }
-
-    this.showGameHistory = !this.showGameHistory;
-    this.gameHistoryIndex = 0;
-
-    if (this.showGameHistory) {
-      this.saveStats = this.gameStats; //  shouldn't be necessary, but just in case
-      this.gameStats = this.gameHistory[this.gameHistoryIndex];
-    }
-    else {
-      this.gameStats = this.saveStats;
-    }
-
-    this.updateDisplay();
   }
 
   //#endregion

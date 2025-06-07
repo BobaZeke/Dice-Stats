@@ -96,12 +96,9 @@
           {{
             showingTournament
               ? (tourneyStats ? tourneyStats.breakDurationDisplay : '0:00:00')
-              : ( gameIsStopped
+              : ( (gameIsStopped || gameIsPaused)
                   ? (gameStats ? gameStats.breakDurationDisplay : '0:00:00')
-                  : ( gameIsPaused
-                      ? (this.gameStats ? this.gameStats.breakDurationDisplay : '0:00:00')
-                      : turnDurationDisplay
-                    )
+                  : turnDurationDisplay
                 )
           }}
         </span>
