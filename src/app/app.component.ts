@@ -747,12 +747,13 @@ export class AppComponent implements OnInit, AfterViewInit {
    * @param num 
    * @returns 
    */
-  getBarPercent(num: number): number {
-    if (this.bars[num] <= 0) return 0;
+  getBarPercent(num: number): string {
+    if (this.bars[num] <= 0) return '0.0';
 
     const perc = (this.bars[num] / this.rollCount()) * 100; // % of total rolls
 
-    return Math.trunc(perc);
+    //return Math.trunc(perc);  //  return as integer
+    return perc.toFixed(1); //  return as decimal (1 decimal place)
   }
 
   getTourneyBarPercent(num: number): number {
@@ -787,16 +788,21 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   /**
    * A Die has been selected
-   * @param column 
-   * @param value 
+   * @param die 
    */
-  selectDiceRoll(value: number) {  //  column: number, 
-    this.skipNext = true; //  skip the next click event (to prevent closing the dice container)
-    this.selectedDie = value;
+  selectDiceRoll(die: number) {  //  column: number, 
     if (this.settings.playSounds) this.soundService.playSoundNumberSelect();
-    this.currentRoll = null; //  reset current roll value
-    // if(event) event.preventDefault(); // Prevent the default browser context menu
+    this.skipNext = true; //  skip the next click event (to prevent closing the dice container)
+    this.selectedDie = die;
+
     this.storeValues();
+    
+    //  reset the selected die after a delay (to allow for selection to be seen)
+    setTimeout(() => {
+      if (this.selectedDie === die) { //  providing selection hasn't already changed
+        this.selectedDie = 0;
+      }
+    }, 2000); // 2 seconds
   }
 
   /**

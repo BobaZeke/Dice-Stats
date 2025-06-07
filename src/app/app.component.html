@@ -110,13 +110,13 @@
         <span class="counter-val">{{rollCount()}}</span>
       </fieldset>
       
-      <fieldset>
+      <fieldset class="counter avg-7s-fieldset">
         <legend>Avg # Rolls <br />between 7s:</legend>
         <span class="counter-val">{{calculateAverageInterval(7)}}</span>
         <span class="counter-avg">(6.0)</span>
         <br />
-        <span class="counter-val">{{getBarPercent(7)}}%</span>
-        <span class="counter-avg">(16%)</span>
+        <span class="counter-val-pct">{{getBarPercent(7)}}%</span>
+        <span class="counter-avg-pct">(16.67)</span>
       </fieldset>
 
       <fieldset class="counter" *ngIf="!gameIsStopped && !gameIsPaused">

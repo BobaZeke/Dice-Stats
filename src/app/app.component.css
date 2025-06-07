@@ -23,6 +23,17 @@ fieldset {
   padding-bottom: 5px;
 }
 
+fieldset.counter legend:contains('Avg # Rolls') {
+  text-align: center;
+  width: 100%;
+}
+fieldset.counter legend {
+  width: 100%;
+}
+fieldset.counter {
+  text-align: center;
+}
+
 h4 {
   margin: 10px;
 }
@@ -101,6 +112,7 @@ button {
   box-shadow: 4px 4px 4px 0px rgba(100, 70, 70, 0.226);
   color: white;
   background-color: rgb(59, 38, 134);
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
 }
 
 .dice.disabled {
@@ -123,7 +135,8 @@ button {
 .dice.selected {
   border-color: #007bff;
   background-color: #cce5ff;
-  color: black
+  color: black;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
 }
 
 .dice.has-selected {
@@ -212,8 +225,18 @@ button {
   font-weight: bold;
   color: #007bff;
 }
-
 .counter-avg {
+  font-size: 14px;
+  color: #6c757d;
+  margin-left: 5px
+}
+
+.counter-val-pct {
+  font-size: 18px;
+  font-weight: bold;
+  color: #007bff;
+}
+.counter-avg-pct {
   font-size: 14px;
   color: #6c757d;
   margin-left: 5px
