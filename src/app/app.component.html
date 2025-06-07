@@ -14,7 +14,7 @@
 
     <!-- game history navigation -->
     <div class="game-history-nav" *ngIf="gameIsStopped && gameHistory.length > 1">
-      <button class="game-history-btn " (click)="previousHistoryGame()" aria-label="Previous Game" [disabled]="showingTournament">
+      <button class="game-history-btn " (click)="previousHistoryGame(); animateClick($event)" aria-label="Previous Game" [disabled]="showingTournament">
         <svg class="history-arrow" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <polyline points="15 6 9 12 15 18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -22,7 +22,7 @@
       <span class="game-history-status">
         Game {{gameHistoryIndex + 1}} of {{gameHistory.length}}
       </span>
-      <button class="game-history-btn" (click)="nextHistoryGame()" aria-label="Next Game" [disabled]="showingTournament">
+      <button class="game-history-btn" (click)="nextHistoryGame(); animateClick($event)" aria-label="Next Game" [disabled]="showingTournament">
         <svg class="history-arrow" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <polyline points="9 6 15 12 9 18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -31,7 +31,7 @@
 
     <!-- start/pause/end game button -->
     <div class="pause-split-dropdown-container">
-      <button (click)="pauseGame()" class="pause-button" [class.pause-active]="!gameIsStopped && !gameIsPaused">
+      <button (click)="pauseGame(); animateClick($event)" class="pause-button" [class.pause-active]="!gameIsStopped && !gameIsPaused">
         <span *ngIf="gameIsStopped">
           <!-- Play -->
             <svg class="icon-large" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
@@ -53,7 +53,7 @@
         </span>
       </button>
       <!-- End Game button (shows only when game is running) -->
-      <button *ngIf="!gameIsStopped" class="end-game-button" (click)="endGame()" title="End Game" aria-label="End Game">
+      <button *ngIf="!gameIsStopped" class="end-game-button" (click)="endGame(); animateClick($event)" title="End Game" aria-label="End Game">
         <!-- Stop -->
          <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
           <rect x="6" y="6" width="12" height="12"/>
@@ -66,14 +66,14 @@
      [class.visible]="!gameIsPaused && !gameIsStopped"
      [class.hidden]="gameIsPaused || gameIsStopped">
       <div class="sub-column">
-        <div *ngFor="let die of diceLeftCol" (click)="selectDiceRoll(die)" class="dice"
+        <div *ngFor="let die of diceLeftCol" (click)="selectDiceRoll(die); animateClick($event)" class="dice"
           [class.selected]="selectedDie === die"
           [class.disabled]="showingTournament">
           {{ die }}
         </div>
       </div>
       <div class="sub-column">
-        <div *ngFor="let die of diceRightCol" (click)="selectDiceRoll(die)" class="dice"
+        <div *ngFor="let die of diceRightCol" (click)="selectDiceRoll(die); animateClick($event)" class="dice"
           [class.selected]="selectedDie === die"
           [class.disabled]="showingTournament">
           {{ die }}
@@ -89,7 +89,7 @@
       </div>
     </div>
 
-    <!-- don't show before the first game starts -->
+    <!-- side bar controls (don't show before the first game starts) -->
     <div class="side-bar-container" *ngIf="!gameIsStopped || !hasNoGameActivity()">
       <fieldset class="counter">
         <legend>{{gameIsStopped ? 'Total Breaks' : gameIsPaused ? 'Break Time' : 'Turn Duration:'}}</legend>
@@ -115,7 +115,7 @@
         <span class="counter-val">{{calculateAverageInterval(7)}}</span>
         <span class="counter-avg">(6.0)</span>
         <br />
-        <span class="counter-val-pct">{{getBarPercent(7)}}%</span>
+        <span class="counter-val-pct">{{getBarPercent(7, 1)}}%</span>
         <span class="counter-avg-pct">(16.67)</span>
       </fieldset>
 
@@ -179,13 +179,13 @@
 
       <br />
 
-      <button (click)="showColorSettingsDialog()" class="gradient-btn color-settings-btn">
+      <button (click)="showColorSettingsDialog(); animateClick($event)" class="gradient-btn color-settings-btn">
         Color Settings
       </button>
     </div>
   </div>
 
-  <div class="toggle-bar" (click)="toggleDiceContainer()">☰</div>
+  <div class="toggle-bar" (click)="toggleDiceContainer(); animateClick($event)">☰</div>
   
   <!-- central display : bar chart display showing how many times each number has been rolled -->
   <div class="bar-container">
@@ -207,7 +207,7 @@
         <div class="bar-count" *ngIf="settings.showDiceCounts" style="color: red;">
           {{ bars[number] <= 0 ? '0' : bars[number] }} </div>
             <div class="bar-count bar-percent" *ngIf="!settings.showDiceCounts" style="color: red;">
-              {{ bars[number] <= 0 ? '0' : getBarPercent(number) }} <div class="percent-sign">%</div>
+              {{ bars[number] <= 0 ? '0' : getBarPercent(number, 0) }} <div class="percent-sign">%</div>
         </div>
 
         <!-- Overlay to display the roll histoy
@@ -220,16 +220,18 @@
         <!-- roll counts in bar chat form -->
         <div #bar class="bar" [style.width.%]="barParentWidth > 0 && bars[number] > 0 
           ? ((bars[number] / maxRollCount()) * 100) - (43 / barParentWidth * 100) 
-          : 0" [style.background-color]="number == 7 ? 'Red' : 'Blue'">
+          : 0" [style.background-color]="colorService.colorMappedRolls[number]">
         </div>
+        <!-- [style.background-color]="number == 7 ? 'Red' : 'Blue'" -->
+        
 
         <!-- The red bar for tournament roll frequency -->
-        <div class="tournament-bar" *ngIf="!showingTournament" [style.background-color]="number == 7 ? 'Blue' : 'Red'"
+        <div class="tournament-bar" *ngIf="!showingTournament"
           [style.width.%]="barParentWidth > 0 && tourneyStats.rolls[number] > 0 
           ? ((tourneyStats.rolls[number] / maxRollCountTourney()) * 100) - (43 / barParentWidth * 100) 
           : 0">
         </div>
-
+        <!-- [style.background-color]="number == 7 ? 'Blue' : 'Red'" -->
       </div>
     </div>
   </div>
@@ -327,12 +329,12 @@
     </div>
 
     <button *ngIf="!colorPickerAll && !colorSyleChoiceIsDensity()" class="close-button"
-      (click)="mapNewColors(colorService.colorGradients[0], colorService.colorGradients[10])">
+      (click)="mapNewColors(colorService.colorGradients[0], colorService.colorGradients[10]); animateClick($event)">
       Map Colors
     </button>
   </div>
 
-  <button (click)="closeColorSettingsDialog()" class="close-button">Close</button>
+  <button (click)="closeColorSettingsDialog(); animateClick($event)" class="close-button">Close</button>
 </div>
 
 <!-- Title / About screen -->
@@ -372,7 +374,7 @@
   </div>
               
   <br />
-  <button (click)="showHelpDialog = false" class="close-button">Close</button>
+  <button (click)="showHelpDialog = false; animateClick($event)" class="close-button">Close</button>
 </div>
 
 <!-- color settings info -->
@@ -386,5 +388,5 @@
   <p>You select the start and end colors, then click 'Map Colors' and the app will determine the colors so they
     transition smoothly from the start to the finish color.</p>
 
-  <button (click)="closeColorHelp()" class="close-button">Close</button>
+  <button (click)="closeColorHelp(); animateClick($event)" class="close-button">Close</button>
 </div>

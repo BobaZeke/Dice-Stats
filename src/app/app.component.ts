@@ -1,5 +1,3 @@
-declare var webkitSpeechRecognition: any;
-
 import { Component, HostListener, OnInit, AfterViewInit, ChangeDetectorRef, ViewChildren, QueryList, ElementRef } from '@angular/core';
 import { CommonModule, KeyValue } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -80,7 +78,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   /**
    * max size of the roll history (in em)
    */
-  private readonly maxRollHistorySize = 5;
+  private readonly maxRollHistorySize = 4.5;
    /**
    * display size of the roll history (em)
    */
@@ -406,7 +404,13 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
   //#endregion
   //#region Document events       //    //    //    //    //    //    //
-
+  animateClick(event: MouseEvent) {
+    const target = event.currentTarget as HTMLElement;
+    target.classList.remove('animated-click');
+    // Force reflow to restart the animation
+    void target.offsetWidth;
+    target.classList.add('animated-click');
+  }
   /**
    * set focus to the document so a button does not have the focus, and thus process the enter key (we use for die count entry)
    */
@@ -747,13 +751,12 @@ export class AppComponent implements OnInit, AfterViewInit {
    * @param num 
    * @returns 
    */
-  getBarPercent(num: number): string {
+  getBarPercent(num: number, decimalPlaces: number): string {
     if (this.bars[num] <= 0) return '0.0';
 
     const perc = (this.bars[num] / this.rollCount()) * 100; // % of total rolls
 
-    //return Math.trunc(perc);  //  return as integer
-    return perc.toFixed(1); //  return as decimal (1 decimal place)
+    return perc.toFixed(decimalPlaces); //  return as decimal (1 decimal place)
   }
 
   getTourneyBarPercent(num: number): number {
@@ -796,13 +799,6 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.selectedDie = die;
 
     this.storeValues();
-    
-    //  reset the selected die after a delay (to allow for selection to be seen)
-    setTimeout(() => {
-      if (this.selectedDie === die) { //  providing selection hasn't already changed
-        this.selectedDie = 0;
-      }
-    }, 2000); // 2 seconds
   }
 
   /**
