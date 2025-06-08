@@ -127,7 +127,7 @@
       </fieldset>
 
       <fieldset class="counter">
-        <legend>{{showingTournament ? 'Tournament Duration:' : 'Game Duration'}}</legend>
+        <legend>{{showingTournament ? 'Tourney Total:' : 'Game Duration'}}</legend>
         <span class="counter-val">
           {{ showingTournament ? tourneyStats.playingDurationDisplay : gameStats.playingDurationDisplay }}
         </span>
@@ -156,6 +156,28 @@
         <div class="switch" [class.active]="settings.showDiceCounts"></div>
         <span class="label-left" [class.selected]="!settings.showDiceCounts">%</span>
         <span class="label-right" [class.selected]="settings.showDiceCounts">#</span>
+      </div>
+
+      <div class="rocker-switch" (click)="toggleFixedColors()">
+        <div class="switch" [class.active]="!settings.fixedColors"></div>
+        <span class="label-left" [class.selected]="settings.fixedColors">
+          <!-- Fixed color icon: a single colored bar -->
+          <svg width="24" height="20" viewBox="0 0 24 20" fill="currentColor" aria-label="Fixed Color">
+            <rect x="2" y="8" width="20" height="4" rx="2" fill="#4040c5"/>
+          </svg>
+        </span>
+        <span class="label-right" [class.selected]="settings.fixedColors">
+          <!-- Variable color icon: a gradient bar -->
+          <svg width="24" height="20" viewBox="0 0 24 20" aria-label="Variable Colors">
+            <defs>
+              <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#d9ff4f;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#f7119e;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            <rect x="2" y="8" width="20" height="4" rx="2" fill="url(#grad1)"/>
+          </svg>
+        </span>
       </div>
 
       <div class="rocker-switch" (click)="toggleTournamentDisplay()">
@@ -220,18 +242,19 @@
         <!-- roll counts in bar chat form -->
         <div #bar class="bar" [style.width.%]="barParentWidth > 0 && bars[number] > 0 
           ? ((bars[number] / maxRollCount()) * 100) - (43 / barParentWidth * 100) 
-          : 0" [style.background-color]="colorService.colorMappedRolls[number]">
+          : 0" 
+          [style.background-color]="settings.fixedColors ? number == 7 ? 'Red' : 'Blue' : colorService.colorMappedRolls[number]">
         </div>
         <!-- [style.background-color]="number == 7 ? 'Red' : 'Blue'" -->
-        
 
         <!-- The red bar for tournament roll frequency -->
         <div class="tournament-bar" *ngIf="!showingTournament"
           [style.width.%]="barParentWidth > 0 && tourneyStats.rolls[number] > 0 
-          ? ((tourneyStats.rolls[number] / maxRollCountTourney()) * 100) - (43 / barParentWidth * 100) 
-          : 0">
+                              ? ((tourneyStats.rolls[number] / maxRollCountTourney()) * 100) - (43 / barParentWidth * 100) 
+                              : 0">
+          <!-- [style.background-color]="number == 7 ? 'Blue' : 'Red'" -->
         </div>
-        <!-- [style.background-color]="number == 7 ? 'Blue' : 'Red'" -->
+        <!--  -->
       </div>
     </div>
   </div>

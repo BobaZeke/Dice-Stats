@@ -605,6 +605,12 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
   //#endregion
   //#region Display Toggles       //    //    //    //    //    //    //
+
+  toggleFixedColors() {
+    this.settings.fixedColors = !this.settings.fixedColors;
+    this.saveSettings();
+  }
+
   togglePauseDropdown() {
     this.pauseDropdownOpen = !this.pauseDropdownOpen;
   }

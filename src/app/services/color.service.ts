@@ -271,4 +271,67 @@ export class ColorService {
         //return gradient;
         this.colorGradients = gradient; // Update the color gradients
     }
+
+    /**
+     * Determines if a given color is visually "light" or "dark" based on its luminance.
+     *
+     * Supports the following color formats:
+     *   - rgb(r, g, b)
+     *   - rgba(r, g, b, a)
+     *   - 3-digit hex (#fff)
+     *   - 4-digit hex (#ffff)
+     *   - 6-digit hex (#ffffff)
+     *   - 8-digit hex (#ffffffff) (alpha is ignored for luminance)
+     *
+     * @param color The color string to analyze.
+     * @returns true if the color is light (luminance > 186), false if dark.
+     *
+     * If the input is invalid or unrecognized, the method defaults to white (returns true).
+     */
+    public isColorLight(color: string): boolean {
+        let r = 255, g = 255, b = 255;
+
+        // Handle rgb/rgba
+        let match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+        if (match) {
+            r = parseInt(match[1], 10);
+            g = parseInt(match[2], 10);
+            b = parseInt(match[3], 10);
+        } else if (color.startsWith('#')) {
+            // Remove hash
+            let hex = color.slice(1);
+            
+            if(hex === 'FFFFFF') return true;  // white
+            if(hex === '000000') return false; // black
+
+            // Expand short hex (#fff or #ffff)
+            if (hex.length === 3) {
+                hex = hex.split('').map(x => x + x).join('');
+            } else if (hex.length === 4) {
+                hex = hex.split('').map(x => x + x).join('');
+            }
+            
+            // 8-digit hex (ARGB or RGBA)
+            if (hex.length === 8) {
+                // Assume RGBA (ignore alpha for luminance)
+                r = parseInt(hex.slice(0, 2), 16);
+                g = parseInt(hex.slice(2, 4), 16);
+                b = parseInt(hex.slice(4, 6), 16);
+            } else if (hex.length === 6) {
+                r = parseInt(hex.slice(0, 2), 16);
+                g = parseInt(hex.slice(2, 4), 16);
+                b = parseInt(hex.slice(4, 6), 16);
+            }
+            // else: fallback to white
+        } else {
+            // fallback: treat as white
+            console.warn('isColorLight: invalid color string:', color);
+            return true;
+        }
+
+        // Calculate luminance
+        const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+        return luminance > 100;//186;
+    }
+    
 }
