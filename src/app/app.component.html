@@ -245,16 +245,13 @@
           : 0" 
           [style.background-color]="settings.fixedColors ? number == 7 ? 'Red' : 'Blue' : colorService.colorMappedRolls[number]">
         </div>
-        <!-- [style.background-color]="number == 7 ? 'Red' : 'Blue'" -->
 
         <!-- The red bar for tournament roll frequency -->
         <div class="tournament-bar" *ngIf="!showingTournament"
           [style.width.%]="barParentWidth > 0 && tourneyStats.rolls[number] > 0 
                               ? ((tourneyStats.rolls[number] / maxRollCountTourney()) * 100) - (43 / barParentWidth * 100) 
                               : 0">
-          <!-- [style.background-color]="number == 7 ? 'Blue' : 'Red'" -->
         </div>
-        <!--  -->
       </div>
     </div>
   </div>
@@ -413,3 +410,11 @@
 
   <button (click)="closeColorHelp(); animateClick($event)" class="close-button">Close</button>
 </div>
+
+<app-dialog
+  *ngIf="showDialog"
+  [title]="dialogTitle"
+  [message]="dialogMessage"
+  (ok)="handleDialogOk()"
+  (cancel)="handleDialogCancel()">
+</app-dialog>

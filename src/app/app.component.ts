@@ -11,10 +11,11 @@ import { UserSettingsService } from './services/user-settings.service';
 import { GameTimerService, TimerHandle } from './services/timer.service';
 import { cloneDeep } from 'lodash'; // or use a manual clone
 import { Settings } from './models/settings';
+import { DialogComponent } from './dialog/dialog.component';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DialogComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -105,6 +106,13 @@ export class AppComponent implements OnInit, AfterViewInit {
   /*  tracks time between breaks */
   private betweenBreaksTimer!: TimerHandle;
     public betweenBreaksDuration: string = "";
+
+  public showDialog = false;
+  public dialogTitle = 'Confirm Action';
+  public dialogMessage = 'Are you sure you want to proceed?';
+  private promptForUndo = false;
+  private promptForEndGame = false;
+
   //#endregion  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   //#region Constructor         //    //    //    //    //    //    //
@@ -237,12 +245,14 @@ export class AppComponent implements OnInit, AfterViewInit {
    * clear everything and start over
    */
   public endGame() {
-    if (this.rollCount() > 0) {
-      if (confirm('are you sure you want to end the game?') == false) {
-        return;
-      }
+    if (this.gameStats.rollHistory.length > 0) {
+      this.dialogTitle = "End Game?";
+      this.dialogMessage = 'Are you sure you want to end the game?';
+      this.showDialog = true;
+      this.promptForEndGame = true;
     }
-
+  }
+  private performEndGame() {
     this.closeTournamentDisplay(); //  close tournament display if open
 
     this.gameIsStopped = true;
@@ -605,6 +615,18 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
   //#endregion
   //#region Display Toggles       //    //    //    //    //    //    //
+  
+  handleDialogOk() {
+    console.log('Dialog : OK');
+    this.showDialog = false;
+
+    if(this.promptForUndo) this.performRollUndo();
+    else if(this.promptForEndGame) this.performEndGame();
+  }
+  handleDialogCancel() {
+    console.log('Dialog : Cancel');
+    this.showDialog = false;
+  }
 
   toggleFixedColors() {
     this.settings.fixedColors = !this.settings.fixedColors;
@@ -758,11 +780,13 @@ export class AppComponent implements OnInit, AfterViewInit {
    * @returns 
    */
   getBarPercent(num: number, decimalPlaces: number): string {
-    if (this.bars[num] <= 0) return '0.0';
+    if (!this.bars[num] || this.bars[num] <= 0) return '0.0';
 
     const perc = (this.bars[num] / this.rollCount()) * 100; // % of total rolls
 
-    return perc.toFixed(decimalPlaces); //  return as decimal (1 decimal place)
+    const result = perc.toFixed(decimalPlaces); //  return as decimal (1 decimal place)
+    console.log(`getBarPercent(${num}, ${decimalPlaces})`, this.bars[num], result);
+    return result;
   }
 
   getTourneyBarPercent(num: number): number {
@@ -843,26 +867,31 @@ export class AppComponent implements OnInit, AfterViewInit {
   undoLastRoll() {
     // Add the clicked class for animation
     this.undoButtonClicked = true;
+
+    if (this.gameStats.rollHistory.length > 0) {
+      this.dialogTitle = "Undo Last Roll?";
+      this.dialogMessage = 'Are you sure you want to undo the last roll?';
+      this.showDialog = true;
+      this.promptForUndo = true;
+    }
+
+    this.setDocumentFocus();
+
     setTimeout(() => {
       this.undoButtonClicked = false;
-      if (this.gameStats.rollHistory.length > 0) {
-        if (confirm('are you sure you want to undo the last roll?') == false) {
-          return;
-        }
-
-        const lastRoll = this.gameStats.rollHistory[this.gameStats.rollHistory.length - 1]; // Get the last roll
-
-        this.gameStats.rollHistory.pop(); // Remove the last roll from the game history
-        this.tourneyStats.rollHistory.pop(); // Remove the last roll from the tournament history
-
-        this.gameStats.rolls[lastRoll] = (this.gameStats.rolls[lastRoll] || 0) - 1; // Decrease the count for that roll
-        this.tourneyStats.rolls[lastRoll] = (this.tourneyStats.rolls[lastRoll] || 0) - 1; // Decrease the count for that roll
-
-        this.updateDisplay();
-      }
-
-      this.setDocumentFocus();
     }, 250);
+  }
+
+  performRollUndo() {
+    const lastRoll = this.gameStats.rollHistory[this.gameStats.rollHistory.length - 1]; // Get the last roll
+
+    this.gameStats.rollHistory.pop(); // Remove the last roll from the game history
+    this.tourneyStats.rollHistory.pop(); // Remove the last roll from the tournament history
+
+    this.gameStats.rolls[lastRoll] = (this.gameStats.rolls[lastRoll] || 0) - 1; // Decrease the count for that roll
+    this.tourneyStats.rolls[lastRoll] = (this.tourneyStats.rolls[lastRoll] || 0) - 1; // Decrease the count for that roll
+
+    this.updateDisplay();
   }
 
   //#endregion
