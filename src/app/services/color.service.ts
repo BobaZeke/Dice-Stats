@@ -289,6 +289,7 @@ export class ColorService {
      * If the input is invalid or unrecognized, the method defaults to white (returns true).
      */
     public isColorLight(color: string): boolean {
+        if(!color) return false;
         let r = 255, g = 255, b = 255;
 
         // Handle rgb/rgba

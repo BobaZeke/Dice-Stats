@@ -1,5 +1,5 @@
 <div *ngIf="showingTournament" class="tournament-header">
-  Tournament
+  Tournament<br/>View
 </div>
 
 <div class="current-roll">
@@ -249,7 +249,9 @@
         <!-- The red bar for tournament roll frequency -->
         <div class="tournament-bar" *ngIf="!showingTournament"
           [style.width.%]="barParentWidth > 0 && tourneyStats.rolls[number] > 0 
-                              ? ((tourneyStats.rolls[number] / maxRollCountTourney()) * 100) - (43 / barParentWidth * 100) 
+                              ? tourneyStats.rolls[number] / maxRollCountTourney() >= 1
+                                ? 100 - (85 / barParentWidth * 100) 
+                                : ((tourneyStats.rolls[number] / maxRollCountTourney()) * 100) - (48 / barParentWidth * 100) 
                               : 0">
         </div>
       </div>
@@ -418,3 +420,5 @@
   (ok)="handleDialogOk()"
   (cancel)="handleDialogCancel()">
 </app-dialog>
+
+<app-toaster></app-toaster>

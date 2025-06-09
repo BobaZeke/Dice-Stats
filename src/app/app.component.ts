@@ -12,10 +12,12 @@ import { GameTimerService, TimerHandle } from './services/timer.service';
 import { cloneDeep } from 'lodash'; // or use a manual clone
 import { Settings } from './models/settings';
 import { DialogComponent } from './dialog/dialog.component';
+import { ToasterService } from './services/toaster.service';
+import { ToasterComponent } from './toaster/toaster.component';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, FormsModule, DialogComponent],
+  imports: [CommonModule, FormsModule, DialogComponent, ToasterComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -124,13 +126,14 @@ export class AppComponent implements OnInit, AfterViewInit {
     public trendService: TrendService,
     private userSettingsService: UserSettingsService,
     private elRef: ElementRef,
-    private timerService: GameTimerService
+    private timerService: GameTimerService,
+    private toaster: ToasterService
   ) { }
 
   ngOnInit() {
     this.initializeTimers();
 
-    this.endGame();
+    this.endGame(false);
 
     const savedSettings = this.userSettingsService.loadSettings();
     if (savedSettings) {
@@ -144,6 +147,9 @@ export class AppComponent implements OnInit, AfterViewInit {
     else this.settings.colorGradients = this.colorService.colorGradients;
     
     if(this.isMobile() && !this.isDiceContainerVisible) this.toggleDiceContainer();
+    
+    // Trigger checkLastUserInteration every 15 minutes
+    setInterval(() => this.checkLastUserInteration(), 15 * 60 * 1000);
   }
 
   ngAfterViewInit(): void {
@@ -181,6 +187,33 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   hasNoGameActivity(): boolean {
     return this.rollCount() == 0 && this.gameHistory.length == 0;
+  }
+
+  checkLastUserInteration(): void {
+    if (this.gameIsStopped) return;
+
+    const secondsPerHour = 3600;
+    const twoHours = secondsPerHour * 2;
+    const halfHour = secondsPerHour / 2;
+
+    if (this.gameIsPaused) {  //  game paused for over 2 hours > end game
+      if (this.secondsFromTimeString(this.gameStats.breakDurationDisplay) >= twoHours) {
+        this.warnUser('Game Paused for over 2 hours > ending game @ ' + new Date().toLocaleString());
+        this.performEndGame();
+      }
+      return;
+    }
+
+    //  turn has exceeded 30 minutes > pause game
+    if (this.secondsFromTimeString(this.turnDurationDisplay) >= halfHour) {
+        this.warnUser('User turn has lasted over 30 minutes > pausing game @ ' + new Date().toLocaleString());
+      this.pauseGame();
+    }
+  }
+
+  private warnUser(message: string) : void {
+    console.warn(message);
+    this.toaster.show(message, true);
   }
 
   isMobile(): boolean {
@@ -244,14 +277,15 @@ export class AppComponent implements OnInit, AfterViewInit {
   /**
    * clear everything and start over
    */
-  public endGame() {
-    if (this.gameStats.rollHistory.length > 0) {
+  public endGame(userInitiated = true) {    
+    if (userInitiated) {
       this.dialogTitle = "End Game?";
       this.dialogMessage = 'Are you sure you want to end the game?';
       this.showDialog = true;
       this.promptForEndGame = true;
-    }
+    } else this.promptForEndGame = true;
   }
+
   private performEndGame() {
     this.closeTournamentDisplay(); //  close tournament display if open
 
@@ -310,13 +344,6 @@ export class AppComponent implements OnInit, AfterViewInit {
    * @returns 
    */
   addTimeStrings(time1: string, time2: string): string {
-    function toSeconds(time: string): number {
-      const parts = time.split(':').map(Number);
-      if (parts.length === 2) parts.unshift(0); // If format is mm:ss
-      const [h, m, s] = parts;
-      return h * 3600 + m * 60 + s;
-    }
-
     function toTimeString(totalSeconds: number): string {
       const h = Math.floor(totalSeconds / 3600);
       const m = Math.floor((totalSeconds % 3600) / 60);
@@ -324,10 +351,17 @@ export class AppComponent implements OnInit, AfterViewInit {
       return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     }
 
-    const sumSeconds = toSeconds(time1) + toSeconds(time2);
+    const sumSeconds = this.secondsFromTimeString(time1) + this.secondsFromTimeString(time2);
     var result = toTimeString(sumSeconds);
 
     return result;
+  }
+
+  secondsFromTimeString(time: string): number {
+    const parts = time.split(':').map(Number);
+    if (parts.length === 2) parts.unshift(0); // If format is mm:ss
+    const [h, m, s] = parts;
+    return h * 3600 + m * 60 + s;
   }
 
   public pauseGame(): void {
@@ -525,7 +559,6 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   //#endregion
   //#region Display Updates       //    //    //    //    //    //    //
-  
   private updateDisplay() {
     //update the bar chart data (tracks how many times a number has rolled)
     if(this.gameStats?.rolls) {
@@ -616,15 +649,16 @@ export class AppComponent implements OnInit, AfterViewInit {
   //#endregion
   //#region Display Toggles       //    //    //    //    //    //    //
   
+  /**
+   * User has clicked the 'OK' button on the message dialog
+   */
   handleDialogOk() {
-    console.log('Dialog : OK');
     this.showDialog = false;
 
     if(this.promptForUndo) this.performRollUndo();
     else if(this.promptForEndGame) this.performEndGame();
   }
   handleDialogCancel() {
-    console.log('Dialog : Cancel');
     this.showDialog = false;
   }
 
@@ -785,7 +819,6 @@ export class AppComponent implements OnInit, AfterViewInit {
     const perc = (this.bars[num] / this.rollCount()) * 100; // % of total rolls
 
     const result = perc.toFixed(decimalPlaces); //  return as decimal (1 decimal place)
-    console.log(`getBarPercent(${num}, ${decimalPlaces})`, this.bars[num], result);
     return result;
   }
 

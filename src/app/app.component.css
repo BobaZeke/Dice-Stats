@@ -281,7 +281,7 @@ button {
   line-height: 0.6;
   cursor: default;
   color: white !important;
-  mix-blend-mode: exclusion; 
+  mix-blend-mode: difference;
 }
 
 @media (max-width: 768px) {
@@ -381,8 +381,7 @@ button {
 .current-roll {
   font-size: min(75dvh, 75dvw);
   font-weight: bold;
-  color: rgba(172, 34, 161, 0.5);
-  -webkit-text-stroke: 2px black;  /* Outline color and thickness */
+  -webkit-text-stroke: 5px red;
   text-align: center;  /* Center the text horizontally */
   position: absolute;  /* Position it relative to the screen */
   top: 50%;  /* Center vertically */
@@ -390,17 +389,18 @@ button {
   transform: translate(-50%, -50%);  /* center */
   pointer-events: none;  /* Prevent interaction with the number */
   z-index: 1002;
+  color: rgba(240, 166, 234, 0.5);
 }
 
 .tournament-header {
   font-size: min(17dvh, 15dvw);
   font-weight: bold;
-  color: rgba(82, 46, 150, 0.397);
-  mix-blend-mode: unset;
-  -webkit-text-stroke: 2px black;  /* Outline color and thickness */
+  color: white; /*rgba(82, 46, 150, 0.397);*/
+  mix-blend-mode: difference;/*unset;*/
+  -webkit-text-stroke: 3px red;
   text-align: center;  /* Center the text horizontally */
   position: absolute;  /* Position it relative to the screen */
-  top: 20%;
+  top: 30%;
   left: 50%;  /* Center horizontally */
   transform: translate(-40%, -50%);  /* center */
   pointer-events: none;  /* Prevent interaction with the number */
@@ -455,12 +455,13 @@ button {
 
 .tournament-bar {
   position: absolute;
-  top: 0;
+  top: 2px;
   left: 80px;
   height: 5px;
   z-index: 1;  /* Ensure it appears above the blue bar */
   border-radius: 5px;  /* Match the blue bar's border radius */
-  background-color: white !important;
+  border: 1px solid; 
+  background-color: white;
   mix-blend-mode: difference;
 }
 
