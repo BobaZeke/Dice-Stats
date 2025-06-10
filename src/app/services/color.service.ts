@@ -14,14 +14,15 @@ import { ColorOption } from '../models/color-option.enum'; // Import the enum
     providedIn: 'root',
 })
 export class ColorService {
-    public colorDensityColor = "#184e07"; // Default dark green color for density mapping
+    public defaultColorDensityColor = "#184e07"; // Default dark green color for density mapping
+    public colorDensityColor = this.defaultColorDensityColor;
 
     public density = [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0]
     /**
      * highlight colors for the rolls, indicating frequency compared to the others
      * these are the colors used to show the frequency of each roll
      */
-    public colorGradients = [
+    public defaultColorGradients = [
         `rgba(0, 0, 255, ${this.density[0]})`,  // Blue          least frequent (50% opacity)
         `rgba(25, 0, 230, ${this.density[1]})`, // Bluish
         `rgba(51, 0, 204, ${this.density[2]})`, // Blue-Indigo
@@ -34,6 +35,7 @@ export class ColorService {
         `rgba(230, 0, 25, ${this.density[9]})`, // Reddish
         `rgba(255, 0, 0, ${this.density[10]})`    // Red           most frequent (100% opacity)
     ];
+    public colorGradients = this.defaultColorGradients;
 
     /**
      *  these are the 'mapped' colors : which color to use for each roll

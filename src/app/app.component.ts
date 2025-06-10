@@ -109,11 +109,11 @@ export class AppComponent implements OnInit, AfterViewInit {
   private betweenBreaksTimer!: TimerHandle;
     public betweenBreaksDuration: string = "";
 
+  //  dialog popup properties:
   public showDialog = false;
   public dialogTitle = 'Confirm Action';
   public dialogMessage = 'Are you sure you want to proceed?';
-  private promptForUndo = false;
-  private promptForEndGame = false;
+  public dialogOkFunction!: () => void;
 
   //#endregion  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -132,8 +132,6 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.initializeTimers();
-
-    this.endGame(false);
 
     const savedSettings = this.userSettingsService.loadSettings();
     if (savedSettings) {
@@ -277,16 +275,15 @@ export class AppComponent implements OnInit, AfterViewInit {
   /**
    * clear everything and start over
    */
-  public endGame(userInitiated = true) {    
-    if (userInitiated) {
-      this.dialogTitle = "End Game?";
-      this.dialogMessage = 'Are you sure you want to end the game?';
-      this.showDialog = true;
-      this.promptForEndGame = true;
-    } else this.promptForEndGame = true;
+  public endGame() {
+    this.dialogTitle = "End Game?";
+    this.dialogMessage = 'Are you sure you want to end the game?';
+    this.dialogOkFunction = () => this.performEndGame();
+    this.showDialog = true;
   }
 
   private performEndGame() {
+    this.showDialog = false;
     this.closeTournamentDisplay(); //  close tournament display if open
 
     this.gameIsStopped = true;
@@ -490,16 +487,17 @@ export class AppComponent implements OnInit, AfterViewInit {
    */
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
-    this.showHelpDialog = false;
-    
-    if(this.hasNoGameActivity()) return;
-
     if (this.skipNext) {
       this.skipNext = false;
       return;
     }
+    
+    this.showHelpDialog = false;
+    if(this.showColorHelp) this.closeColorHelp();
 
     this.currentRoll = null; //  reset current roll value
+
+    if(this.hasNoGameActivity()) return;
 
     if (this.showColorHelp) this.closeColorHelp();
 
@@ -604,6 +602,23 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   //#endregion
   //#region Button Events         //    //    //    //    //    //    //
+  public resetSettings() {
+      this.dialogTitle = "Reset All Settings?";
+      this.dialogMessage = 'Are you sure you want to reset all settings to their default values?';
+      this.dialogOkFunction = () => this.performSettingsReset();
+      this.showDialog = true;
+  }
+  
+  public performSettingsReset() {
+    this.showDialog = false;
+    this.settings = new Settings(); //  covers all the settings except colors
+    this.settings.colorDensityColor = this.colorService.defaultColorDensityColor;
+    this.colorService.colorDensityColor = this.settings.colorDensityColor;
+    this.settings.colorGradients = this.colorService.defaultColorGradients;
+    this.colorService.colorGradients = this.settings.colorGradients;
+    this.updateDisplay();
+  }
+  
   public showHelp() {
     this.showHelpDialog = true;
   }
@@ -652,12 +667,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   /**
    * User has clicked the 'OK' button on the message dialog
    */
-  handleDialogOk() {
-    this.showDialog = false;
 
-    if(this.promptForUndo) this.performRollUndo();
-    else if(this.promptForEndGame) this.performEndGame();
-  }
   handleDialogCancel() {
     this.showDialog = false;
   }
@@ -904,8 +914,8 @@ export class AppComponent implements OnInit, AfterViewInit {
     if (this.gameStats.rollHistory.length > 0) {
       this.dialogTitle = "Undo Last Roll?";
       this.dialogMessage = 'Are you sure you want to undo the last roll?';
+      this.dialogOkFunction = () => this.performRollUndo();
       this.showDialog = true;
-      this.promptForUndo = true;
     }
 
     this.setDocumentFocus();
@@ -916,6 +926,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   performRollUndo() {
+    this.showDialog = false;
     const lastRoll = this.gameStats.rollHistory[this.gameStats.rollHistory.length - 1]; // Get the last roll
 
     this.gameStats.rollHistory.pop(); // Remove the last roll from the game history

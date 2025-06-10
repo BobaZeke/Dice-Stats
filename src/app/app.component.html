@@ -90,7 +90,7 @@
     </div>
 
     <!-- side bar controls (don't show before the first game starts) -->
-    <div class="side-bar-container" *ngIf="!gameIsStopped || !hasNoGameActivity()">
+    <div class="side-bar-container">
       <fieldset class="counter">
         <legend>{{gameIsStopped ? 'Total Breaks' : gameIsPaused ? 'Break Time' : 'Turn Duration:'}}</legend>
         <span class="counter-val">
@@ -202,7 +202,11 @@
       <br />
 
       <button (click)="showColorSettingsDialog(); animateClick($event)" class="gradient-btn color-settings-btn">
-        Color Settings
+        Colors
+      </button>
+
+      <button (click)="resetSettings(); animateClick($event)" class="gradient-btn reset-button">
+        Reset All
       </button>
     </div>
   </div>
@@ -259,7 +263,7 @@
   </div>
 </div>
 
-<div [ngClass]="showHelpDialog || showColorSettings ? 'block-app' : 'normal'"></div>
+<div [ngClass]="showHelpDialog || showColorHelp || showColorSettings ? 'block-app' : 'normal'"></div>
 
 <!-- Color Settings -->
 <div *ngIf="showColorSettings" class="color-picker-container">
@@ -363,35 +367,26 @@
 <div *ngIf="showHelpDialog" class="user-message-popup help-dialog">
   <h2>Welcome to Boba-Zeke's<br /> Dice Stats</h2>
   <h3>This application tracks dice rolls and calculates various statistics to enhance gameplay of table-top board games.</h3>
+  <h4>It provides the ability to know how often different numbers are rolling and which are trending up or down.</h4>
+  <h4>In addition, you can see the full roll history for more detailed analysis.</h4>
   <div class="help-popup-content">
-    <p>The left side of the screen contains elements for selecting dice rolls, display of game and break durations,
-      and option toggles for percentages vs counts, and tournament view (all games played since
-      page refresh).</p>
-
-    <p>The center of the screen will contain a horizontal bar chart depicting the popularity of various dice
-      rolls.<br />
-      The dice rolls are listed down the left side of the main area (in black).
-      During the game, these numbers will have color highlighting to further depict their popularity (can be changed in
-      settings).<br />
-      Next to these are red numbers which indicate how many times that number has been rolled (or %).<br />
-      To the top-left of the roll numbers will be a triangle which indicates how that number is trending, either up or
-      down (reviews the last 25% of all the rolls).
-    </p>
-    <p> The bars will be blue (except 7 will be red). There will be a thin red bar on the top (blue for 7), which
-      depicts
-      the tournament frequency for quick comparison.<br />
-      Overlayed on the bar will be squares which indicate when that number was rolled. A solid square indicates that
-      number was rolled, and a hollow square indicates a different number was rolled.</p>
-
-    <p>Click on the dice to select them and update the stats.</p>
-    <p>After each game, you will be able to review the the statistics of the game and/or tournament.
-      If there has been more than one game, you will be able to flip through the game stats.</p>
-
-    <p>
-      There are also keyboard interactions.
-      Use CTRL key to toggle to Tournament view.
-      Use Shift key to toggle between percent and count views.
-    </p>
+    <hr>
+    <p>This image shows the controls that are available to you.  These controls are shown along the left side of the screen.</p>
+    <img src="assets/images/About_Controls.png" alt="Help Example" style="max-width: 100%; border-radius: 8px; margin: 1em 0;" />
+    <hr>
+    <p>This image describes the various elements that make up the 'horizontal bar chart' in the main area of the screen.</p>
+    <img src="assets/images/About_BarChart.png" alt="Help Example" style="max-width: 100%; border-radius: 8px; margin: 1em 0;" />
+    <hr>
+    <p>This image lists the various 'time' stats that the application tracks.</p>
+    <img src="assets/images/About_TimeStats.png" alt="Help Example" style="max-width: 100%; border-radius: 8px; margin: 1em 0;" />
+    <hr>
+    <p>Use the 'Colors' button to access color settings.</p>
+    <p>Use the 'Reset All' button to reset all settings to default values.</p>
+    <img src="assets/images/About_Controls_Buttons.png" alt="Help Example" style="max-width: 100%; border-radius: 8px; margin: 1em 0;" />
+    <hr>
+    <p>There are also keyboard interactions.</p>
+    <p>Use CTRL key to toggle to Tournament view.</p>
+    <p>Use Shift key to toggle between percent and count views.</p>
 
   </div>
               
@@ -404,11 +399,16 @@
   <h3>Color Options:</h3>
   <h4>Change Density : </h4>
   <p>You select a single color and the color opacity/density changes based on roll popularity.</p>
+  <img src="assets/images/About_Color_Density.png" alt="Help Example" style="max-width: 100%; border-radius: 8px; margin: 1em 0;" />
+  
   <h4>Change Color : Pick All : </h4>
   <p>You pick different colors for each of the levels. These colors will be used to depict popularity.</p>
+  <img src="assets/images/About_Color_All.png" alt="Help Example" style="max-width: 100%; border-radius: 8px; margin: 1em 0;" />
+
   <h4>Change Color : Pick Ends : </h4>
-  <p>You select the start and end colors, then click 'Map Colors' and the app will determine the colors so they
+  <p>You select the start and end colors, then click 'Map Colors' and the app will determine the color gradients in between so they
     transition smoothly from the start to the finish color.</p>
+  <img src="assets/images/About_Color_Ends.png" alt="Help Example" style="max-width: 100%; border-radius: 8px; margin: 1em 0;" />
 
   <button (click)="closeColorHelp(); animateClick($event)" class="close-button">Close</button>
 </div>
@@ -417,7 +417,7 @@
   *ngIf="showDialog"
   [title]="dialogTitle"
   [message]="dialogMessage"
-  (ok)="handleDialogOk()"
+  [okCallback]="dialogOkFunction"
   (cancel)="handleDialogCancel()">
 </app-dialog>
 

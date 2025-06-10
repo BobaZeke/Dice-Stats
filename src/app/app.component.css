@@ -152,16 +152,10 @@ button {
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
-  background: linear-gradient(45deg, #007bff, #0056b3);
   color: white;
   font-size: 16px;
   cursor: pointer;
   transition: background 0.3s, transform 0.2s;
-}
-
-.gradient-btn:hover {
-  background: linear-gradient(45deg, #0056b3, #003f7f);
-  transform: scale(1.05);
 }
 
 .side-bar-container {
@@ -172,10 +166,20 @@ button {
 
 .color-settings-btn {
   width: 80%;
-  background-color: #0b5fb8;
+  background: linear-gradient(90deg, #00ff00, #0056b3);
   color: white;
   border-radius: 10px;
   text-align: center;
+  border-style: outset;
+  border-color: rgb(63, 37, 75);
+  margin-bottom: 10px;
+}
+.reset-button {
+  background: linear-gradient(90deg, #ff00c8, #0056b3);
+  width: 80%;
+  color: white;
+  text-align: center;
+  border-radius: 10px;
   border-style: outset;
   border-color: rgb(63, 37, 75);
   margin-bottom: 10px;
@@ -237,7 +241,7 @@ button {
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   height: calc(100dvh - 20px);
-  overflow-y: auto;
+  overflow-y: hidden;
   overflow-x: hidden;
 }
 
@@ -267,10 +271,10 @@ button {
 
 .bar-overlay {
   position: absolute;
-  top: 0;
+  top: 2px;
   left: 80px;
   height: auto;  /* Allow height to adjust based on content */
-  width: calc(100vw - 250px);
+  width: calc(100vw - 260px);
   pointer-events: none;  /* Prevent interaction */
   white-space: normal;  /* Allow text to wrap to the next line */
   word-wrap: break-word;  /* Break long words if necessary */
@@ -364,7 +368,7 @@ button {
   width: 50%;
   height: auto;
   color: black;  
-  background: linear-gradient(45deg, #af98e4, #c898e4, #98e4a9);
+  background: linear-gradient(45deg, #af98e4, #98e4c1, #af98e4);
 }
 
 .help-popup-content {
@@ -539,15 +543,11 @@ button {
   padding: 10px 20px;
   border: outset; 
   border-radius: 5px;
-  background-color: #848096; 
+  background-color: #8068e9; 
   color: white; 
   font-size: 16px;
   cursor: pointer;
   transition: background-color 0.3s;
-}
-
-.color-picker-container button:hover {
-  background-color: #0056b3;  /* Darker blue on hover */
 }
 
 .rocker-switch {
@@ -737,7 +737,7 @@ button {
   border-radius: 10px 0 0 10px;
   margin-top: 10px;
   margin-bottom: 10px;
-  background-color: rgb(164, 230, 210);
+  background: linear-gradient(90deg, #00ffc8, #0056b3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -746,6 +746,8 @@ button {
   width: 52px;
   height: 52px;
   padding: 0;
+  border-style: outset;
+  border-color: rgb(63, 37, 75);
 }
 
 .pause-button.pause-active {
@@ -758,7 +760,7 @@ button {
   border: 1px solid #bbb;
   border-left: none;
   border-radius: 0 10px 10px 0;
-  background: #cf8d8d;
+  background: linear-gradient(90deg, #cf8d8d, #b30054);
   cursor: pointer;
   margin-top: 10px;
   margin-bottom: 10px;
@@ -766,6 +768,8 @@ button {
   align-items: center;
   justify-content: center;
   transition: background 0.2s;
+  border-style: outset;
+  border-color: rgb(63, 37, 75);
 }
 
 .pause-split-dropdown-container:not(:has(.end-game-button)) .pause-button {

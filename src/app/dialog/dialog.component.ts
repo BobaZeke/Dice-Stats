@@ -19,9 +19,15 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 export class DialogComponent {
   @Input() title = '';
   @Input() message = '';
-  @Output() ok = new EventEmitter<void>();
+  //@Output() ok = new EventEmitter<void>();
+  @Input() okCallback?: () => void;
   @Output() cancel = new EventEmitter<void>();
 
-  onOk() { this.ok.emit(); }
+  onOk() {
+    //this.ok.emit();
+    if (this.okCallback) {
+      this.okCallback();
+    }
+  }
   onCancel() { this.cancel.emit(); }
 }

@@ -32,12 +32,8 @@ export class ToasterComponent implements AfterViewChecked {
     this.toastElems.forEach((elemRef, idx) => {
       const toast = this.toaster.toasts[idx];
       if (toast && !toast.width) {
-        console.log("BEFORE toaster.width ", toast.width);
-      
-        // Use getBoundingClientRect for accurate width
-        toast.width = elemRef.nativeElement.getBoundingClientRect().width - 33;
-
-        console.log("AFTER toaster.width ", toast.width);
+              // Use getBoundingClientRect for accurate width
+        toast.width = elemRef.nativeElement.getBoundingClientRect().width - 33; //  needed to adjust by 33 pixels
       }
     });
   }
