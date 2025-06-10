@@ -25,20 +25,23 @@
 /* Start centered */
 .toast.center {
   left: 50%;
+  right: auto;
   top: 50%;
   transform: translate(-50%, -50%);
 }
 
 /* Slide horizontally to right edge */
 .toast.slideRight {
-  left: calc(100vw - 32px);
+  right: 32px;
+  left: auto;
   top: 50%;
-  transform: translate(-100%, -50%);
+  transform: translateY(-50%);
 }
 
 /* Then float up to the top */
 .toast.floatTop {
-  left: calc(100vw - 32px);
+  right: 32px;
+  left: auto;
   top: 32px;
-  transform: translate(-100%, 0);
+  transform: none;
 }
