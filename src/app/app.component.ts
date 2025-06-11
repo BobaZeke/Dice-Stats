@@ -194,8 +194,11 @@ export class AppComponent implements OnInit, AfterViewInit {
     const twoHours = secondsPerHour * 2;
     const halfHour = secondsPerHour / 2;
 
-    if (this.gameIsPaused) {  //  game paused for over 2 hours > end game
-      if (this.secondsFromTimeString(this.gameStats.breakDurationDisplay) >= twoHours) {
+    const turnDuration = this.secondsFromTimeString(this.turnDurationDisplay);
+
+    //  if paused and break > 2hrs OR turn > 2hrs
+    if (this.gameIsPaused || turnDuration >= twoHours) {  //  game paused for over 2 hours > end game
+      if (this.secondsFromTimeString(this.gameStats.breakDurationDisplay) >= twoHours || turnDuration >= twoHours) {
         this.warnUser('Game Paused for over 2 hours > ending game @ ' + new Date().toLocaleString());
         this.performEndGame();
       }
@@ -203,9 +206,9 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
 
     //  turn has exceeded 30 minutes > pause game
-    if (this.secondsFromTimeString(this.turnDurationDisplay) >= halfHour) {
+    if (turnDuration >= halfHour) {
         this.warnUser('User turn has lasted over 30 minutes > pausing game @ ' + new Date().toLocaleString());
-      this.pauseGame();
+        this.pauseGame();
     }
   }
 

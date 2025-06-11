@@ -1,8 +1,8 @@
 .toast {
   position: fixed;
   left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  /* We'll set top dynamically for stacking */
+  transform: translate(-50%, 0);
   background: #333;
   color: #fff;
   padding: 1rem 2rem;
@@ -14,34 +14,19 @@
   cursor: pointer;
   pointer-events: auto;
   transition:
-    left 1.2s cubic-bezier(.4,2,.6,1),
     top 0.8s cubic-bezier(.4,2,.6,1),
-    transform 1.2s cubic-bezier(.4,2,.6,1),
     opacity 0.3s;
-  white-space: pre-line; /* Allow line breaks but prevent wrapping unless needed */
-  text-align: center;   /* Optional: center text */
+  white-space: pre-line;
+  text-align: center;
+  box-sizing: border-box;
+  min-width: 220px;
+  max-width: 90vw;
 }
 
-/* Start centered */
+/* Centered stacking */
 .toast.center {
   left: 50%;
   right: auto;
-  top: 50%;
-  transform: translate(-50%, -50%);
-}
-
-/* Slide horizontally to right edge */
-.toast.slideRight {
-  right: 32px;
-  left: auto;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-/* Then float up to the top */
-.toast.floatTop {
-  right: 32px;
-  left: auto;
-  top: 32px;
-  transform: none;
+  /* top will be set dynamically in the template */
+  transform: translate(-50%, 0);
 }
