@@ -34,7 +34,7 @@ fieldset.counter {
   text-align: center;
 }
 
-h2, h4 {
+h2, h3, h4 {
   margin: 10px;
 }
 
@@ -367,7 +367,6 @@ img {
   transform: translate(-50%, -50%);
   color: white;
   padding: 20px;
-  padding-bottom: 50px;
   border-radius: 10px;
   text-align: center;
   z-index: 2100;
@@ -376,9 +375,8 @@ img {
 .help-dialog {
   z-index: 2000;
   overflow-y: hidden;
-  font-size: 1.2em;
   max-height: 90%;
-  width: 50%;
+  width: 70%;
   height: auto;
   color: black;  
   background: linear-gradient(45deg, #af98e4, #98e4c1, #af98e4);
@@ -386,7 +384,7 @@ img {
 
 .help-content {
   overflow-y: auto;
-  height: calc(100vh - 200px);
+  height: calc(100dvh - 200px);
   box-shadow: 4px 4px 4px 0px rgba(100, 70, 70, 0.226);
 }
 
@@ -396,7 +394,6 @@ img {
 
 @media (max-width: 768px) {
   .help-dialog {
-    font-size: 1em;
     width: 90%;
   }
 }

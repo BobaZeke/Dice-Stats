@@ -205,12 +205,12 @@
         Colors
       </button>
 
-      <button (click)="resetSettings(); animateClick($event)" class="gradient-btn reset-button">
-        Reset Settings
-      </button>
-
       <button (click)="showHelpDialog = true; animateClick($event)" class="gradient-btn help-button">
         Help
+      </button>
+
+      <button (click)="resetSettings(); animateClick($event)" class="gradient-btn reset-button">
+        Reset All Settings
       </button>
     </div>
   </div>
@@ -273,32 +273,26 @@
 <div *ngIf="showHelpDialog" class="user-message-popup help-dialog">
   <h2>Welcome to Boba-Zeke's Dice Stats</h2>
   <div class="help-content">
-    <h3>This application tracks dice rolls and calculates various statistics to enhance gameplay of table-top board
-      games.</h3>
-    <h4>It provides the ability to know how often different numbers are rolling and which are trending up or down.</h4>
-    <h4>In addition, you can see the full roll history for more detailed analysis.</h4>
+    <h3>This application tracks dice rolls and calculates various statistics to enhance gameplay of digital or table-top board games.</h3>
+    <h4>Provides the ability to know how frequent different numbers are rolling, including which are trending up or down.  The full roll history is also displayed for more detailed analysis.</h4>
     <div class="help-popup-content">
       <hr>
-      <p>This image shows the controls that are available to you. These controls are shown along the left side of the
-        screen.</p>
+      <p>This image shows the controls that are available to you. These controls are shown along the left side of the screen.</p>
       <img src="assets/images/About_Controls.png" alt="About: Controls"
         style="max-width: 100%; border-radius: 8px; margin: 1em 0;" />
       <hr>
-      <p>This image describes the various elements that make up the 'horizontal bar chart' in the main area of the
-        screen.</p>
+      <p>This image describes the various elements that make up the 'horizontal bar chart' in the main area of the screen.</p>
       <img src="assets/images/About_BarChart.png" alt="About: Bar Chart"
         style="max-width: 100%; border-radius: 8px; margin: 1em 0;" />
       <hr>
-      <p>This image lists the various 'time' stats that the application tracks.</p>
+      <p>This image lists the various stats that the application tracks.</p>
       <img src="assets/images/About_TimeStats.png" alt="About: Time Stats"
         style="max-width: 100%; border-radius: 8px; margin: 1em 0;" />
       <hr>
       <p>Use the 'Colors' button to access color settings.</p>
-      <p>Use the 'Reset All' button to reset all settings to default values.</p>
+      <p>Use the 'Reset All Settings' button to return all settings to their default values.</p>
+      <p>Use the 'Help' button to display this screen :)</p>
       <hr>
-      <p>There are also keyboard interactions.</p>
-      <p>Use CTRL key to toggle to Tournament view.</p>
-      <p>Use Shift key to toggle between percent and count views.</p>
     </div>
   </div>
   <button (click)="showHelpDialog = false; animateClick($event)" class="close-button">Close</button>
@@ -307,19 +301,20 @@
 <!-- color settings info -->
 <div *ngIf="showColorHelp" class="user-message-popup help-dialog">
   <h3>Color Options:</h3>
-  <h4>Change Density : </h4>
-  <p>You select a single color and the color opacity/density changes based on roll popularity.</p>
-  <img src="assets/images/About_Color_Density.png" alt="About: Color: Density" style="max-width: 100%; border-radius: 8px; margin: 1em 0;" />
-  
-  <h4>Change Color : Pick All : </h4>
-  <p>You pick different colors for each of the levels. These colors will be used to depict popularity.</p>
-  <img src="assets/images/About_Color_All.png" alt="About: Color: All" style="max-width: 100%; border-radius: 8px; margin: 1em 0;" />
+  <div class="help-content">
+    <h4>Change Density : </h4>
+    <p>You select a single color and the color opacity/density changes based on roll popularity.</p>
+    <img src="assets/images/About_Color_Density.png" alt="About: Color: Density" style="max-width: 100%; border-radius: 8px; margin: 1em 0;" />
+    
+    <h4>Change Color : Pick All : </h4>
+    <p>You pick different colors for each of the levels. These colors will be used to depict popularity.</p>
+    <img src="assets/images/About_Color_All.png" alt="About: Color: All" style="max-width: 100%; border-radius: 8px; margin: 1em 0;" />
 
-  <h4>Change Color : Pick Ends : </h4>
-  <p>You select the start and end colors, then click 'Map Colors' and the app will determine the color gradients in between so they
-    transition smoothly from the start to the finish color.</p>
-  <img src="assets/images/About_Color_Ends.png" alt="About: Color: Ends" style="max-width: 100%; border-radius: 8px; margin: 1em 0;" />
-  <br/>
+    <h4>Change Color : Pick Ends : </h4>
+    <p>You select the start and end colors, then click 'Map Colors' and the app will determine the color gradients in between so they
+      transition smoothly from the start to the finish color.</p>
+    <img src="assets/images/About_Color_Ends.png" alt="About: Color: Ends" style="max-width: 100%; border-radius: 8px; margin: 1em 0;" />
+  </div>
   <button (click)="closeColorHelp(); animateClick($event)" class="close-button">Close</button>
 </div>
 
