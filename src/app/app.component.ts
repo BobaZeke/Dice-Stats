@@ -494,15 +494,10 @@ export class AppComponent implements OnInit, AfterViewInit {
       this.skipNext = false;
       return;
     }
-    
-    this.showHelpDialog = false;
-    if(this.showColorHelp) this.closeColorHelp();
 
     this.currentRoll = null; //  reset current roll value
 
     if(this.hasNoGameActivity()) return;
-
-    if (this.showColorHelp) this.closeColorHelp();
 
     const diceContainer = this.elRef.nativeElement.querySelector('.dice-container');
     if (diceContainer && !diceContainer.contains(event.target as Node)) {
