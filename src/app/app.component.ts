@@ -66,9 +66,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   public showGameHistory = false;
   public gameHistoryIndex: number = 0;
 
-  /* flag to control the visibility of the dice container (for mobile devices) */
-  public isDiceContainerVisible: boolean = true;
-
   public barParentWidth: number = 1;
   
   public showHelpDialog: boolean = true;
@@ -144,8 +141,6 @@ export class AppComponent implements OnInit, AfterViewInit {
     if (this.settings.colorGradients) this.colorService.colorGradients = this.settings.colorGradients;
     else this.settings.colorGradients = this.colorService.colorGradients;
     
-    if(this.isMobile() && !this.isDiceContainerVisible) this.toggleDiceContainer();
-    
     // Trigger checkLastUserInteration every 15 minutes
     setInterval(() => this.checkLastUserInteration(), 15 * 60 * 1000);
 
@@ -155,6 +150,11 @@ export class AppComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     this.adjustOverlayFontSize();
     this.updateBarParentWidth(); // Measure the parent element after the view is initialized
+    
+     if(this.isMobile() && !this.isDiceContainerVisible()) {
+       this.toggleDiceContainer();
+     }
+    
     this.cdr.detectChanges(); // Trigger change detection manually
   }
 
@@ -167,11 +167,13 @@ export class AppComponent implements OnInit, AfterViewInit {
     });
 
     window.addEventListener('touchend', (e: TouchEvent) => {
+      const diceVisible = this.isDiceContainerVisible();
       const touchEndX = e.changedTouches[0].clientX;
-      this.toaster.show(`Left-Swipe detected > touchStartX = ${touchStartX} > touchEndX = ${touchEndX}`);
       // Detect swipe from left edge (start < 30px, swipe right > 50px)
-      if (touchStartX < 30 && touchEndX - touchStartX > 50 && !this.isDiceContainerVisible) {
-        if (!this.isDiceContainerVisible) this.toggleDiceContainer(); //  open dice container if closed
+      if (touchStartX < 30 && touchEndX - touchStartX > 50) {
+        if (!diceVisible) {
+          this.toggleDiceContainer(); //  open dice container if closed
+        }
       }
     });
   }
@@ -334,7 +336,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     
     this.updateDisplay();
 
-    if (this.isDiceContainerVisible) this.toggleDiceContainer(); //  close dice container if open
+    if (this.isDiceContainerVisible()) this.toggleDiceContainer(); //  close dice container if open
 
     //  after the user clicks a button, the button retains focus.  
     // Then, when they try to enter the next roll, the enter key event is sent to the button, instead of our function
@@ -522,7 +524,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     const diceContainer = this.elRef.nativeElement.querySelector('.dice-container');
     if (diceContainer && !diceContainer.contains(event.target as Node)) {
       // Click was outside dice-container
-      if (this.isDiceContainerVisible) this.toggleDiceContainer(); //  close dice container if open
+      if (this.isDiceContainerVisible()) this.toggleDiceContainer(); //  close dice container if open
     }
   }
 
@@ -642,7 +644,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   public showColorSettingsDialog() {
-    if (this.isDiceContainerVisible) this.toggleDiceContainer();
+    if (this.isDiceContainerVisible()) this.toggleDiceContainer();
     if(!this.gameIsPaused && !this.gameIsStopped) this.pauseGame();
     this.showColorHelp = true;
     this.skipNext = true;
@@ -719,15 +721,22 @@ export class AppComponent implements OnInit, AfterViewInit {
    */
   toggleDiceContainer(): void {
     this.skipNext = true;
-    this.isDiceContainerVisible = !this.isDiceContainerVisible;
+
+    const diceVisible = !this.isDiceContainerVisible();
+
     const diceContainer = document.querySelector('.dice-container');
     if (diceContainer) {
-      if (this.isDiceContainerVisible) {
+      if (diceVisible) {
         diceContainer.classList.add('visible');
       } else {
         diceContainer.classList.remove('visible');
       }
-    }
+    } else this.toaster.show('?! cannot find dice container ?!');
+  }
+
+  isDiceContainerVisible(): boolean {
+    const diceContainer = document.querySelector('.dice-container');
+    return diceContainer ? diceContainer?.classList.contains('visible') : false;
   }
 
   toggleColorPicker(): void {
@@ -898,7 +907,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   storeValues() {
     //  if valid entry, process the selections...
     if ((this.selectedDie > 0)) {
-      if (this.isDiceContainerVisible) this.toggleDiceContainer(); //  close dice container if open
+      if (this.isDiceContainerVisible()) this.toggleDiceContainer(); //  close dice container if open
       this.currentRoll = this.selectedDie;
 
       this.gameStats.rolls[this.currentRoll] = (this.gameStats.rolls[this.currentRoll] || 0) + 1;

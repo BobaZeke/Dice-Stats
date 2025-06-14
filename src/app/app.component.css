@@ -472,6 +472,7 @@ img {
   cursor: pointer;
   display: none;
   transition: background 0.2s;
+  transition: left 0.3s;
 }
 
 .tournament-bar {
