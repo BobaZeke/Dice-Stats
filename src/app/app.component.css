@@ -384,7 +384,7 @@ img {
 
 .help-content {
   overflow-y: auto;
-  height: calc(100dvh - 200px);
+  height: calc(100dvh - 220px);
   box-shadow: 4px 4px 4px 0px rgba(100, 70, 70, 0.226);
 }
 
@@ -462,15 +462,16 @@ img {
 /* Toggle bar to show/hide dice area in mobile view */
 .toggle-bar {
   position: fixed;
-  top: 5px;
-  left: 5px;
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 100vh;
   background-color: #007bff;
-  color: white;
-  padding: 5px;
-  border-radius: 5px;
+  border-radius: 0 8px 8px 0;
+  z-index: 1001;
   cursor: pointer;
-  z-index: 1001;  /* Ensure it appears above other content */
-  display: none;  /* Hide by default */
+  display: none;
+  transition: background 0.2s;
 }
 
 .tournament-bar {

@@ -6,6 +6,8 @@
   {{ currentRoll }}
 </div>
 
+<div class="toggle-bar" (click)="toggleDiceContainer(); animateClick($event)"></div>
+
 <!-- main area -->
 <div class="container">
 
@@ -214,8 +216,6 @@
       </button>
     </div>
   </div>
-
-  <div class="toggle-bar" (click)="toggleDiceContainer(); animateClick($event)">☰</div>
   
   <!-- central display : bar chart display showing how many times each number has been rolled -->
   <div class="bar-container">

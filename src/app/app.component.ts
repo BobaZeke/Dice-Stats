@@ -148,6 +148,19 @@ export class AppComponent implements OnInit, AfterViewInit {
     
     // Trigger checkLastUserInteration every 15 minutes
     setInterval(() => this.checkLastUserInteration(), 15 * 60 * 1000);
+
+    //--  handle swipe from left side of screen : if mobile, show dice   --//
+    let touchStartX = 0;
+    window.addEventListener('touchstart', (e: TouchEvent) => {
+      touchStartX = e.touches[0].clientX;
+    });
+    window.addEventListener('touchend', (e: TouchEvent) => {
+      const touchEndX = e.changedTouches[0].clientX;
+      // Detect swipe from left edge (start < 30px, swipe right > 50px)
+      if (touchStartX < 30 && touchEndX - touchStartX > 50 && !this.isDiceContainerVisible) {
+        if (!this.isDiceContainerVisible) this.toggleDiceContainer(); //  open dice container if closed
+      }
+    });
   }
 
   ngAfterViewInit(): void {
