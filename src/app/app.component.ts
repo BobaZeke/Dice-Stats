@@ -907,7 +907,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   storeValues() {
     //  if valid entry, process the selections...
     if ((this.selectedDie > 0)) {
-      if (this.isDiceContainerVisible()) this.toggleDiceContainer(); //  close dice container if open
       this.currentRoll = this.selectedDie;
 
       this.gameStats.rolls[this.currentRoll] = (this.gameStats.rolls[this.currentRoll] || 0) + 1;
