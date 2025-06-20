@@ -2,7 +2,7 @@
   Tournament<br/>View
 </div>
 
-<div class="current-roll">
+<div *ngIf="!this.isMobile()" class="current-roll">
   {{ currentRoll }}
 </div>
 
@@ -66,14 +66,16 @@
      [class.visible]="!gameIsPaused && !gameIsStopped"
      [class.hidden]="gameIsPaused || gameIsStopped">
       <div class="sub-column">
-        <div *ngFor="let die of diceLeftCol" (click)="selectDiceRoll(die); animateClick($event)" class="dice"
+        <div *ngFor="let die of diceLeftCol" (click)="selectDiceRoll(die); animateClick($event)" 
+          class="dice"
           [class.selected]="selectedDie === die"
           [class.disabled]="showingTournament">
           {{ die }}
         </div>
       </div>
       <div class="sub-column">
-        <div *ngFor="let die of diceRightCol" (click)="selectDiceRoll(die); animateClick($event)" class="dice"
+        <div *ngFor="let die of diceRightCol" (click)="selectDiceRoll(die); animateClick($event)" 
+          class="dice"
           [class.selected]="selectedDie === die"
           [class.disabled]="showingTournament">
           {{ die }}
@@ -215,7 +217,8 @@
     </div>
   </div>
   
-  <div class="toggle-bar" (click)="toggleDiceContainer(); animateClick($event)"></div>
+  <div class="toggle-bar" (click)="toggleDiceContainer();"></div>
+   <!-- animateClick($event) -->
 
   <!-- central display : bar chart display showing how many times each number has been rolled -->
   <div class="bar-container">

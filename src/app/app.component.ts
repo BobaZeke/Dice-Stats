@@ -70,7 +70,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   
   public showHelpDialog: boolean = true;
 
-  public settings: Settings = new Settings(); // Initialize user settings
+  public settings: Settings = new Settings();
 
   @ViewChildren('bar') barElements!: QueryList<ElementRef>;
   @ViewChildren('overlay') overlayElements!: QueryList<ElementRef>;
@@ -152,7 +152,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.updateBarParentWidth(); // Measure the parent element after the view is initialized
     
      if(this.isMobile() && !this.isDiceContainerVisible()) {
-       this.toggleDiceContainer();
+       this.toggleDiceContainer();  //  show dice
      }
     
     this.cdr.detectChanges(); // Trigger change detection manually
@@ -256,7 +256,9 @@ export class AppComponent implements OnInit, AfterViewInit {
   /**
    * Adjust the font size of the overlay so it fits within the bar
    */
-  adjustOverlayFontSize(): void {
+  adjustOverlayFontSize(): void {    
+    if(this.isMobile()) this.rollHistoryFontSize = 3; //  start smaller for mobile
+
     const bar = this.barElements.toArray()[0].nativeElement;
     const overlayElement = this.overlayElements.toArray()[0].nativeElement;
 
@@ -267,7 +269,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     const adjust = () => {
       const overlayHeight = overlayElement.offsetHeight;
       const barHeight = bar.offsetHeight;
-
+      
       // Detect wrapping: if overlay height exceeds bar height
       if (overlayHeight > barHeight + tolerance) {
         if (this.rollHistoryFontSize > 3) {
@@ -920,9 +922,6 @@ export class AppComponent implements OnInit, AfterViewInit {
         else this.soundService.playSoundSuccess();
       }
     } else if (this.settings.playSounds) this.soundService.playSoundFailure();
-
-    //  clear current selections
-    this.selectedDie = 0;
 
     this.updateDisplay();
 

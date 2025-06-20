@@ -128,17 +128,30 @@ img {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #ccc;
+  border: 2px solid #281dbe;
   border-radius: 5px;
-  background-color: #f9f9f9;
-  font-size: 18px;
+  color: rgb(255, 255, 255);
+  background-color: #7f72b9;
+  font-size: 24px;
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
-  box-shadow: 4px 4px 4px 0px rgba(100, 70, 70, 0.226);
-  color: white;
-  background-color: rgb(59, 38, 134);
+  box-shadow: 4px 4px 4px 0px rgba(63, 27, 27, 0.226);
+  text-shadow:
+    -1px -1px 0 black,
+     1px -1px 0 black,
+    -1px  1px 0 black,
+     1px  1px 0 black;
   transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.dice.selected {
+  border: 3px solid #281dbe;
+  box-shadow: 0 0 10px red;
+  border-radius: 8px;
+  transition: border .2s, box-shadow 1s;
+  color: rgb(255, 0, 191);
+  font-size: 40px;
 }
 
 .dice.disabled {
@@ -477,7 +490,7 @@ img {
 
 .tournament-bar {
   position: absolute;
-  top: 2px;
+  top: calc(env(safe-area-inset-top, 0px) + 2px);
   left: 80px;
   height: 5px;
   z-index: 1;  /* Ensure it appears above the blue bar */
