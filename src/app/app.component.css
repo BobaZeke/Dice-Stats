@@ -295,7 +295,7 @@ img {
 
 @media (max-width: 768px), (max-height: 600px) {
   .bar-number, .bar-count, div.bar-count.bar-percent {
-    font-size: clamp(1em, 4vw, 34px) !important;
+    font-size: clamp(1em, min(6vw, 6vh, 34px), 34px) !important;
   }
 }
 
