@@ -268,8 +268,9 @@ img {
   height: calc(100dvh - 20px);
   overflow-y: hidden;
   overflow-x: hidden;
+  gap: 0;
 }
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 600px) {
   .bar-container {
     overflow-y: auto;
   }
@@ -278,7 +279,7 @@ img {
 .bar-box {
   display: flex;
   align-items: center;  /* Align bar-number and bar horizontally */
-  width: calc(100vw - 185px);  /* Ensure bars stretch horizontally */
+  width: calc(100dvw - 185px);  /* Ensure bars stretch horizontally */
   flex-grow: 1;  /* Allow bar-box to grow and fill vertical space proportionally */
   position: relative;  /* For overlay positioning */
   background: white;  /* fixes issue in Safart where overlay is white on white instead of contrasting */
@@ -295,7 +296,7 @@ img {
 
 @media (max-width: 768px), (max-height: 600px) {
   .bar-number, .bar-count, div.bar-count.bar-percent {
-    font-size: clamp(1em, min(6vw, 6vh, 34px), 34px) !important;
+    font-size: clamp(1em, min(6dvw, 6dvh, 34px), 34px) !important;
   }
 }
 
@@ -310,7 +311,7 @@ img {
   top: 2px;
   left: 80px;
   height: auto;  /* Allow height to adjust based on content */
-  width: calc(100vw - 260px);
+  width: calc(100dvw - 260px);
   pointer-events: none;  /* Prevent interaction */
   white-space: normal;  /* Allow text to wrap to the next line */
   word-wrap: break-word;  /* Break long words if necessary */
@@ -324,9 +325,9 @@ img {
   mix-blend-mode: difference;
 }
 
-@media (max-width: 768px) {
+@media (max-height: 350px) {
   .bar-overlay {
-    width: calc(100vw - 100px);
+    width: calc(100dvw - 100px);
   }
 }
 
@@ -416,7 +417,7 @@ img {
   margin: 10px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 600px) {
   .help-dialog {
     width: 90%;
   }
@@ -460,7 +461,7 @@ img {
 }
 
 /* Hide dice-container on smaller screens */
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 600px) {
   .dice-container {
     transform: translateX(-110%);    /* Slide out of view to the left */
     position: fixed;    /* Fix it to the side of the screen */
@@ -479,7 +480,7 @@ img {
   }
 
   .bar-box {
-    width: calc(100vw - 15px);
+    width: calc(100dvw - 15px);
   }
 }
 
@@ -489,7 +490,7 @@ img {
   top: 0;
   left: 0;
   width: 12px;
-  height: 100vh;
+  height: 100dvh;
   background-color: #007bff;
   border-radius: 0 8px 8px 0;
   z-index: 1001;
@@ -559,7 +560,7 @@ img {
   color: #5925b9;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 600px) {
   .toggle-help-text {
     font-size: 1em;
   }
