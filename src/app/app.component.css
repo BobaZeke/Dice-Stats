@@ -311,7 +311,7 @@ img {
   top: 2px;
   left: 80px;
   height: auto;  /* Allow height to adjust based on content */
-  width: calc(100dvw - 260px);
+  width: calc(100vw - 260px);
   pointer-events: none;  /* Prevent interaction */
   white-space: normal;  /* Allow text to wrap to the next line */
   word-wrap: break-word;  /* Break long words if necessary */
@@ -325,9 +325,9 @@ img {
   mix-blend-mode: difference;
 }
 
-@media (max-height: 350px) {
+@media (max-width: 768px), (max-height: 350px) {
   .bar-overlay {
-    width: calc(100dvw - 100px);
+    width: calc(100vw - 100px);
   }
 }
 
