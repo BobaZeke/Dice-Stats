@@ -111,6 +111,13 @@
         <legend>Roll Count:</legend>
         <span class="counter-val">{{rollCount()}}</span>
       </fieldset>
+
+      <fieldset class="counter" *ngIf="!gameIsStopped && !gameIsPaused">
+        <legend>Since Break</legend>
+        <span class="counter-val">
+          {{ betweenBreaksDuration }}
+        </span>
+      </fieldset>
       
       <fieldset class="counter avg-7s-fieldset">
         <legend>Avg # Rolls <br />between 7s:</legend>
@@ -119,13 +126,6 @@
         <br />
         <span class="counter-val-pct">{{getBarPercent(7, 1)}}%</span>
         <span class="counter-avg-pct">(16.67)</span>
-      </fieldset>
-
-      <fieldset class="counter" *ngIf="!gameIsStopped && !gameIsPaused">
-        <legend>Since Break</legend>
-        <span class="counter-val">
-          {{ betweenBreaksDuration }}
-        </span>
       </fieldset>
 
       <fieldset class="counter">

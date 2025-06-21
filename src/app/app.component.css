@@ -269,6 +269,11 @@ img {
   overflow-y: hidden;
   overflow-x: hidden;
 }
+@media (max-width: 768px) {
+  .bar-container {
+    overflow-y: auto;
+  }
+}
 
 .bar-box {
   display: flex;
@@ -286,6 +291,12 @@ img {
   width: 35px;
   text-align: center;
   cursor: default;
+}
+
+@media (max-width: 768px), (max-height: 600px) {
+  .bar-number, .bar-count, div.bar-count.bar-percent {
+    font-size: clamp(1em, 4vw, 34px) !important;
+  }
 }
 
 .bar {

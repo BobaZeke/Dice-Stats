@@ -240,7 +240,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   isMobile(): boolean {
-    return window.innerWidth <= 768; // or your mobile breakpoint
+    return window.innerWidth <= 768 || window.innerHeight <= 600;
   }
   /**
    * Save settings when the user updates them
