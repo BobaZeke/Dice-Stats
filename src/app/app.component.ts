@@ -111,8 +111,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   public dialogTitle = 'Confirm Action';
   public dialogMessage = 'Are you sure you want to proceed?';
   public dialogOkFunction!: () => void;
-
-  public lastActionUndo = false; //  used to prevent closing the dice container when undoing a roll (click outside dice container)
   //#endregion  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   //#region Constructor         //    //    //    //    //    //    //
@@ -524,12 +522,14 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     if(this.hasNoGameActivity()) return;
 
-    if(!this.lastActionUndo) {  //  ignore event after an undo
-      const diceContainer = this.elRef.nativeElement.querySelector('.dice-container');
-      if (diceContainer && !diceContainer.contains(event.target as Node)) {
-        // Click was outside dice-container
-        if (this.isDiceContainerVisible()) this.toggleDiceContainer(); //  close dice container if open
-      }
+    const diceContainer = this.elRef.nativeElement.querySelector('.dice-container');
+    const dialog = this.elRef.nativeElement.querySelector('app-dialog');
+
+    const clickOnDiceContainer = diceContainer && diceContainer.contains(event.target as Node);
+    const clickOnDialog = dialog && dialog.contains(event.target as Node);
+    if (!clickOnDiceContainer && !clickOnDialog) {
+      // Click was outside dice-container
+      if (this.isDiceContainerVisible()) this.toggleDiceContainer(); //  close dice container if open
     }
   }
 
@@ -910,7 +910,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   storeValues() {
     //  if valid entry, process the selections...
     if ((this.selectedDie > 0)) {
-      this.lastActionUndo = false;
       this.currentRoll = this.selectedDie;
 
       this.gameStats.rolls[this.currentRoll] = (this.gameStats.rolls[this.currentRoll] || 0) + 1;
@@ -935,7 +934,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   undoLastRoll() {
-    this.lastActionUndo = true;
     // Add the clicked class for animation
     this.undoButtonClicked = true;
 
