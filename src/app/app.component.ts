@@ -112,6 +112,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   public dialogMessage = 'Are you sure you want to proceed?';
   public dialogOkFunction!: () => void;
 
+  public lastActionUndo = false; //  used to prevent closing the dice container when undoing a roll (click outside dice container)
   //#endregion  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   //#region Constructor         //    //    //    //    //    //    //
@@ -342,7 +343,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     //  after the user clicks a button, the button retains focus.  
     // Then, when they try to enter the next roll, the enter key event is sent to the button, instead of our function
-    this.setDocumentFocus();
+    // this.setDocumentFocus();
   }
 
   /**
@@ -416,7 +417,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       this.timerService.start(this.betweenBreaksTimer);
     }
 
-    this.setDocumentFocus();
+    // this.setDocumentFocus();
   }
 
   public startResumeGame(): void {
@@ -446,7 +447,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
       this.colorService.clearMappedColors();
       
-      this.setDocumentFocus();
+      // this.setDocumentFocus();
     }
 
     //  restart the game timer
@@ -482,10 +483,10 @@ export class AppComponent implements OnInit, AfterViewInit {
   /**
    * set focus to the document so a button does not have the focus, and thus process the enter key (we use for die count entry)
    */
-  setDocumentFocus(): void {
-    const activeElement = document.activeElement as HTMLElement; // Type assertion
-    activeElement?.blur(); // Call blur() safely
-  }
+  // setDocumentFocus(): void {
+  //   const activeElement = document.activeElement as HTMLElement; // Type assertion
+  //   activeElement?.blur(); // Call blur() safely
+  // }
 
   /**
    * track window resize so we can track the bar parent's width
@@ -523,18 +524,18 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     if(this.hasNoGameActivity()) return;
 
-    const diceContainer = this.elRef.nativeElement.querySelector('.dice-container');
-    if (diceContainer && !diceContainer.contains(event.target as Node)) {
-      // Click was outside dice-container
-      if (this.isDiceContainerVisible()) this.toggleDiceContainer(); //  close dice container if open
+    if(!this.lastActionUndo) {  //  ignore event after an undo
+      const diceContainer = this.elRef.nativeElement.querySelector('.dice-container');
+      if (diceContainer && !diceContainer.contains(event.target as Node)) {
+        // Click was outside dice-container
+        if (this.isDiceContainerVisible()) this.toggleDiceContainer(); //  close dice container if open
+      }
     }
   }
 
   // monitor keystrokes (die count input, display toggles, etc.)
   @HostListener('document:keydown', ['$event'])
   handleGlobalKeydown(event: KeyboardEvent): void {
-    //console.log(`key down : '${event.key}'`);
-
     if (event.key == 'Shift' && this.rollCount() > 0) {
       this.toggleDiePercent();
       return;
@@ -724,16 +725,16 @@ export class AppComponent implements OnInit, AfterViewInit {
   toggleDiceContainer(): void {
     this.skipNext = true;
 
-    const diceVisible = !this.isDiceContainerVisible();
+    const diceSectionInvisible = !this.isDiceContainerVisible();
 
     const diceContainer = document.querySelector('.dice-container');
     if (diceContainer) {
-      if (diceVisible) {
+      if (diceSectionInvisible) {
         diceContainer.classList.add('visible');
       } else {
         diceContainer.classList.remove('visible');
       }
-    } else this.toaster.show('?! cannot find dice container ?!');
+    } else this.toaster.show('?! cannot find dice container ?!');    
   }
 
   isDiceContainerVisible(): boolean {
@@ -909,6 +910,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   storeValues() {
     //  if valid entry, process the selections...
     if ((this.selectedDie > 0)) {
+      this.lastActionUndo = false;
       this.currentRoll = this.selectedDie;
 
       this.gameStats.rolls[this.currentRoll] = (this.gameStats.rolls[this.currentRoll] || 0) + 1;
@@ -943,7 +945,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       this.showDialog = true;
     }
 
-    this.setDocumentFocus();
+    // this.setDocumentFocus();
 
     setTimeout(() => {
       this.undoButtonClicked = false;
@@ -951,6 +953,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   performRollUndo() {
+    this.lastActionUndo = true;
     this.showDialog = false;
     const lastRoll = this.gameStats.rollHistory[this.gameStats.rollHistory.length - 1]; // Get the last roll
 
