@@ -935,6 +935,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   undoLastRoll() {
+    this.lastActionUndo = true;
     // Add the clicked class for animation
     this.undoButtonClicked = true;
 
@@ -953,7 +954,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   performRollUndo() {
-    this.lastActionUndo = true;
     this.showDialog = false;
     const lastRoll = this.gameStats.rollHistory[this.gameStats.rollHistory.length - 1]; // Get the last roll
 
