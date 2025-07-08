@@ -24,21 +24,19 @@ import { ToasterComponent } from './toaster/toaster.component';
 export class AppComponent implements OnInit, AfterViewInit {
   //#region Properties           //    //    //    //    //    //    //
 
-  /** number of sides per die */
-  public dice = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-  public diceLeftCol = this.dice.filter((_, i) => i % 2 === 0);
-  public diceRightCol = this.dice.filter((_, i) => i % 2 === 1);
-
   /** possible combinations of 2, 6 sided, dice > 2-12 */
   public numberRange = Array.from({ length: 11 }, (_, i) => i + 2);
-
-  public selectedDie = 0;
+  public diceLeftCol = this.numberRange.filter((_, i) => i % 2 === 0);
+  public diceRightCol = this.numberRange.filter((_, i) => i % 2 === 1);
+  /** currently selected dice roll */
+  public currentDiceRoll = 0;
   /* bars to display how many times a given number was rolled */
   public bars: Array<number> = [];
-
+  /* current game's stats */
   public gameStats: Stats = new Stats();
+  /* tournament's stats (combined stats from all games since page refresh)*/
   public tourneyStats: Stats = new Stats(); 
-
+  /* history of all completed games */
   public gameHistory: Stats[] = [];
 
   /* temp variable for swapping game, tourney, and history display */
@@ -47,7 +45,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   /** toggle between game info and trounrament info */
   public showingTournament = false;
 
-  /** used to ignore the next mouse click */
+  /** used to ignore the next mouse click : shouldn't be necessary, need to review this */
   private skipNext = false;
 
   /* solid square (black square) */
@@ -55,10 +53,8 @@ export class AppComponent implements OnInit, AfterViewInit {
   /* empty square (white square) */
   public rollHistoryMiss = "&#9633;";
 
-  /** pause the game */
   public gameIsPaused = true;
 
-  /** when 'new game' is clicked */
   public gameIsStopped = true;
 
   public currentRoll: number | null = null;
@@ -86,6 +82,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   public showColorHelp = false;
   public showColorSettings = false;
+  
   public colorPickerAll = true;
   public colorType = true;
 
@@ -208,6 +205,9 @@ export class AppComponent implements OnInit, AfterViewInit {
     return this.rollCount() == 0 && this.gameHistory.length == 0;
   }
 
+  /**
+   * determines if the app has been left running for too long and, if so, pauses, then stops the game timers
+   */
   checkLastUserInteration(): void {
     if (this.gameIsStopped) return;
 
@@ -314,7 +314,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     this.gameIsStopped = true;
 
-    this.selectedDie = 0;
+    this.currentDiceRoll = 0;
 
     // stop applicable timers (rest happens @ startResumeGame)
     this.timerService.stop(this.turnTimer);
@@ -493,7 +493,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   @HostListener('window:resize', ['$event'])
   onResize(event: any): void {
     this.updateBarParentWidth();
-    this.adjustOverlayFontSize();
+    //  don't do this on resize : need to fix algorithm     this.adjustOverlayFontSize();
   }
 
   /**
@@ -527,6 +527,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     const clickOnDiceContainer = diceContainer && diceContainer.contains(event.target as Node);
     const clickOnDialog = dialog && dialog.contains(event.target as Node);
+    
     if (!clickOnDiceContainer && !clickOnDialog) {
       // Click was outside dice-container
       if (this.isDiceContainerVisible()) this.toggleDiceContainer(); //  close dice container if open
@@ -556,7 +557,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       return;
     }
     else if (event.key == 'Escape') {
-      this.selectedDie = 0;
+      this.currentDiceRoll = 0;
       this.currentRoll = null; //  reset current roll value
       if (this.settings.playSounds) this.soundService.playSoundEscape();
       return;
@@ -650,7 +651,6 @@ export class AppComponent implements OnInit, AfterViewInit {
     if (this.isDiceContainerVisible()) this.toggleDiceContainer();
     if(!this.gameIsPaused && !this.gameIsStopped) this.pauseGame();
     this.showColorHelp = true;
-    this.skipNext = true;
   }
   public closeColorSettingsDialog() {
     this.showColorSettings = false;
@@ -893,13 +893,12 @@ export class AppComponent implements OnInit, AfterViewInit {
   //#region Dice                  //    //    //    //    //    //    //
 
   /**
-   * A Die has been selected
-   * @param die 
+   * A Dice roll has been selected
+   * @param diceRoll 
    */
-  selectDiceRoll(die: number) {  //  column: number, 
+  selectDiceRoll(diceRoll: number) {
     if (this.settings.playSounds) this.soundService.playSoundNumberSelect();
-    this.skipNext = true; //  skip the next click event (to prevent closing the dice container)
-    this.selectedDie = die;
+    this.currentDiceRoll = diceRoll;
 
     this.storeValues();
   }
@@ -909,8 +908,8 @@ export class AppComponent implements OnInit, AfterViewInit {
    */
   storeValues() {
     //  if valid entry, process the selections...
-    if ((this.selectedDie > 0)) {
-      this.currentRoll = this.selectedDie;
+    if ((this.currentDiceRoll > 0)) {
+      this.currentRoll = this.currentDiceRoll;
 
       this.gameStats.rolls[this.currentRoll] = (this.gameStats.rolls[this.currentRoll] || 0) + 1;
       this.tourneyStats.rolls[this.currentRoll] = (this.tourneyStats.rolls[this.currentRoll] || 0) + 1;
