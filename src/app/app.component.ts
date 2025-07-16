@@ -936,13 +936,13 @@ export class AppComponent implements OnInit, AfterViewInit {
     // Add the clicked class for animation
     this.undoButtonClicked = true;
 
-    // if (this.gameStats.rollHistory.length > 0) {
+    if (this.gameStats.rollHistory.length > 0) {
     //   this.dialogTitle = "Undo Last Roll?";
     //   this.dialogMessage = 'Are you sure you want to undo the last roll?';
     //   this.dialogOkFunction = () => this.performRollUndo();
     //   this.showDialog = true;
-    // }
-    this.performRollUndo();
+      this.performRollUndo();
+    }
     
 
     setTimeout(() => {
