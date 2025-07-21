@@ -1,4 +1,4 @@
-import { Component, AfterViewChecked, ElementRef, ViewChildren, QueryList } from '@angular/core';
+import { Component, AfterViewChecked, ElementRef, ViewChildren, QueryList, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ToasterService } from '../services/toaster.service';
 
@@ -21,7 +21,8 @@ import { ToasterService } from '../services/toaster.service';
 
 export class ToasterComponent implements AfterViewChecked {
   @ViewChildren('toastElem', { read: ElementRef }) toastElems!: QueryList<ElementRef>;
-  constructor(public toaster: ToasterService) { }
+
+  constructor(public toaster: ToasterService, private cdr: ChangeDetectorRef) { }
 
   ngAfterViewChecked() {
     // For each toast, if width is not set, measure and set it
@@ -30,6 +31,7 @@ export class ToasterComponent implements AfterViewChecked {
       if (toast && !toast.width) {
         // Use getBoundingClientRect for accurate width
         toast.width = elemRef.nativeElement.getBoundingClientRect().width;
+        this.cdr.detectChanges();
       }
     });
   }

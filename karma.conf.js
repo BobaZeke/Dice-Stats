@@ -1,13 +1,16 @@
 // Karma configuration file, see link for more information
 // https://karma-runner.github.io/1.0/config/configuration-file.html
 
+process.env.EDGE_BIN = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
+
 module.exports = function (config) {
   config.set({
     basePath: '',
+    autoWatch: false, //  prevents Karma from watching files and re-running tests.
+    singleRun: true,  //  tells Karma to run tests once and exit.
     frameworks: ['jasmine', '@angular-devkit/build-angular'],
     plugins: [
       require('karma-jasmine'),
-      require('karma-edge-launcher'),
       require('karma-chrome-launcher'),
       require('karma-jasmine-html-reporter'),
       require('karma-coverage'),
@@ -33,7 +36,7 @@ module.exports = function (config) {
       ]
     },
     reporters: ['progress', 'kjhtml'],
-    browsers: ['Edge'],
+    browsers: ['Chrome'],
     restartOnFileChange: true
   });
 };

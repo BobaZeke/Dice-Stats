@@ -937,6 +937,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.undoButtonClicked = true;
 
     if (this.gameStats.rollHistory.length > 0) {
+    //  SKIP the confirm prompt (user can simply reselet the roll if they made a mistake))
     //   this.dialogTitle = "Undo Last Roll?";
     //   this.dialogMessage = 'Are you sure you want to undo the last roll?';
     //   this.dialogOkFunction = () => this.performRollUndo();
